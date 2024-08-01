@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'mainPage/css/registration.css' %}" media="screen">
+{% endblock %}
+
+{% block content%}
+<div class="u-container-layout u-container-layout-2">
+                <div class="u-expanded-width u-form u-form-1">
+                  <form method="post" name="form" style="padding: 10px;">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                      <div class="col-md">
+                        <div class="form-floating">
+                          {{form.username }}
+                          <label for="{{ form.username.id_for_label }}">{{form.username.label}}</label>
+                            <div class="form-error">{{form.username.errors}}</div>
+                        </div>
+                      </div>
+                        <div class="col-md">
+                        <div class="form-floating">
+                          {{form.first_name }}
+                          <label for="{{ form.first_name.id_for_label }}">{{form.first_name.label}}</label>
+                            <div class="form-error">{{form.first_name.errors}}</div>
+                        </div>
+                      </div>
+                       <div class="col-md">
+                        <div class="form-floating">
+                          {{form.last_name }}
+                          <label for="{{ form.last_name.id_for_label }}">{{form.last_name.label}}</label>
+                            <div class="form-error">{{form.last_name.errors}}</div>
+                        </div>
+                      </div>
+                    </div>
+                      <br>
+                    <div class="row g-2">
+                      <div class="col-md">
+                        <div class="form-floating">
+                          {{form.email }}
+                          <label for="{{ form.email.id_for_label }}">{{form.email.label}}</label>
+                            <div class="form-error">{{form.email.errors}}</div>
+                        </div>
+                      </div>
+                       <div class="col-md">
+                        <div class="form-floating">
+                          {{form.role }}
+                          <label for="{{ form.role.id_for_label }}">{{form.role.label}}</label>
+                            <div class="form-error">{{form.role.errors}}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                        <br>
+                      <div class="row g-2">
+                      <div class="col-md">
+                        <div class="form-floating">
+                          {{form.password1 }}
+                          <label for="{{ form.password1.id_for_label }}">{{form.password1.label}}</label>
+                            <div class="form-error">{{form.password1.errors}}</div>
+                        </div>
+                      </div>
+                       <div class="col-md">
+                        <div class="form-floating">
+                          {{form.password2 }}
+                          <label for="{{ form.password2.id_for_label }}">{{form.password2.label}}</label>
+                            <div class="form-error">{{form.password2.errors}}</div>
+                        </div>
+                      </div>
+                    </div>
+                      <div class="col-md">
+                        <div class="form-group">
+                            <p class="text-start" style="font-family: Georgia,serif" >{{ form.birth.label_tag }}
+                            {{form.birth }}</p>
+                            <div class="form-error">{{form.birth.errors}}</div>
+                        </div>
+
+
+                    <button type="submit" class="btn btn-primary">
+                      Зарегистрироваться
+                    </button>
+
+
+                  </form>
+                </div>
+
+              </div>
+{% endblock %}

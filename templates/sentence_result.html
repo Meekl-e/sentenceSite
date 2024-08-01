@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'mainPage/css/sentence_result.css' %}" media="screen">
+{% endblock %}
+
+{% block content%}
+<div class="u-container-style u-layout-cell u-size-25 u-layout-cell-2">
+              <div class="u-container-layout u-container-layout-3">
+                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Ваш разбор предложения</h3>
+                  <div align="right">{{ pars_result|safe }}</div>
+                <a href="#" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-7">Не Нравится 👎 </a>
+                <a href="#" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-8">в избранное </a>
+                <a href="#" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Нравится 👍 </a>
+              </div>
+</div>
+<div class="u-container-style u-layout-cell u-size-23 u-layout-cell-3">
+              <div class="u-container-layout u-container-layout-4">
+                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-5">Разобрать предложение</h3>
+                <div class="u-expanded-width u-form u-form-2">
+                   <form action="/check_sentence/" method="POST">
+                    {% csrf_token %}
+                    {{ sentence_form }}
+                    <br>
+                    <div class="u-align-right u-form-group u-form-submit u-label-none">
+                      <input type="submit" value="Разобрать предложение" class="btn btn-primary">
+                    </div>
+                  </form>
+                </div>
+              </div>
+</div>
+{% endblock %}
