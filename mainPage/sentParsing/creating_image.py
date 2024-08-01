@@ -73,13 +73,11 @@ def __create_coordinates(image,ctx, WIDTH_WORDS,mutable_message, adding):
     full_idx  =0
     lst_split = mutable_message.split(SEPARATOR)
     for i, line in enumerate(lst_split):
-
         for idx, word in enumerate(line.split()):
-
             end_x, end_y = WIDTH_WORDS[full_idx]
             if i != 0:
-                all_y = eval_metrics(SEPARATOR.join(lst_split[:i]))[1] + adding + end_y
 
+                all_y = eval_metrics(SEPARATOR.join(lst_split[:i]))[1] + adding + end_y
             else:
                 all_y = adding
 
@@ -91,11 +89,33 @@ def __create_coordinates(image,ctx, WIDTH_WORDS,mutable_message, adding):
             end_x += start_x
 
 
-            coordinates.append((start_x + 5, end_x, all_y))
+            coordinates.append((start_x, end_x, all_y))
             full_idx+=1
 
 
     return coordinates
+
+def draw_question(id_from, id_to, coordinates,WIDTH_WORDS,ctx=Drawing(), y_used={} ):
+    start_x1, end_x1, y1 = coordinates[id_from]
+
+    start_x2, end_x2, y2 = coordinates[id_to]
+    if y1 == y2:
+        if y_used.get(y1) is None:
+            y_used[y1] = [(start_x1, end_x2)]
+        else:
+            minus = sum([3 for x1,x2 in y_used[y1] if start_x1<x1 < end_x2 or start_x1<x2 < end_x2 ])
+            y_used[y1].append((start_x1, end_x2))
+            y1-=minus
+        x1 = (start_x1+end_x1)//2
+        x2 = (start_x2+end_x2)//2
+        y1 -= WIDTH_WORDS[id_from][1]
+        ctx.line((x1, y1), (x1,y1-10))
+        ctx.line((x1, y1-10), (x2,y1-10))
+        ctx.line((x2, y1), (x2,y1-10))
+        ctx.line((x2, y1), (x2+7,y1-7))
+        ctx.line((x2, y1), (x2-7,y1-7))
+        return y_used
+
 
 
 def draw_line(ctx, x_start, x_end, y, type="none"):
@@ -105,22 +125,21 @@ def draw_line(ctx, x_start, x_end, y, type="none"):
         ctx.line((x_start, y), (x_end, y))
         ctx.line((x_start, y + 5), (x_end, y + 5))
     if type == "dotted_line":
-
-        for i in range(x_start, x_end, 20):
-            ctx.line((i, y), (i + 10, y))
+        for i in range(x_start, x_end-1, 10):
+            ctx.line((i, y), (i + 5, y))
     if type == "dotted_circle_line":
 
-        for i in range(x_start, x_end, 20):
-            ctx.line((i, y), (i + 10, y))
+        for i in range(x_start, x_end-1, 12):
+            ctx.line((i, y), (i + 6, y))
 
-            ctx.point(i + 15, y)
+            ctx.circle((i +9, y), (i+9+1, y+1))
 
 
 def draw(width, height, sentence, lined):
-    with Image(width=width, height=height) as img:
+    with Image(width=width, height=height, background=Color("WHITE")) as img:
         with Drawing() as ctx:
-            ctx.fill_color = Color('WHITE')
-            ctx.font_family = 'Times New Roman'
+            ctx.fill_color = Color('BLACK')
+            ctx.font_family = 'Georgia'
             ctx.font_size = 25
             ADDING = 50
             WIDTH_WORDS = __calculate_width(img, ctx, sentence.split())
@@ -135,6 +154,11 @@ def draw(width, height, sentence, lined):
                 type = lined[idx]
                 start_x, end_x, y = coordinates[idx]
                 draw_line(ctx, start_x, end_x, y, type)
+            y_used = draw_question(0, 1, coordinates, WIDTH_WORDS, ctx)
+            y_used = draw_question(4, 6, coordinates, WIDTH_WORDS, ctx, y_used)
+            y_used = draw_question(3, 8, coordinates, WIDTH_WORDS, ctx, y_used)
+            y_used = draw_question(2, 7, coordinates, WIDTH_WORDS, ctx, y_used)
+
             ctx.draw(img)
 
             img.save(filename='image.png')
@@ -146,7 +170,7 @@ count_words = len(sentence.split())
 print(count_words)
 seconds = datetime.datetime.now()
 print(seconds)
-lines = ["double_line"]*count_words
+lines =["double_line"]+ ["line"]*count_words
 
 draw(1000, 1000,
      sentence, lined=lines)
@@ -155,4 +179,4 @@ secodns_end = datetime.datetime.now()
 t = secodns_end - seconds
 print("======================")
 print("Время выполнения:",t.seconds//60,"минут",t.seconds%60, "секунд" )
-print("Скорость",round(count_words/t.seconds, 3), "слов в секунду")
+print("Скорость",round(count_words/(t.seconds+0.000000000000000000001), 3), "слов в секунду")
