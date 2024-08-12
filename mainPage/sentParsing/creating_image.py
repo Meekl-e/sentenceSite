@@ -95,26 +95,54 @@ def __create_coordinates(image,ctx, WIDTH_WORDS,mutable_message, adding):
 
     return coordinates
 
-def draw_question(id_from, id_to, coordinates,WIDTH_WORDS,ctx=Drawing(), y_used={} ):
+def draw_question(id_from, id_to, coordinates,WIDTH_WORDS,ctx=Drawing(),  width=0,y_used={},):
+    """Cjздает связи для слов """
     start_x1, end_x1, y1 = coordinates[id_from]
 
     start_x2, end_x2, y2 = coordinates[id_to]
+
+    y1 -= WIDTH_WORDS[id_from][1]
+    y2 -= WIDTH_WORDS[id_to][1]
+
+    x1 = (start_x1 + end_x1) // 2
+    x2 = (start_x2 + end_x2) // 2
     if y1 == y2:
+
         if y_used.get(y1) is None:
             y_used[y1] = [(start_x1, end_x2)]
         else:
             minus = sum([3 for x1,x2 in y_used[y1] if start_x1<x1 < end_x2 or start_x1<x2 < end_x2 ])
             y_used[y1].append((start_x1, end_x2))
             y1-=minus
-        x1 = (start_x1+end_x1)//2
-        x2 = (start_x2+end_x2)//2
-        y1 -= WIDTH_WORDS[id_from][1]
+
+
         ctx.line((x1, y1), (x1,y1-10))
         ctx.line((x1, y1-10), (x2,y1-10))
         ctx.line((x2, y1), (x2,y1-10))
         ctx.line((x2, y1), (x2+7,y1-7))
         ctx.line((x2, y1), (x2-7,y1-7))
-        return y_used
+    if y1 < y2:
+        ctx.line((x1, y1), (x1, y1 - 10))
+        ctx.line((x1, y1 - 10), (width, y1 - 10))
+        for i in range(y2-10-(WIDTH_WORDS[0][1]*2), y1-10+(WIDTH_WORDS[0][1]*2), -(WIDTH_WORDS[0][1])):
+            ctx.line((width, i), (0, i))
+
+        ctx.line((0, y2-10), (x2, y2 - 10))
+        ctx.line((x2, y2), (x2, y2 - 10))
+        ctx.line((x2, y2), (x2 + 7, y2 - 7))
+        ctx.line((x2, y2), (x2 - 7, y2 - 7))
+    if y1 > y2:
+        ctx.line((x1, y1), (x1, y1 - 10))
+        ctx.line((0, y1 - 10), (x1, y1 - 10))
+        for i in range(y1 - 10 - (WIDTH_WORDS[0][1] * 2), y2 - 10 + (WIDTH_WORDS[0][1] * 2), -(WIDTH_WORDS[0][1])):
+            ctx.line((width, i), (0, i))
+
+        ctx.line((width, y2 - 10), (x2, y2 - 10))
+        ctx.line((x2, y2), (x2, y2 - 10))
+        ctx.line((x2, y2), (x2 + 7, y2 - 7))
+        ctx.line((x2, y2), (x2 - 7, y2 - 7))
+
+    return y_used
 
 
 
@@ -135,7 +163,7 @@ def draw_line(ctx, x_start, x_end, y, type="none"):
             ctx.circle((i +9, y), (i+9+1, y+1))
 
 
-def draw(width, height, sentence, lined):
+def draw(width, height, sentence, lined, question_list):
     with Image(width=width, height=height, background=Color("WHITE")) as img:
         with Drawing() as ctx:
             ctx.fill_color = Color('BLACK')
@@ -154,10 +182,10 @@ def draw(width, height, sentence, lined):
                 type = lined[idx]
                 start_x, end_x, y = coordinates[idx]
                 draw_line(ctx, start_x, end_x, y, type)
-            y_used = draw_question(0, 1, coordinates, WIDTH_WORDS, ctx)
-            y_used = draw_question(4, 6, coordinates, WIDTH_WORDS, ctx, y_used)
-            y_used = draw_question(3, 8, coordinates, WIDTH_WORDS, ctx, y_used)
-            y_used = draw_question(2, 7, coordinates, WIDTH_WORDS, ctx, y_used)
+            y_used = {}
+            for id_from, id_to in question_list:
+                y_used = draw_question(id_from, id_to, coordinates, WIDTH_WORDS, ctx, width, y_used)
+
 
             ctx.draw(img)
 
@@ -171,9 +199,10 @@ print(count_words)
 seconds = datetime.datetime.now()
 print(seconds)
 lines =["double_line"]+ ["line"]*count_words
+question_list = [(8,7), ]
 
 draw(1000, 1000,
-     sentence, lined=lines)
+     sentence, lines, question_list)
 secodns_end = datetime.datetime.now()
 
 t = secodns_end - seconds
