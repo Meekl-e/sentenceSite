@@ -1,11 +1,10 @@
-from django.urls import reverse_lazy
-from django.views.generic import TemplateView, FormView, ListView
-from mainPage.sentParsing.parser import parsing
+from django.views.generic import *#TemplateView, FormView, ListView
 
-from .forms import NameForm
-from .models import Sentence
+from analysSentenceLogic.forms import NameForm
+from analysSentenceLogic.models import Sentence
 from utils import BaseMixin
-from .model_changer import create_sentence
+
+
 # Create your views here.
 
 class homePage(BaseMixin, ListView):
@@ -17,7 +16,7 @@ class homePage(BaseMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        return self.get_mixin_context(context,sentence_form=NameForm )
+        return self.get_mixin_context(context )
 
 
 
@@ -48,22 +47,6 @@ class teacherPage(BaseMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         return self.get_mixin_context(context)
-
-
-class checkSentencePage(BaseMixin, FormView):
-    template_name = "sentence_result.html"
-    form_class = NameForm
-
-    def form_valid(self, form):
-        data = super().get_mixin_context(super().get_context_data(sentence_form=NameForm))
-        data["pars_result"], pars = parsing(form.cleaned_data["text"])
-        create_sentence(pars)
-        return self.render_to_response(context=data)
-
-    def get_context_data(self, **kwargs):
-
-        return reverse_lazy("home")
-
 
 
 

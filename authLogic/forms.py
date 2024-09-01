@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-from authLogic.models import CorrectUser
+from userLogic.models import CorrectUser
 
 
 class RegisterFrom(UserCreationForm):

@@ -14,11 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
 from mainPage.views import *
 from authLogic.views import *
+from userLogic.views import *
+from analysSentenceLogic.views import *
+from changeSentenceLogic.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,4 +35,16 @@ urlpatterns = [
     path('login/', loginPage.as_view(), name='login'),
     path('logout/', logout_user, name='logout'),
     path('check_sentence/', checkSentencePage.as_view(), name='check_sentence'),
+    path('sentence/<int:pk>/', SentencePage.as_view(), name='sentence'),
+    path('like/<int:pk>/', addLike, name='like'),
+    path('dislike/<int:pk>/', addDisLike, name='dislike'),
+    path('favourite/<int:pk>/', addFavourite, name='favourite'),
+    path('sentence/<int:pk>/change/', ChangeSentence.as_view(), name='change_sentence'),
+    path('sentence/<int:pk>/change/save/', SaveSentence.as_view(), name='save_sentence'),
+    path('sentence/<int:pk>/change/remove/', remove_sentence, name='remove_relation'),
+
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

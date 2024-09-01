@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'sentence/css/sentence_result.css' %}" media="screen">
+{% endblock %}
+
+{% block content%}
+<div class="u-container-style u-layout-cell u-size-25 u-layout-cell-2">
+            {% if pars_result %}
+              <div class="u-container-layout u-container-layout-3">
+                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Ваш разбор предложения</h3>
+                  <a href="{{ pars_result }}"><img src="{{ pars_result }}" alt=""/></a>
+                  {% if request.user.is_authenticated %}
+
+                      <table>
+                      <tr>
+                      <td>
+                      <form method="post" action="{% url 'dislike' sent_id %}">
+                      {% csrf_token %}
+                          {% if not disliked %}
+                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-7">Не Нравится 👎 </button>
+                          {% else %}
+                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-7 " style="background-color: black">Не Нравится </button>
+                          {% endif %}
+                      </form>
+                      </td>
+
+                        <td>
+                      <form method="post" action="{% url 'favourite' sent_id %}">
+                      {% csrf_token %}
+                          {% if not in_fav %}
+                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-8">В избранное </button>
+                          {% else %}
+                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-8 " style="background-color: black">В избранном </button>
+                          {% endif %}
+                      </form>
+                        </td>
+
+                        <td>
+                      <form method="post" action="{% url 'like' sent_id %}">
+                      {% csrf_token %}
+                          {% if not liked %}
+                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Нравится 👍 </button>
+                          {% else %}
+                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-9 " style="background-color: black">Нравится </button>
+                          {% endif %}
+                      </form>
+                      </td>
+                      <td>
+                          <a href="{% url 'change_sentence' sent_id %}">
+                              <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Изменить</button>
+                          </a>
+                      </td>
+                      </tr>
+                      </table>
+
+                  {% else %}
+                      <table>
+                      <tr>
+                          <td>
+                            <button  class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia  u-radius u-btn-7">🔒 Не Нравится 👎 </button>
+                          </td>
+                          <td>
+                            <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-8">🔒 в избранное </button>
+                          </td>
+                          <td>
+                            <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-9">🔒 Нравится 👍 </button>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>
+                            <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-9">🔒 Изменить </button>
+                          </td>
+                      </tr>
+                      </table>
+                {% endif %}
+
+              </div>
+
+{% endif %}
+</div>
+
+<div class="u-container-style u-layout-cell u-size-23 u-layout-cell-3">
+              <div class="u-container-layout u-container-layout-4">
+                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-5">Разобрать предложение</h3>
+                <div class="u-expanded-width u-form u-form-2">
+                   <form action="/check_sentence/" method="POST">
+                    {% csrf_token %}
+                    {{ sentence_form }}
+                    <br>
+                    <div class="u-align-right u-form-group u-form-submit u-label-none">
+                      <input type="submit" value="Разобрать предложение" class="btn btn-primary">
+                    </div>
+                  </form>
+                </div>
+              </div>
+</div>
+{% endblock %}
