@@ -34,7 +34,7 @@ def create_sentence(sentence=SentenceDefault, type="Spacy"):
         sent = Sentence.objects.create(
             len=len(sentence),
             text=str(sentence),
-            image=sentence.url
+            #image=sentence.url
         )
 
 
@@ -47,6 +47,7 @@ def create_sentence(sentence=SentenceDefault, type="Spacy"):
                 line=token.line,
                 id_in_sentence=token.id,
             )
+            print(tokenModel.id)
             sent.tokens.add(tokenModel)
 
         for id_from, id_to, question in sentence.question_list:

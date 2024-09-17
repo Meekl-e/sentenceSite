@@ -55,7 +55,8 @@ class TokenDefault:
         self.id = id
         self.children = children
         self.line = line
-        self.pos = pos
+        self.pos = translate_pos(pos)
+        self.type = None
 
     def __len__(self):
         return len(self.text)
@@ -95,7 +96,7 @@ def translate_to_question(dep):
     return question_map.get(dep, " ")
 
 
-def translate_dep(dep):
+def translate_dep_to_line(dep):
     dep = dep.lower()
     dep_map = {
         "root": "double_line",
@@ -116,6 +117,28 @@ def translate_dep(dep):
 
     return dep_map.get(dep, "none")
 
+def translate_pos(pos):
+    pos = pos.upper()
+    pos_map = {
+        "ADJ": "Прилагательное",
+        "ADP": "Предлог",
+        "ADV": "Наречие",
+        "AUX": "Глагол-связка",
+        "CCONJ": 'Сочинительный союз',
+        "DET": "Артикль",
+        "INTJ": "Междометие",
+        "NOUN": 'Существительное',
+        "NUM": "Числительное",
+        "PART": "Частица",
+        "PRON": "Местоимение",
+        "PROPN": "Имя собственное",
+        "PUNCT": "",
+        "SCONJ": "Подчинительный союз",
+        "SYM": "Символ",
+        "VERB": "Глагол",
+        "X": "..."
+    }
+    return pos_map.get(pos, " ")
 
 def clear_text(text=str()):
     text = re.sub(pattern=r" {2,}", repl=" ", string=text)
@@ -163,7 +186,7 @@ def analysis_spacy(text):
                 adding = True
         else:
             tokens_map[token.i] = token.i - minus
-            tokens.append(TokenDefault(token.text, tokens_map[token.i],translate_dep(token.dep_),
+            tokens.append(TokenDefault(token.text, tokens_map[token.i], translate_dep_to_line(token.dep_),
                                        token.pos_, token.children))
 
 
@@ -196,7 +219,7 @@ def analysis_natasha(text):
         print([token])
         tokens.append(TokenDefault(token.text,
                                    id,
-                                   translate_dep(token.rel),
+                                   translate_dep_to_line(token.rel),
                                    token.pos))
 
         if head_id == -1:
@@ -231,7 +254,7 @@ def analysis_UDPipe(text):
 
 
         tokens.append(TokenDefault(
-            text,id, translate_dep(dep),pos
+            text,id, translate_dep_to_line(dep),pos
         ))
         if head_id != 0:
             question = translate_to_question(dep)
@@ -242,19 +265,6 @@ def analysis_UDPipe(text):
     print(question_list, tokens, "UDPipe")
     return  tokens, question_list
 
-
-def draw_res(tokens, question_list):
-    parameters = creating_image.getDefaultParametrs()
-
-    texts = []
-    lined = []
-
-
-    for token in tokens:
-        texts.append(token.text)
-        lined.append(token.line)
-    parameters["name"] = "_".join(texts)
-    return creating_image.draw(texts, lined, question_list, parameters)
 
 def parsing(text=""):
     """Подавать только очищенный текст"""
@@ -279,12 +289,15 @@ def parsing(text=""):
         print(natasha_res[0], "natahsa")
         print(udpipe_res[0], "udpipe_res")
 
-
+    """
     lst_ress = []
     for tokens, questions in [spacy_res, udpipe_res,natasha_res]:
         lst_ress.append(SentenceDefault(text, questions, tokens,
                            draw_res(tokens, questions)))
     return lst_ress
+    """
+    return SentenceDefault(text, udpipe_res[1], udpipe_res[0],
+                           None)
 
 
 

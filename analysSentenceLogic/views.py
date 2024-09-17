@@ -6,8 +6,10 @@ from django.views.generic import FormView
 from analysSentenceLogic.forms import NameForm
 from analysSentenceLogic.model_changer import create_sentence
 from analysSentenceLogic.models import Sentence
-from analysSentenceLogic.sentParsing.parser import parsing, clear_text
+from analysSentenceLogic.sentParsing.parser import parsing, clear_text, TokenDefault
 from utils import BaseMixin
+import asyncio
+
 
 
 class checkSentencePage(FormView):
@@ -23,12 +25,11 @@ class checkSentencePage(FormView):
             candidate[0].save()
             return HttpResponseRedirect(reverse("sentence", kwargs={"pk":candidate[0].id}))
         print("PARSING...")
-        pars = parsing(text)
-        for p in pars:
-            id_s = create_sentence(p)
-            print(id_s)
+        create_sentence(parsing(text))
 
-        return HttpResponseRedirect(reverse("sentence", kwargs={"pk":id_s}))
+
+
+        return HttpResponseRedirect(reverse("sentence", kwargs={"pk":id}))
     def get(self, request,**kwargs):
         return redirect("home")
 
@@ -51,7 +52,8 @@ class SentencePage(BaseMixin, FormView):
         if sentence.count() == 0:
             return redirect("home")
         sentence = sentence[0]
-        data["pars_result"] = sentence.image
+        print(type(sentence.tokens))
+        data["pars_result"] =  sentence.tokens.all()
         data["sent_id"] = sentence.id
         data["liked"] = sentence.likes.filter(id=self.request.user.id).count() > 0
         data["disliked"] = sentence.dislikes.filter(id=self.request.user.id).count() > 0

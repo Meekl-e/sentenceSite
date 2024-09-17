@@ -186,6 +186,28 @@
 
 }
 
+.line {
+  border-bottom: 3px solid black;
+}
+.double_line {
+  border-bottom: 6px double black;
+}
+.wavy_line {
+  background: url(http://localhost:8000/media/lines/wavy_line.png) bottom repeat-x;
+  position:relative;
+  display: inline-block;
+}
+.dotted_line {
+    border-bottom: 3px dashed black;
+
+}
+.dotted_circle_line
+{
+  background: url(http://localhost:8000/media/lines/dotted_circle_line.png) bottom repeat-x;
+  position:relative;
+  display: inline-block;
+}
+
 @media (max-width: 1199px) {
    .u-section-1 {
     min-height: 495px;

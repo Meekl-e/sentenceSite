@@ -10,12 +10,18 @@
             {% if pars_result %}
               <div class="u-container-layout u-container-layout-3">
                 <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Ваш разбор предложения</h3>
-                  <a href="{{ pars_result }}"><img src="{{ pars_result }}" alt=""/></a>
+                 <!-- <a href="{{ pars_result }}"><img src="{{ pars_result }}" alt=""/></a> -->
+              {% for token in pars_result %}
+                  <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
+                  <a style="font-size: x-small">{{ token.pos }}</a>
+                      <br>
+                  <a class="{{ token.line }}">{{ token.text }}</a>
+                  </label>
+              {% endfor %}
+              <br>
                   {% if request.user.is_authenticated %}
 
-                      <table>
-                      <tr>
-                      <td>
+                      <label>
                       <form method="post" action="{% url 'dislike' sent_id %}">
                       {% csrf_token %}
                           {% if not disliked %}
@@ -24,9 +30,9 @@
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-7 " style="background-color: black">Не Нравится </button>
                           {% endif %}
                       </form>
-                      </td>
+                      </label>
 
-                        <td>
+                        <label>
                       <form method="post" action="{% url 'favourite' sent_id %}">
                       {% csrf_token %}
                           {% if not in_fav %}
@@ -35,9 +41,9 @@
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-8 " style="background-color: black">В избранном </button>
                           {% endif %}
                       </form>
-                        </td>
+                        </label>
 
-                        <td>
+                        <label>
                       <form method="post" action="{% url 'like' sent_id %}">
                       {% csrf_token %}
                           {% if not liked %}
@@ -46,34 +52,33 @@
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-9 " style="background-color: black">Нравится </button>
                           {% endif %}
                       </form>
-                      </td>
-                      <td>
+                      </label>
+                      <label>
                           <a href="{% url 'change_sentence' sent_id %}">
                               <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Изменить</button>
                           </a>
-                      </td>
-                      </tr>
-                      </table>
+                      </label>
+
 
                   {% else %}
-                      <table>
-                      <tr>
-                          <td>
+
+
+                          <label>
                             <button  class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia  u-radius u-btn-7">🔒 Не Нравится 👎 </button>
-                          </td>
-                          <td>
+                          </label>
+                          <label>
                             <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-8">🔒 в избранное </button>
-                          </td>
-                          <td>
+                          </label>
+                          <label>
                             <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-9">🔒 Нравится 👍 </button>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td>
+                          </label>
+
+
+                          <label>
                             <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-9">🔒 Изменить </button>
-                          </td>
-                      </tr>
-                      </table>
+                          </label>
+
+
                 {% endif %}
 
               </div>
