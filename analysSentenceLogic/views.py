@@ -1,3 +1,5 @@
+import random
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -6,10 +8,10 @@ from django.views.generic import FormView
 from analysSentenceLogic.forms import NameForm
 from analysSentenceLogic.model_changer import create_sentence
 from analysSentenceLogic.models import Sentence
-from analysSentenceLogic.sentParsing.parser import parsing, clear_text, TokenDefault
+from analysSentenceLogic.sentParsing.parser import parsing, clear_text, TokenDefault, sentence_tokenize
 from utils import BaseMixin
-import asyncio
-
+import random as rnd
+import string
 
 
 class checkSentencePage(FormView):
@@ -18,18 +20,23 @@ class checkSentencePage(FormView):
 
     def form_valid(self, form):
         text = clear_text(form.cleaned_data["text"])
-        candidate = Sentence.objects.exclude(image="").filter(text=text)
+        sentences = sentence_tokenize(text)
+        if len(sentences) == 1:
+            candidate = Sentence.objects.filter(text=text)
+            if len(candidate) > 0:
+                candidate[0].count += 1
+                candidate[0].save()
+                return HttpResponseRedirect(reverse("sentence", kwargs={"pk": candidate[0].id}))
+            print("PARSING...")
+            id_sent = create_sentence(parsing(text))
+            print(id_sent)
+            return HttpResponseRedirect(reverse("sentence", kwargs={"pk": id_sent}))
 
-        if len(candidate)> 0:
-            candidate[0].count += 1
-            candidate[0].save()
-            return HttpResponseRedirect(reverse("sentence", kwargs={"pk":candidate[0].id}))
-        print("PARSING...")
-        create_sentence(parsing(text))
+        id_request = "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(50))
+        print(id_request)
+        return HttpResponseRedirect(reverse("view_request")+"?request=" + id_request)
 
 
-
-        return HttpResponseRedirect(reverse("sentence", kwargs={"pk":id}))
     def get(self, request,**kwargs):
         return redirect("home")
 
@@ -52,8 +59,8 @@ class SentencePage(BaseMixin, FormView):
         if sentence.count() == 0:
             return redirect("home")
         sentence = sentence[0]
-        print(type(sentence.tokens))
-        data["pars_result"] =  sentence.tokens.all()
+        #print(type(sentence.tokens))
+        data["pars_result"] = sentence.data #sentence.tokens.all()
         data["sent_id"] = sentence.id
         data["liked"] = sentence.likes.filter(id=self.request.user.id).count() > 0
         data["disliked"] = sentence.dislikes.filter(id=self.request.user.id).count() > 0
@@ -64,3 +71,15 @@ class SentencePage(BaseMixin, FormView):
 
 
 
+
+class ViewRequest(BaseMixin, FormView):
+    template_name = "sentence_result.html"
+    form_class = NameForm
+
+
+    def get(self, request, **kwargs):
+        id_request = request.GET.get("request")
+        if id_request is None:
+            return redirect("home")
+
+        return self.render_to_response({})

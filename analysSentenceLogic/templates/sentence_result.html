@@ -11,12 +11,17 @@
               <div class="u-container-layout u-container-layout-3">
                 <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Ваш разбор предложения</h3>
                  <!-- <a href="{{ pars_result }}"><img src="{{ pars_result }}" alt=""/></a> -->
-              {% for token in pars_result %}
-                  <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
-                  <a style="font-size: x-small">{{ token.pos }}</a>
-                      <br>
-                  <a class="{{ token.line }}">{{ token.text }}</a>
-                  </label>
+              {% for result in pars_result %}
+                  <h5 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети "{{ result.name }}":</h5>
+                  {% for token in result.tokens %}
+                      <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
+                      <a style="font-size: x-small">{{ token.pos }}</a>
+                          <br>
+                      <a class="{{ token.line }}">{{ token.text }}</a>
+                      </label>
+
+                      {% endfor %}
+                  <br>
               {% endfor %}
               <br>
                   {% if request.user.is_authenticated %}

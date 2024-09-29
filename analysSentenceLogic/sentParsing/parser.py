@@ -5,8 +5,7 @@ import pymorphy3
 
 from natasha import NewsEmbedding, Segmenter, NewsSyntaxParser, Doc, NewsMorphTagger
 from ufal.udpipe import Model, Pipeline
-
-from . import creating_image
+import nltk
 
 nlp = spacy.load("ru_core_news_lg")
 print("Loading Spacy completed")
@@ -24,29 +23,51 @@ print("Loading UDPipe completed")
 morph = pymorphy3.MorphAnalyzer()
 print("Loading pymorphy3 completed")
 
+nltk.download('punkt')
+nltk.download('punkt_tab')
+print("Loanding NLTK completed")
+
+
 class SentenceDefault:
     text = str()
-    question_list=list()
+    question_list = list()
     tokens = list()
-    url = str()
+    name = str()
 
-    def __init__(self, text, question_list, tokens, url):
+    def __init__(self, text, tokens, question_list, name):
         """
         Text - предложение
         question_list - список вопросов формата (id_from, id_to, question)
         tokens - список токенов
         url - путь к изображению
         tokens_list - ключи к предложению
+        name - название нейросети
         """
         self.text = text
         self.question_list = question_list
         self.tokens = tokens
-        self.url = url
+        print(self.tokens, "tokens")
+        print(type(self.tokens[0]))
+        #self.tokens.sort(key=lambda x:x.id)
+        self.name = name
+
+    def __dict__(self):
+        return {
+            "name": self.name,
+            "question_list": self.question_list,
+            "tokens": [t.__dict__() for t in self.tokens],
+        }
 
     def __len__(self):
         return len(self.text)
+
     def __str__(self):
         return self.text
+
+    def __eq__(self, other):
+        return (all(f1==f2 and t1==t2 and q1==q2 for (f1,t1,q1), (f2,t2,q2)  in zip(self.question_list, other.question_list))
+                and all(s == o for s, o in zip(self.tokens,  other.tokens)))
+
 
 class TokenDefault:
     def __init__(self, text, id, line, pos, children=None):
@@ -60,22 +81,32 @@ class TokenDefault:
 
     def __len__(self):
         return len(self.text)
+
     def __str__(self):
         if self.line == "line":
-            return self.text+"\n"+("_"*len(self.text))
+            return self.text + "\n" + ("_" * len(self.text))
         if self.line == "double_line":
-            return self.text+"\n"+("="*len(self.text))
+            return self.text + "\n" + ("=" * len(self.text))
         if self.line == "dotted_line":
-            return self.text+"\n"+("_ "*(len(self.text)//2))
+            return self.text + "\n" + ("_ " * (len(self.text) // 2))
         if self.line == "dotted_circle_line":
-            return self.text+"\n"+("_."*(len(self.text)//2))
+            return self.text + "\n" + ("_." * (len(self.text) // 2))
         if self.line == "wavy_line":
-            return self.text+"\n"+(r"\/"*(len(self.text)//2))
+            return self.text + "\n" + (r"\/" * (len(self.text) // 2))
         if self.line == "circle":
-            return self.text+"\n"+(r"()"*(len(self.text)//2))
+            return self.text + "\n" + (r"()" * (len(self.text) // 2))
 
     def __repr__(self):
-        return f"{self.id}-{self.text}-{self.line}-{self.pos}"
+        return f"{self.id}-{self.text}-{self.line}-{self.pos}".lower()
+
+    def __dict__(self):
+        return {
+            "id_in_sentence": self.id,
+            "text": self.text,
+            "line": self.line,
+            "pos": self.pos,
+        }
+
 
 def translate_to_question(dep):
     dep = dep.lower()
@@ -117,6 +148,7 @@ def translate_dep_to_line(dep):
 
     return dep_map.get(dep, "none")
 
+
 def translate_pos(pos):
     pos = pos.upper()
     pos_map = {
@@ -136,9 +168,10 @@ def translate_pos(pos):
         "SCONJ": "Подчинительный союз",
         "SYM": "Символ",
         "VERB": "Глагол",
-        "X": "..."
+        "X": ""
     }
     return pos_map.get(pos, " ")
+
 
 def clear_text(text=str()):
     text = re.sub(pattern=r" {2,}", repl=" ", string=text)
@@ -157,7 +190,12 @@ def clear_text(text=str()):
         print("TooLarge")
     return text
 
-def analysis_spacy(text):
+
+def sentence_tokenize(text) -> list:
+    return nltk.tokenize.sent_tokenize(text, "russian")
+
+
+def analysis_spacy(text) -> SentenceDefault:
     doc = nlp(text)
 
     question_list = []
@@ -171,25 +209,22 @@ def analysis_spacy(text):
         if adding:
             token_first = tokens.pop(-1)
 
-
             tokens.append(TokenDefault(token_first.text + "-" + token.text,
                                        token_first.id,
                                        token_first.line, token_first.pos,
-                                       token_first.children ))
+                                       token_first.children))
 
-            minus +=2
+            minus += 2
             adding = False
             tokens_map[token.i] = token.i - minus
-            tokens_map[token.i-1] = token.i - minus +1
+            tokens_map[token.i - 1] = token.i - minus + 1
         elif token.text == "-":
-            if text.find(tokens[-1].text+" -") == -1:
+            if text.find(tokens[-1].text + " -") == -1:
                 adding = True
         else:
             tokens_map[token.i] = token.i - minus
             tokens.append(TokenDefault(token.text, tokens_map[token.i], translate_dep_to_line(token.dep_),
                                        token.pos_, token.children))
-
-
 
     for token in tokens:
 
@@ -198,10 +233,10 @@ def analysis_spacy(text):
             if q != " ":
                 question_list.append((token.id, tokens_map[child.i], translate_to_question(child.dep_)))
     print(question_list, tokens, "SPACY")
-    return tokens, question_list
+    return SentenceDefault(text, tokens, question_list, "Spacy")
 
 
-def analysis_natasha(text):
+def analysis_natasha(text) -> SentenceDefault:
     doc = Doc(text)
     doc.segment(segmenter)
     doc.parse_syntax(syntax_parser)
@@ -210,12 +245,10 @@ def analysis_natasha(text):
     question_list = []
     tokens = []
 
-
     for token in doc.tokens:
 
-
-        head_id = int(token.head_id.split("_")[-1])-1
-        id = int(token.id.split("_")[-1]) -1
+        head_id = int(token.head_id.split("_")[-1]) - 1
+        id = int(token.id.split("_")[-1]) - 1
         print([token])
         tokens.append(TokenDefault(token.text,
                                    id,
@@ -229,11 +262,11 @@ def analysis_natasha(text):
         if q != " ":
             question_list.append((head_id, id, q))
 
-    print( question_list, tokens, "NATASHA")
-    return  tokens, question_list
+    print(question_list, tokens, "NATASHA")
+    return SentenceDefault(text, tokens, question_list, "Natasha")
 
-def analysis_UDPipe(text):
 
+def analysis_UDPipe(text) -> SentenceDefault:
     processed = pipeline.process(text)
 
     tokens = []
@@ -243,7 +276,6 @@ def analysis_UDPipe(text):
         if line.startswith("#") or len(line) == 0:
             continue
 
-
         token_parsed = line.split("\t")
 
         id = int(token_parsed[0])
@@ -252,28 +284,43 @@ def analysis_UDPipe(text):
         head_id = int(token_parsed[6])
         pos = token_parsed[3]
 
-
         tokens.append(TokenDefault(
-            text,id, translate_dep_to_line(dep),pos
+            text, id, translate_dep_to_line(dep), pos
         ))
         if head_id != 0:
             question = translate_to_question(dep)
             if question != " ":
                 question_list.append((id, head_id, question))
 
-
     print(question_list, tokens, "UDPipe")
-    return  tokens, question_list
-
+    return SentenceDefault(text, tokens, question_list, "UDPipe")
 
 def parsing(text=""):
     """Подавать только очищенный текст"""
+    result = []
 
     spacy_res = analysis_spacy(text)
     natasha_res = analysis_natasha(text)
-
     udpipe_res = analysis_UDPipe(text)
 
+    if spacy_res == natasha_res == udpipe_res:
+        result = [spacy_res]
+    elif spacy_res == natasha_res or udpipe_res==natasha_res:
+        result = [spacy_res, udpipe_res]
+    elif spacy_res == udpipe_res:
+        result = [spacy_res, natasha_res]
+    else:
+        result = [spacy_res, udpipe_res, natasha_res]
+    return result
+
+
+    """
+    parameters = creating_image.getDefaultParametrs()
+    parameters["name"] = text.replace(" ", "_")
+    print(text, lined, question_list)
+    url = creating_image.draw(token_teksts, lined, question_list, parameters)
+    print(url)
+    return SentenceDefault(text, lined, question_list, tokens, url)  # displacy.render(doc, style='dep', jupyter=False), doc
     if spacy_res[0] != natasha_res[0]:
         print("Разные результаты")
         print(spacy_res[0], "spacy")
@@ -289,23 +336,10 @@ def parsing(text=""):
         print(natasha_res[0], "natahsa")
         print(udpipe_res[0], "udpipe_res")
 
-    """
+    
     lst_ress = []
     for tokens, questions in [spacy_res, udpipe_res,natasha_res]:
         lst_ress.append(SentenceDefault(text, questions, tokens,
                            draw_res(tokens, questions)))
     return lst_ress
-    """
-    return SentenceDefault(text, udpipe_res[1], udpipe_res[0],
-                           None)
-
-
-
-    """
-    parameters = creating_image.getDefaultParametrs()
-    parameters["name"] = text.replace(" ", "_")
-    print(text, lined, question_list)
-    url = creating_image.draw(token_teksts, lined, question_list, parameters)
-    print(url)
-    return SentenceDefault(text, lined, question_list, tokens, url)  # displacy.render(doc, style='dep', jupyter=False), doc
     """

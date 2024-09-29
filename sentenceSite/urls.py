@@ -36,6 +36,7 @@ urlpatterns = [
     path('logout/', logout_user, name='logout'),
     path('check_sentence/', checkSentencePage.as_view(), name='check_sentence'),
     path('sentence/<int:pk>/', SentencePage.as_view(), name='sentence'),
+    path('sentence/', ViewRequest.as_view(), name='view_request'),
     path('like/<int:pk>/', addLike, name='like'),
     path('dislike/<int:pk>/', addDisLike, name='dislike'),
     path('favourite/<int:pk>/', addFavourite, name='favourite'),
