@@ -314,32 +314,3 @@ def parsing(text=""):
     return result
 
 
-    """
-    parameters = creating_image.getDefaultParametrs()
-    parameters["name"] = text.replace(" ", "_")
-    print(text, lined, question_list)
-    url = creating_image.draw(token_teksts, lined, question_list, parameters)
-    print(url)
-    return SentenceDefault(text, lined, question_list, tokens, url)  # displacy.render(doc, style='dep', jupyter=False), doc
-    if spacy_res[0] != natasha_res[0]:
-        print("Разные результаты")
-        print(spacy_res[0], "spacy")
-        print(natasha_res[0], "natasha")
-
-    if spacy_res[0] != udpipe_res[0]:
-        print("Разные результаты")
-        print(spacy_res[0], "spacy")
-        print(udpipe_res[0], "udpipe_res")
-
-    if natasha_res[0] != udpipe_res[0]:
-        print("Разные результаты")
-        print(natasha_res[0], "natahsa")
-        print(udpipe_res[0], "udpipe_res")
-
-    
-    lst_ress = []
-    for tokens, questions in [spacy_res, udpipe_res,natasha_res]:
-        lst_ress.append(SentenceDefault(text, questions, tokens,
-                           draw_res(tokens, questions)))
-    return lst_ress
-    """

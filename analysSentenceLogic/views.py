@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.views.generic import FormView
 
 from analysSentenceLogic.forms import NameForm
-from analysSentenceLogic.model_changer import create_sentence
-from analysSentenceLogic.models import Sentence
+from analysSentenceLogic.model_changer import create_sentence, save_to_request
+from analysSentenceLogic.models import Sentence, RequestSentences
 from analysSentenceLogic.sentParsing.parser import parsing, clear_text, TokenDefault, sentence_tokenize
 from utils import BaseMixin
 import random as rnd
@@ -32,8 +32,12 @@ class checkSentencePage(FormView):
             print(id_sent)
             return HttpResponseRedirect(reverse("sentence", kwargs={"pk": id_sent}))
 
-        id_request = "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(50))
-        print(id_request)
+        id_request = "".join(rnd.choice(string.ascii_lowercase + string.digits) for _ in range(50))
+        ids_sents = []
+        for sentence in sentences:
+            id_sent = create_sentence(parsing(sentence))
+            ids_sents.append(id_sent)
+        save_to_request(request=id_request, id_sents=ids_sents)
         return HttpResponseRedirect(reverse("view_request")+"?request=" + id_request)
 
 
@@ -52,15 +56,15 @@ class SentencePage(BaseMixin, FormView):
     def get(self, request, **kwargs):
 
         res = kwargs["pk"]
-        data = super().get_mixin_context(super().get_context_data())
         if res is None:
             return redirect("home")
+        data = super().get_mixin_context(super().get_context_data())
         sentence = Sentence.objects.filter(id=res)
         if sentence.count() == 0:
             return redirect("home")
         sentence = sentence[0]
         #print(type(sentence.tokens))
-        data["pars_result"] = sentence.data #sentence.tokens.all()
+        data["pars_result"] = [sentence.data] #sentence.tokens.all()
         data["sent_id"] = sentence.id
         data["liked"] = sentence.likes.filter(id=self.request.user.id).count() > 0
         data["disliked"] = sentence.dislikes.filter(id=self.request.user.id).count() > 0
@@ -81,5 +85,13 @@ class ViewRequest(BaseMixin, FormView):
         id_request = request.GET.get("request")
         if id_request is None:
             return redirect("home")
+        data = super().get_mixin_context(super().get_context_data())
 
-        return self.render_to_response({})
+        try:
+            obj = RequestSentences.objects.get(id_request=id_request)
+        except:
+            return redirect("home")
+
+        data["pars_result"] = [s.data for s in obj.request_sentences.all()]
+
+        return self.render_to_response(data)

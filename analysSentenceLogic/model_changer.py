@@ -57,4 +57,14 @@ def create_sentence(sentences=None):
     # sent.save()
     return sent.id
 
-fs = FileSystemStorage()
+
+def save_to_request(request="", id_sents=[]) ->None:
+    req = RequestSentences.objects.create(
+        id_request=request,
+    )
+    for id_s in id_sents:
+        print(id_s)
+        req.request_sentences.add(Sentence.objects.get(id=id_s))
+    req.save()
+
+# fs = FileSystemStorage()

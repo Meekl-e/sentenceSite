@@ -11,7 +11,11 @@
               <div class="u-container-layout u-container-layout-3">
                 <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Ваш разбор предложения</h3>
                  <!-- <a href="{{ pars_result }}"><img src="{{ pars_result }}" alt=""/></a> -->
-              {% for result in pars_result %}
+              {% for sentence in pars_result %}
+                  {% if pars_result|length > 1 %}
+                  <h3>Разбор {{ forloop.counter }} предложения:</h3>
+                  {% endif %}
+              {% for result in sentence %}
                   <h5 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети "{{ result.name }}":</h5>
                   {% for token in result.tokens %}
                       <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
@@ -22,6 +26,7 @@
 
                       {% endfor %}
                   <br>
+              {% endfor %}
               {% endfor %}
               <br>
                   {% if request.user.is_authenticated %}
