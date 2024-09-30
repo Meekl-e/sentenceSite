@@ -1,17 +1,16 @@
-import random
+import random as rnd
+import string
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import FormView
 
 from analysSentenceLogic.forms import NameForm
 from analysSentenceLogic.model_changer import create_sentence, save_to_request
 from analysSentenceLogic.models import Sentence, RequestSentences
-from analysSentenceLogic.sentParsing.parser import parsing, clear_text, TokenDefault, sentence_tokenize
+from analysSentenceLogic.sentParsing.parser import parsing, clear_text, sentence_tokenize
 from utils import BaseMixin
-import random as rnd
-import string
 
 
 class checkSentencePage(FormView):
@@ -91,7 +90,6 @@ class ViewRequest(BaseMixin, FormView):
             obj = RequestSentences.objects.get(id_request=id_request)
         except:
             return redirect("home")
-
         data["pars_result"] = [s.data for s in obj.request_sentences.all()]
 
         return self.render_to_response(data)
