@@ -19,11 +19,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
-from mainPage.views import *
-from authLogic.views import *
-from userLogic.views import *
 from analysSentenceLogic.views import *
+from authLogic.views import *
 from changeSentenceLogic.views import *
+from mainPage.views import *
+from userLogic.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,8 +41,8 @@ urlpatterns = [
     path('dislike/<int:pk>/', addDisLike, name='dislike'),
     path('favourite/<int:pk>/', addFavourite, name='favourite'),
     path('sentence/<int:pk>/change/', ChangeSentence.as_view(), name='change_sentence'),
-    path('sentence/<int:pk>/change/save/', SaveSentence.as_view(), name='save_sentence'),
     path('sentence/<int:pk>/change/remove/', remove_sentence, name='remove_relation'),
+    path('sentence/<int:pk>/change/save/', SaveSentence.as_view(), name='save_sentence'),
 
 ]
 if settings.DEBUG:
