@@ -1,8 +1,4 @@
-from django.core.files.storage import FileSystemStorage
-
 from analysSentenceLogic.models import *
-
-from analysSentenceLogic.sentParsing.parser import SentenceDefault
 
 """
 Sentence.objects.all().delete()
@@ -12,8 +8,6 @@ Parent_to_children.objects.all().delete()
 
 
 def create_sentence(sentences=None):
-    if sentences is None:
-        sentences = [SentenceDefault]
 
     if Sentence.objects.all().count() >= MAX_OBJECTS:
         o = Sentence.objects.order_by("date", "-count").first()
@@ -24,7 +18,6 @@ def create_sentence(sentences=None):
 
     for result in sentences:
         json_values.append(result.__dict__())
-    print(json_values)
 
     sent = Sentence.objects.create(
         len=len(sentences[0]),
@@ -55,6 +48,7 @@ def create_sentence(sentences=None):
     #     )
     #
     # sent.save()
+
     return sent.id
 
 
@@ -63,7 +57,6 @@ def save_to_request(request="", id_sents=[]) ->None:
         id_request=request,
     )
     for id_s in id_sents:
-        print(id_s)
         req.request_sentences.add(Sentence.objects.get(id=id_s))
     req.save()
 

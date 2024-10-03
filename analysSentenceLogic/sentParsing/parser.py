@@ -1,11 +1,11 @@
-import spacy
-import requests
 import re
-import pymorphy3
 
+import nltk
+import pymorphy3
+import requests
+import spacy
 from natasha import NewsEmbedding, Segmenter, NewsSyntaxParser, Doc, NewsMorphTagger
 from ufal.udpipe import Model, Pipeline
-import nltk
 
 nlp = spacy.load("ru_core_news_lg")
 print("Loading Spacy completed")
@@ -46,8 +46,7 @@ class SentenceDefault:
         self.text = text
         self.question_list = question_list
         self.tokens = tokens
-        print(self.tokens, "tokens")
-        print(type(self.tokens[0]))
+
         #self.tokens.sort(key=lambda x:x.id)
         self.name = name
 
@@ -232,7 +231,7 @@ def analysis_spacy(text) -> SentenceDefault:
             q = translate_to_question(child.dep_)
             if q != " ":
                 question_list.append((token.id, tokens_map[child.i], translate_to_question(child.dep_)))
-    print(question_list, tokens, "SPACY")
+    # print(question_list, tokens, "SPACY")
     return SentenceDefault(text, tokens, question_list, "Spacy")
 
 
@@ -249,7 +248,7 @@ def analysis_natasha(text) -> SentenceDefault:
 
         head_id = int(token.head_id.split("_")[-1]) - 1
         id = int(token.id.split("_")[-1]) - 1
-        print([token])
+
         tokens.append(TokenDefault(token.text,
                                    id,
                                    translate_dep_to_line(token.rel),
@@ -262,7 +261,7 @@ def analysis_natasha(text) -> SentenceDefault:
         if q != " ":
             question_list.append((head_id, id, q))
 
-    print(question_list, tokens, "NATASHA")
+    # print(question_list, tokens, "NATASHA")
     return SentenceDefault(text, tokens, question_list, "Natasha")
 
 
@@ -292,7 +291,7 @@ def analysis_UDPipe(text) -> SentenceDefault:
             if question != " ":
                 question_list.append((id, head_id, question))
 
-    print(question_list, tokens, "UDPipe")
+    # print(question_list, tokens, "UDPipe")
     return SentenceDefault(text, tokens, question_list, "UDPipe")
 
 def parsing(text=""):

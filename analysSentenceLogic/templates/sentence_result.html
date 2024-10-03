@@ -15,7 +15,7 @@
                   {% if pars_result|length > 1 %}
                   <h3>Разбор {{ forloop.counter }} предложения:</h3>
                   {% endif %}
-              {% for result in sentence %}
+                  {% for result in sentence.nn_results %}
                   <h5 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети "{{ result.name }}":</h5>
                   {% for token in result.tokens %}
                       <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
@@ -27,14 +27,13 @@
                       {% endfor %}
                   <br>
               {% endfor %}
-              {% endfor %}
-              <br>
+                  <br>
                   {% if request.user.is_authenticated %}
 
                       <label>
-                      <form method="post" action="{% url 'dislike' sent_id %}">
+                          <form method="post" action="{% url 'dislike' sentence.sent_id %}">
                       {% csrf_token %}
-                          {% if not disliked %}
+                              {% if not sentence.disliked %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-7">Не Нравится 👎 </button>
                           {% else %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-7 " style="background-color: black">Не Нравится </button>
@@ -43,9 +42,10 @@
                       </label>
 
                         <label>
-                      <form method="post" action="{% url 'favourite' sent_id %}">
+
+                            <form method="post" action="{% url 'favourite' sentence.sent_id %}">
                       {% csrf_token %}
-                          {% if not in_fav %}
+                                {% if not sentence.in_fav %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-8">В избранное </button>
                           {% else %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-8 " style="background-color: black">В избранном </button>
@@ -54,9 +54,9 @@
                         </label>
 
                         <label>
-                      <form method="post" action="{% url 'like' sent_id %}">
+                            <form method="post" action="{% url 'like' sentence.sent_id %}">
                       {% csrf_token %}
-                          {% if not liked %}
+                                {% if not sentence.liked %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Нравится 👍 </button>
                           {% else %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-9 " style="background-color: black">Нравится </button>
@@ -64,14 +64,13 @@
                       </form>
                       </label>
                       <label>
-                          <a href="{% url 'change_sentence' sent_id %}">
+                          <a href="{% url 'change_sentence' sentence.sent_id %}">
                               <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Изменить</button>
                           </a>
                       </label>
 
 
                   {% else %}
-
 
                           <label>
                             <button  class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia  u-radius u-btn-7">🔒 Не Нравится 👎 </button>
@@ -88,8 +87,11 @@
                             <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-9">🔒 Изменить </button>
                           </label>
 
-
                 {% endif %}
+
+
+
+              {% endfor %}
 
               </div>
 

@@ -22,19 +22,25 @@ class checkSentencePage(FormView):
         sentences = sentence_tokenize(text)
         if len(sentences) == 1:
             candidate = Sentence.objects.filter(text=text)
-            if len(candidate) > 0:
+            if candidate.count() > 0:
                 candidate[0].count += 1
                 candidate[0].save()
                 return HttpResponseRedirect(reverse("sentence", kwargs={"pk": candidate[0].id}))
             print("PARSING...")
             id_sent = create_sentence(parsing(text))
-            print(id_sent)
+            # print(id_sent)
             return HttpResponseRedirect(reverse("sentence", kwargs={"pk": id_sent}))
+
 
         id_request = "".join(rnd.choice(string.ascii_lowercase + string.digits) for _ in range(50))
         ids_sents = []
         for sentence in sentences:
-            id_sent = create_sentence(parsing(sentence))
+            sentence_candidates = Sentence.objects.filter(text=sentence)
+            if sentence_candidates.count() > 0:
+                id_sent = sentence_candidates[0].id
+
+            else:
+                id_sent = create_sentence(parsing(sentence))
             ids_sents.append(id_sent)
         save_to_request(request=id_request, id_sents=ids_sents)
         return HttpResponseRedirect(reverse("view_request")+"?request=" + id_request)
@@ -63,11 +69,13 @@ class SentencePage(BaseMixin, FormView):
             return redirect("home")
         sentence = sentence[0]
         #print(type(sentence.tokens))
-        data["pars_result"] = [sentence.data] #sentence.tokens.all()
-        data["sent_id"] = sentence.id
-        data["liked"] = sentence.likes.filter(id=self.request.user.id).count() > 0
-        data["disliked"] = sentence.dislikes.filter(id=self.request.user.id).count() > 0
-        data["in_fav"] = sentence.favourites.filter(id=self.request.user.id).count() > 0
+        data["pars_result"] = [{
+            "nn_results": sentence.data,
+            "sent_id": sentence.id,
+            "liked": sentence.likes.filter(id=self.request.user.id).count() > 0,
+            "disliked": sentence.dislikes.filter(id=self.request.user.id).count() > 0,
+            "in_fav": sentence.favourites.filter(id=self.request.user.id).count() > 0,
+        }]
 
         return self.render_to_response(data)
 
@@ -90,6 +98,20 @@ class ViewRequest(BaseMixin, FormView):
             obj = RequestSentences.objects.get(id_request=id_request)
         except:
             return redirect("home")
-        data["pars_result"] = [s.data for s in obj.request_sentences.all()]
+
+        data["pars_result"] = []
+
+        count = 0
+        for s in obj.request_sentences.all():
+            data["pars_result"].append({
+                "nn_results": s.data,
+                "id_request": id_request,
+                "liked": s.likes.filter(id=self.request.user.id).count() > 0,
+                "disliked": s.dislikes.filter(id=self.request.user.id).count() > 0,
+                "in_fav": s.favourites.filter(id=self.request.user.id).count() > 0,
+            })
+
+            count += 1
+
 
         return self.render_to_response(data)
