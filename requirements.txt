@@ -10,7 +10,7 @@ colorama==0.4.6
 confection==0.1.5
 cymem==2.0.8
 DAWG-Python==0.7.2
-Django==5.0.7
+Django==5.0.8
 docopt==0.6.2
 idna==3.7
 intervaltree==3.1.0
