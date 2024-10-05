@@ -34,6 +34,18 @@ class SentenceDefault:
     tokens = list()
     name = str()
 
+    type_goal = "Повествовательное"
+    type_intonation = "Невосклицательное"
+    gram_bases = "Простое"
+    main_members = "Двусоставное"
+    second_members = "Нераспространенное"
+    lost_members = "Полное"
+    difficulty_members = "Неосложнённое"
+    schem = ""
+
+
+
+
     def __init__(self, text, tokens, question_list, name):
         """
         Text - предложение
@@ -55,6 +67,14 @@ class SentenceDefault:
             "name": self.name,
             "question_list": self.question_list,
             "tokens": [t.__dict__() for t in self.tokens],
+            "type_goal": self.type_goal,
+            "type_intonation": self.type_intonation,
+            "gram_bases": self.gram_bases,
+            "main_members": self.main_members,
+            "second_members": self.second_members,
+            "lost_members": self.lost_members,
+            "difficulty_members": self.difficulty_members,
+            "schem": self.schem
         }
 
     def __len__(self):
@@ -232,7 +252,7 @@ def analysis_spacy(text) -> SentenceDefault:
             if q != " ":
                 question_list.append((token.id, tokens_map[child.i], translate_to_question(child.dep_)))
     # print(question_list, tokens, "SPACY")
-    return SentenceDefault(text, tokens, question_list, "Spacy")
+    return analysis_full(SentenceDefault(text, tokens, question_list, "Spacy"))
 
 
 def analysis_natasha(text) -> SentenceDefault:
@@ -262,7 +282,7 @@ def analysis_natasha(text) -> SentenceDefault:
             question_list.append((head_id, id, q))
 
     # print(question_list, tokens, "NATASHA")
-    return SentenceDefault(text, tokens, question_list, "Natasha")
+    return analysis_full(SentenceDefault(text, tokens, question_list, "Natasha"))
 
 
 def analysis_UDPipe(text) -> SentenceDefault:
@@ -292,7 +312,106 @@ def analysis_UDPipe(text) -> SentenceDefault:
                 question_list.append((id, head_id, question))
 
     # print(question_list, tokens, "UDPipe")
-    return SentenceDefault(text, tokens, question_list, "UDPipe")
+
+    return analysis_full(SentenceDefault(text, tokens, question_list, "UDPipe"))
+
+
+def analysis_full(sentence) -> SentenceDefault:
+    grammars_line = 0
+    grammars_double_line = 0
+    punctuation = 0
+    soyz = 0
+    find_1per_npro = False
+    find_3per_npro = False
+
+    if sentence.tokens[-1].text == "!":
+        sentence.type_intonation = "Восклицательное"
+
+    if sentence.tokens[-1].text == "?":
+        sentence.type_goal = "Вопросительное"
+
+    chance_max = -1
+    for idx, token in enumerate(sentence.tokens):
+        # token = TokenDefault()
+        print(token.text)
+        parsed = morph.parse(token.text)[0]
+
+        if parsed.tag.POS == "NPRO" and parsed.tag.person in ["1per", "2per"] and parsed.tag.case == "nomn":
+            find_1per_npro = True
+            if sentence.main_members == "Односоставное определенно-личное":
+                sentence.main_members = ""
+
+        if parsed.tag.POS == "NPRO" and parsed.tag.person == "3per" and parsed.tag.case == "nomn":
+            find_3per_npro = True
+            if sentence.main_members == "Односоставное неопределенно-личное":
+                sentence.main_members = ""
+
+        procent = parsed.score
+
+        if not parsed.tag.mood is None and parsed.tag.mood == "impr" and chance_max < procent:  # повелит. наклон
+            sentence.type_goal = f"Побудительное |вероятность: {round(procent * 100)}%"
+            chance_max = procent
+
+        if not find_1per_npro and parsed.tag.POS == "VERB" and parsed.tag.mood in ["indc",
+                                                                                   "impr"] and parsed.tag.person in [
+            "1per", "2per"] and parsed.tag.tense == "pres":
+            sentence.main_members = "Односоставное определенно-личное"
+
+        if not find_3per_npro and parsed.tag.POS == "VERB" and parsed.tag.mood in ["indc",
+                                                                                   "impr"] and parsed.tag.person in [
+            "1per", "2per"] and parsed.tag.tense == "pres":
+            sentence.main_members = "Односоставное неопределенно-личное"
+
+        if not find_3per_npro and parsed.tag.POS == "VERB" and parsed.tag.mood in ["indc",
+                                                                                   "impr"] and parsed.tag.person in [
+            "1per", "2per"] and parsed.tag.tense == "pres":
+            sentence.main_members = "Односоставное неопределенно-личное"
+
+        if token.line not in ["double_line", "line"]:
+            sentence.second_members = "Распространённое"
+        elif token.line == "double_line":
+            grammars_double_line += 1
+        elif token.line == "line":
+            grammars_line += 1
+
+        if token.pos == "":
+            punctuation += 1
+
+        if parsed.tag.POS == "CONJ":
+            soyz += 1
+
+        if token.text == "-":
+            print("Find --")
+            if not ((idx != 0 and sentence.tokens[idx - 1].line == "line") and (
+                    idx != len(sentence.tokens) and sentence.tokens[idx + 1].text == "это")):
+                if not (("double_line" in sentence.tokens[:idx] and "line" in sentence.tokens[:idx]) and (
+                        "double_line" in sentence.tokens[idx + 1:] and "line" in sentence.tokens[idx + 1:])):
+                    if sentence.lost_members.lower() == "полное":  # не изменяли
+                        sentence.lost_members = f"Неполное |Обнаружен пропущенный(ые) член(ы) предложения на месте №{idx}"
+                    else:
+                        sentence.lost_members += f", {idx}"
+
+    if grammars_line == 1 == grammars_double_line:
+        sentence.gram_bases = "Простое"
+    if (grammars_double_line > 1 and grammars_line > 1) and punctuation > 1:
+        sentence.gram_bases = f"Сложное ({min(grammars_line, grammars_double_line)} ГО) |Будьте аккуратны! Алгоритм плохо рассчитывает односоставные предложения"
+
+    if grammars_line > 1 and grammars_double_line - grammars_line <= 0:
+        sentence.difficulty_members = "Осложнено однородными подлежащими |Будьте осторожны! Подлежащее может являться назывной односоставной частью!"
+
+    if grammars_line - grammars_double_line <= 0 and grammars_double_line > 1:
+        sentence.difficulty_members = "Осложнено однородными сказуемыми |Будьте осторожны! Сказуемое может являться безличной односоставной частью!"
+
+    return sentence
+
+
+print(morph.parse("стихало")[0].tag)
+print(morph.parse("шумело")[0].tag)
+
+
+
+
+
 
 def parsing(text=""):
     """Подавать только очищенный текст"""

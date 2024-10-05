@@ -17,6 +17,7 @@
                   {% endif %}
                   {% for result in sentence.nn_results %}
                   <h5 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети "{{ result.name }}":</h5>
+
                   {% for token in result.tokens %}
                       <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
                       <a style="font-size: x-small">{{ token.pos }}</a>
@@ -26,6 +27,34 @@
 
                       {% endfor %}
                   <br>
+                      <h6 class="u-custom-font u-font-georgia u-text u-text-9">Характеристика предложения:</h6>
+                      <div class="u-custom-font u-font-georgia u-text u-text-9" style="display: flex;">
+                          <div style="flex: 1;">
+                              <h6>I.</h6>
+                              <ol>
+                                  <li>{{ result.type_goal }}</li>
+                                  <li>{{ result.type_intonation }}</li>
+                              </ol>
+                          </div>
+                          <div style="flex: 1;">
+                              <h6>II.</h6>
+                              <ol>
+                                  <li>{{ result.gram_bases }}</li>
+                                  <li>{{ result.main_members }}</li>
+                                  <li>{{ result.second_members }}</li>
+                                  <li>{{ result.lost_members }}</li>
+                                  <li>{{ result.difficulty_members }}</li>
+                                  <li>Схема: [{% for token in result.tokens %}
+                                      {% if token.line == "none" %}
+                                          {{ token.text }}
+                                      {% else %}
+                                          <a class="{{ token.line }}" style="color: transparent">_____</a>
+                                      {% endif %}
+                                  {% endfor %}]
+                                  </li>
+                              </ol>
+                          </div>
+                      </div>
               {% endfor %}
                   <br>
                   {% if request.user.is_authenticated %}
