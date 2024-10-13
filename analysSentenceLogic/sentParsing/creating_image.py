@@ -1,12 +1,7 @@
-import random
-import re
-import string
-
+from django.core.files.storage import FileSystemStorage
 from wand.color import Color
 from wand.drawing import Drawing
 from wand.image import Image
-from django.core.files.storage import FileSystemStorage
-
 
 
 def __get_words_width(start_idx, stop_idx, WIDTH_WORDS):
@@ -350,12 +345,12 @@ def draw(sentence, lined, question_list, PARAM=None):
     """
     if PARAM is None:
         PARAM = getDefaultParametrs()
-    if len(sentence) != len(lined):
+    if len(sentence) > len(lined):
         raise ValueError("Длина токенов != длине подчеркиваний")
-    name = ""
-    for letter in PARAM["name"]:
-        name += alphabet_dict.get(letter,"_")
-    PARAM["name"] = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
+    # name = ""
+    # for letter in PARAM["name"]:
+    #     name += alphabet_dict.get(letter,"_")
+    # PARAM["name"] = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
     if FileStorage.exists(f"images_sentences/{PARAM['name']}.png"):
         FileStorage.delete(f"images_sentences/{PARAM['name']}.png")
 
