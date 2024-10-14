@@ -11,10 +11,10 @@ from analysSentenceLogic.models import Sentence, Parent_to_children
 
 def draw_realtion(token_from, token_to,question, width):
     params = getDefaultParametrs()
-    params["name"] = token_from + " " + token_to
+    params["name"] = (token_from + "_" + token_to).lower()
     params["width"] = width
 
-    return draw(token_from + " " + token_to, [" ", " "], [(0, 1, question)],
+    return draw([token_from, token_to], [" ", " "], [(0, 1, question)],
                params)
 
 class ChangeSentence(BaseMixin, TemplateView):
@@ -25,15 +25,16 @@ class ChangeSentence(BaseMixin, TemplateView):
             return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": kwargs["pk"]}))
 
         kwargs["pk"] = str(kwargs["pk"])
-        print(request.POST)
+
+
         formset = WordFormSet(request.POST)
 
         question_form = RelationForm(data=request.POST)
 
 
         if not formset.is_valid() or not question_form.is_valid():
-            print("Formset errors:", formset.errors)
-            print("Question form errors:", question_form.errors)
+            print("Formset", formset.errors)
+            print("Question", question_form.errors)
             print( question_form.is_valid())
             data = super().get_mixin_context(super().get_context_data(formset=formset, question_form=question_form))
             return self.render_to_response(context=data)
@@ -76,7 +77,7 @@ class ChangeSentence(BaseMixin, TemplateView):
                     request.user.change_sentence[kwargs["pk"]]["question_list"].pop(i)
                     src = request.user.change_sentence[kwargs["pk"]]["media_list"].pop(i)
                     fs.delete(src.removeprefix("/media/"))
-                    #request.user.save()
+                    request.user.save()
                     break
 
         request.user.change_sentence[kwargs["pk"]]["lined"] = lined
@@ -91,7 +92,7 @@ class ChangeSentence(BaseMixin, TemplateView):
 
 
         request.user.save()
-        print(request.user.change_sentence)
+
 
         return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": kwargs["pk"]}))
 
@@ -105,27 +106,33 @@ class ChangeSentence(BaseMixin, TemplateView):
 
 
         pk = str(kwargs["pk"])
-        tokens = self.get_tokens(pk)
-        if tokens is None:
+
+        sentence = Sentence.objects.filter(id=pk)
+        if sentence.count() == 0:
             return redirect("home")
+
+        data_sent = sentence[0].data[0]
+
+        tokens = data_sent["tokens"]
+
+
 
         change_sentence_data = request.user.change_sentence.get(pk) if request.user.change_sentence else None
 
         media_list = []
-        question_list = []
+        question_list = sum([p["question_list"] for p in data_sent["simple_sentences_in"]], [])
+        # print(question_list)
         if change_sentence_data and change_sentence_data.get("lined") is not None:
             data = [{"type": word} for word in change_sentence_data.get("lined")]
             if change_sentence_data.get("media_list"):
                 media_list = change_sentence_data.get("media_list")
         else:
-            data = [{"type": word.line} for word in tokens]
-            lined = [ word.line for word in tokens]
-            for object_question in Parent_to_children.objects.filter(sentence_id=int(pk)):
-                f = object_question.parent_id
-                t = object_question.child_id
-                q = object_question.question
-                question_list.append((f,t,q))
-                src = draw_realtion(tokens[f].text, tokens[t].text, q, 300)
+            data = [{"type": word["line"]} for word in tokens]
+            lined = [ word["line"] for word in tokens]
+            print(question_list)
+            for f, t, q in question_list:
+                src = draw_realtion(tokens[f]["text"], tokens[t]["text"], q, 300)
+                print(src)
                 media_list.append(src)
             if not request.user.change_sentence:
                 request.user.change_sentence = {pk:{"lined":lined, "question_list":question_list, "media_list":media_list}}
@@ -136,8 +143,9 @@ class ChangeSentence(BaseMixin, TemplateView):
 
 
         formset = WordFormSet(initial=data)
-        questions_list = Parent_to_children.objects.values_list('question', flat=True).distinct()
-        question_form = RelationForm(questions=questions_list)
+        # questions_list = data_sent["question_list"] # Parent_to_children.objects.values_list('question', flat=True).distinct()
+        question_form = RelationForm(questions=question_list)
+
         data = super().get_mixin_context(super().get_context_data(
             formset=formset,
             question_form=question_form,
@@ -150,12 +158,7 @@ class ChangeSentence(BaseMixin, TemplateView):
 
         return self.render_to_response(context=data)
 
-    def get_tokens(self, pk):
-        tokens = Sentence.objects.filter(id=pk)
-        if tokens.count() == 0:
-            return None
-        tokens = tokens[0].tokens.all()
-        return tokens
+
 
 
 class SaveSentence(BaseMixin, TemplateView):
@@ -186,7 +189,6 @@ class SaveSentence(BaseMixin, TemplateView):
         if request.user.verified:
             sentence = Sentence.objects.filter(id=pk)
             if len(sentence) == 0:
-                print("pk not")
                 return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
             sentence = sentence[0]
 
@@ -197,25 +199,33 @@ class SaveSentence(BaseMixin, TemplateView):
 
 
             # lined
-            for token, line in zip(sentence.tokens.all(), lined):
-                token.line = line
-                token.save()
+
+            id_part = 0
+            id_t = 0
+            for token, line in zip(sentence.data[0]["tokens"], lined):
+                token["line"] = line
+                if id_t > len(sentence.data[0]["simple_sentences_in"][id_part]) -1:
+                    id_part+=1
+                    if id_part >= len(sentence.data[0]["simple_sentences_in"]):
+                        break
+                sentence.data[0]["simple_sentences_in"][id_part]["tokens"][id_t]["line"] = line
+                id_t+=1
+
 
             # Question list
-            Parent_to_children.objects.filter(sentence_id=pk).delete()
-            for f,t,q in question_list:
-                Parent_to_children.objects.create(
-                    sentence_id=pk,
-                    parent_id=f,
-                    child_id=t,
-                    question=q,
-                )
+            sentence.data[0]["question_list"] = question_list
+
+            # Parent_to_children.objects.filter(sentence_id=pk).delete()
+            # for f,t,q in question_list:
+            #     Parent_to_children.objects.create(
+            #         sentence_id=pk,
+            #         parent_id=f,
+            #         child_id=t,
+            #         question=q,
+            #     )
 
             # image
-            params = getDefaultParametrs()
-            params["name"] = sentence.text.lower()
-            src = draw(sentence.text, lined, question_list,params )
-            sentence.image = src
+
             sentence.verified = True
             sentence.save()
 

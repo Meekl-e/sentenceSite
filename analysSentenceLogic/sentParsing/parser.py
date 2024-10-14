@@ -10,15 +10,15 @@ from ufal.udpipe import Model, Pipeline
 nlp = spacy.load("ru_core_news_sm")
 print("Loading Spacy completed")
 
-emb = NewsEmbedding()
-segmenter = Segmenter()
-syntax_parser = NewsSyntaxParser(emb)
-tagger = NewsMorphTagger(emb)
-print("Loading Natasha completed")
-
-model = Model.load("analysSentenceLogic/sentParsing/models/russian-syntagrus-ud-2.5-191206.udpipe")
-pipeline = Pipeline(model, 'tokenize', Pipeline.DEFAULT, Pipeline.DEFAULT, 'conllu')
-print("Loading UDPipe completed")
+# emb = NewsEmbedding()
+# segmenter = Segmenter()
+# syntax_parser = NewsSyntaxParser(emb)
+# tagger = NewsMorphTagger(emb)
+# print("Loading Natasha completed")
+#
+# model = Model.load("analysSentenceLogic/sentParsing/models/russian-syntagrus-ud-2.5-191206.udpipe")
+# pipeline = Pipeline(model, 'tokenize', Pipeline.DEFAULT, Pipeline.DEFAULT, 'conllu')
+# print("Loading UDPipe completed")
 
 morph = pymorphy3.MorphAnalyzer()
 print("Loading pymorphy3 completed")
@@ -297,67 +297,67 @@ def analysis_spacy(text) -> [SentenceDefault]:
                 question_list.append((token.id, tokens_map[child.i], translate_to_question(child.dep_)))
     print(question_list, tokens, "SPACY")
     return analysis_full(PartSentence(text, tokens, question_list, "Spacy"))
+#
+#
+# def analysis_natasha(text) -> [SentenceDefault]:
+#     doc = Doc(text)
+#     doc.segment(segmenter)
+#     doc.parse_syntax(syntax_parser)
+#     doc.tag_morph(tagger)
+#
+#     question_list = []
+#     tokens = []
+#
+#     for token in doc.tokens:
+#
+#         head_id = int(token.head_id.split("_")[-1]) - 1
+#         id = int(token.id.split("_")[-1]) - 1
+#
+#         tokens.append(TokenDefault(token.text,
+#                                    id,
+#                                    translate_dep_to_line(token.rel),
+#                                    token.pos))
+#
+#         if head_id == -1:
+#             continue
+#         rel = token.rel
+#         q = translate_to_question(rel)
+#         if q != " ":
+#             question_list.append((head_id, id, q))
+#
+#     print(question_list, tokens, "NATASHA")
+#     return analysis_full(PartSentence(text, tokens, question_list, "Natasha"))
 
 
-def analysis_natasha(text) -> [SentenceDefault]:
-    doc = Doc(text)
-    doc.segment(segmenter)
-    doc.parse_syntax(syntax_parser)
-    doc.tag_morph(tagger)
-
-    question_list = []
-    tokens = []
-
-    for token in doc.tokens:
-
-        head_id = int(token.head_id.split("_")[-1]) - 1
-        id = int(token.id.split("_")[-1]) - 1
-
-        tokens.append(TokenDefault(token.text,
-                                   id,
-                                   translate_dep_to_line(token.rel),
-                                   token.pos))
-
-        if head_id == -1:
-            continue
-        rel = token.rel
-        q = translate_to_question(rel)
-        if q != " ":
-            question_list.append((head_id, id, q))
-
-    print(question_list, tokens, "NATASHA")
-    return analysis_full(PartSentence(text, tokens, question_list, "Natasha"))
-
-
-def analysis_UDPipe(text) -> [SentenceDefault]:
-    processed = pipeline.process(text)
-
-    tokens = []
-    question_list = []
-
-    for line in processed.split("\n"):
-        if line.startswith("#") or len(line) == 0:
-            continue
-
-        token_parsed = line.split("\t")
-
-        id = int(token_parsed[0]) - 1
-        text = token_parsed[1]
-        dep = token_parsed[7]
-        head_id = int(token_parsed[6]) - 1
-        pos = token_parsed[3]
-
-        tokens.append(TokenDefault(
-            text, id, translate_dep_to_line(dep), pos
-        ))
-        if head_id != 0:
-            question = translate_to_question(dep)
-            if question != " ":
-                question_list.append((head_id, id, question))
-
-    print(question_list, tokens, "UDPipe")
-
-    return analysis_full(PartSentence(text, tokens, question_list, "UDPipe"))
+# def analysis_UDPipe(text) -> [SentenceDefault]:
+#     processed = pipeline.process(text)
+#
+#     tokens = []
+#     question_list = []
+#
+#     for line in processed.split("\n"):
+#         if line.startswith("#") or len(line) == 0:
+#             continue
+#
+#         token_parsed = line.split("\t")
+#
+#         id = int(token_parsed[0]) - 1
+#         text = token_parsed[1]
+#         dep = token_parsed[7]
+#         head_id = int(token_parsed[6]) - 1
+#         pos = token_parsed[3]
+#
+#         tokens.append(TokenDefault(
+#             text, id, translate_dep_to_line(dep), pos
+#         ))
+#         if head_id != 0:
+#             question = translate_to_question(dep)
+#             if question != " ":
+#                 question_list.append((head_id, id, question))
+#
+#     print(question_list, tokens, "UDPipe")
+#
+#     return analysis_full(PartSentence(text, tokens, question_list, "UDPipe"))
 
 
 def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
@@ -501,15 +501,16 @@ def parsing(text=""):
     """Подавать только очищенный текст"""
 
     spacy_res = analysis_spacy(text)
-    natasha_res = analysis_natasha(text)
-    udpipe_res = analysis_UDPipe(text)
-
-    if spacy_res == natasha_res == udpipe_res:
-        result = [spacy_res]
-    elif spacy_res == natasha_res or udpipe_res == natasha_res:
-        result = [spacy_res, udpipe_res]
-    elif spacy_res == udpipe_res:
-        result = [spacy_res, natasha_res]
-    else:
-        result = [spacy_res, udpipe_res, natasha_res]
-    return result
+    return [spacy_res]
+    # natasha_res = analysis_natasha(text)
+    # udpipe_res = analysis_UDPipe(text)
+    #
+    # if spacy_res == natasha_res == udpipe_res:
+    #     result = [spacy_res]
+    # elif spacy_res == natasha_res or udpipe_res == natasha_res:
+    #     result = [spacy_res, udpipe_res]
+    # elif spacy_res == udpipe_res:
+    #     result = [spacy_res, natasha_res]
+    # else:
+    #     result = [spacy_res, udpipe_res, natasha_res]
+    # return result

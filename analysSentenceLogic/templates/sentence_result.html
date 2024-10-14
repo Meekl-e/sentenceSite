@@ -15,9 +15,10 @@
                   <h3>Разбор {{ forloop.counter }} предложения:</h3>
                   {% endif %}
                   {% for result in sentence.nn_results %}
-                      {% if sentence.nn_result|length > 1 %}
+                      {% if sentence.nn_results|length != 1 %}
                   <h5 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети "{{ result.name }}":</h5>
                       {% endif %}
+
 
 
                   {% for token in result.tokens %}

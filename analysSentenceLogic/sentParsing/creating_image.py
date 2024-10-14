@@ -346,7 +346,7 @@ def draw(sentence, lined, question_list, PARAM=None):
     if PARAM is None:
         PARAM = getDefaultParametrs()
     if len(sentence) > len(lined):
-        raise ValueError("Длина токенов != длине подчеркиваний")
+        raise ValueError(f"Длина токенов {len(sentence)} != длине подчеркиваний {len(lined)}")
     # name = ""
     # for letter in PARAM["name"]:
     #     name += alphabet_dict.get(letter,"_")
