@@ -10,13 +10,14 @@
             {% if pars_result %}
               <div class="u-container-layout u-container-layout-3">
                 <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Ваш разбор предложения</h3>
-                 <!-- <a href="{{ pars_result }}"><img src="{{ pars_result }}" alt=""/></a> -->
               {% for sentence in pars_result %}
                   {% if pars_result|length > 1 %}
                   <h3>Разбор {{ forloop.counter }} предложения:</h3>
                   {% endif %}
                   {% for result in sentence.nn_results %}
+                      {% if sentence.nn_result|length > 1 %}
                   <h5 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети "{{ result.name }}":</h5>
+                      {% endif %}
 
 
                   {% for token in result.tokens %}
@@ -102,12 +103,13 @@
 
                           {% endfor %}
                       {% endif %}
-              {% endfor %}
+                    {% endfor %}
                   <br>
+
                   {% if request.user.is_authenticated %}
 
                       <label>
-                          <form method="post" action="{% url 'dislike' sentence.sent_id %}">
+                          <form method="post" action="{% url 'dislike' sentence.sent_id %}?from={{ from_request }}">
                       {% csrf_token %}
                               {% if not sentence.disliked %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-7">Не Нравится 👎 </button>
@@ -119,7 +121,7 @@
 
                         <label>
 
-                            <form method="post" action="{% url 'favourite' sentence.sent_id %}">
+                            <form method="post" action="{% url 'favourite' sentence.sent_id %}?from={{ from_request }}">
                       {% csrf_token %}
                                 {% if not sentence.in_fav %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-8">В избранное </button>
@@ -130,7 +132,7 @@
                         </label>
 
                         <label>
-                            <form method="post" action="{% url 'like' sentence.sent_id %}">
+                            <form method="post" action="{% url 'like' sentence.sent_id %}?from={{ from_request }}">
                       {% csrf_token %}
                                 {% if not sentence.liked %}
                               <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Нравится 👍 </button>

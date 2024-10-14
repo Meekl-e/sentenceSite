@@ -7,7 +7,7 @@ import spacy
 from natasha import NewsEmbedding, Segmenter, NewsSyntaxParser, Doc, NewsMorphTagger
 from ufal.udpipe import Model, Pipeline
 
-nlp = spacy.load("ru_core_news_lg")
+nlp = spacy.load("ru_core_news_sm")
 print("Loading Spacy completed")
 
 emb = NewsEmbedding()
@@ -118,9 +118,9 @@ class PartSentence:
         return self.text
 
     def __eq__(self, other):
-        return (all(f1==f2 and t1==t2 and q1==q2 for (f1,t1,q1), (f2,t2,q2)  in zip(self.question_list, other.question_list))
-                and all(s == o for s, o in zip(self.tokens,  other.tokens)))
-
+        return (all(f1 == f2 and t1 == t2 and q1 == q2 for (f1, t1, q1), (f2, t2, q2) in
+                    zip(self.question_list, other.question_list))
+                and all(s == o for s, o in zip(self.tokens, other.tokens)))
 
 
 class TokenDefault:
@@ -232,6 +232,10 @@ def translate_pos(pos):
 
 def clear_text(text=str()):
     text = re.sub(pattern=r" {2,}", repl=" ", string=text)
+    sym = text[-1]
+    if not sym in "!.?":
+        text += "."
+
     api_url = "https://speller.yandex.net/services/spellservice.json/checkText"
     params = {"text": text, "lang": "ru"}
 
@@ -364,9 +368,7 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
         id_end = sep.id
 
         for id_start in range(idx - 1, -2, -1):
-            if id_start == -1:
-                id_start = 0
-            else:
+            if id_start != -1:
                 id_start = candidates[id_start].id
 
             isSent = True
@@ -388,7 +390,7 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
                     else:
                         lst_questions.append((f, t, q))
             if isSent:
-                tokens = sentence.tokens[id_start:id_end]
+                tokens = sentence.tokens[id_start + 1:id_end + 1]
                 result.append(
                     PartSentence(text=" ".join([i.text for i in tokens]), tokens=tokens, question_list=lst_questions, )
                 )
@@ -495,10 +497,6 @@ def analysis_full(sentence) -> SentenceDefault:
     return mainSentence
 
 
-
-
-
-
 def parsing(text=""):
     """Подавать только очищенный текст"""
 
@@ -508,12 +506,10 @@ def parsing(text=""):
 
     if spacy_res == natasha_res == udpipe_res:
         result = [spacy_res]
-    elif spacy_res == natasha_res or udpipe_res==natasha_res:
+    elif spacy_res == natasha_res or udpipe_res == natasha_res:
         result = [spacy_res, udpipe_res]
     elif spacy_res == udpipe_res:
         result = [spacy_res, natasha_res]
     else:
         result = [spacy_res, udpipe_res, natasha_res]
     return result
-
-

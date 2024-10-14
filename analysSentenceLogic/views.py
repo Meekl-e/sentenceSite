@@ -32,7 +32,7 @@ class checkSentencePage(FormView):
             return HttpResponseRedirect(reverse("sentence", kwargs={"pk": id_sent}))
 
 
-        id_request = "".join(rnd.choice(string.ascii_lowercase + string.digits) for _ in range(50))
+        id_request = "".join(rnd.choice(string.ascii_lowercase + string.digits) for _ in range(5))
         ids_sents = []
         for sentence in sentences:
             sentence_candidates = Sentence.objects.filter(text=sentence)
@@ -100,11 +100,13 @@ class ViewRequest(BaseMixin, FormView):
             return redirect("home")
 
         data["pars_result"] = []
+        data["from_request"] = id_request
 
         count = 0
         for s in obj.request_sentences.all():
             data["pars_result"].append({
                 "nn_results": s.data,
+                "sent_id":s.id,
                 "id_request": id_request,
                 "liked": s.likes.filter(id=self.request.user.id).count() > 0,
                 "disliked": s.dislikes.filter(id=self.request.user.id).count() > 0,
