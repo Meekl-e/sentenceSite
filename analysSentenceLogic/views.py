@@ -90,6 +90,7 @@ class ViewRequest(BaseMixin, FormView):
 
     def get(self, request, **kwargs):
         id_request = request.GET.get("request")
+
         if id_request is None:
             return redirect("home")
         data = super().get_mixin_context(super().get_context_data())

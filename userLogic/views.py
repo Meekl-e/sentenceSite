@@ -23,7 +23,7 @@ def addLike(request, pk):
             sent.likes.remove(request.user)
 
         from_page = request.GET.get("from")
-        if from_page is None:
+        if from_page == "":
 
             return HttpResponseRedirect(reverse('sentence', kwargs={"pk":sent.id}))
         return HttpResponseRedirect(reverse("view_request")+f"?request={from_page}")
@@ -40,6 +40,7 @@ def addDisLike(request, pk):
             return redirect("home")
 
         sent = Sentence.objects.filter(id=pk)
+
         if sent.count() == 0:
             return redirect("home")
         sent = sent[0]
@@ -52,11 +53,12 @@ def addDisLike(request, pk):
         else:
             sent.dislikes.remove(request.user)
 
-        print(sent.likes.count())
-        print(sent.dislikes.count())
+
         from_page = request.GET.get("from")
-        if from_page is None:
+
+        if from_page == "":
             return HttpResponseRedirect(reverse('sentence', kwargs={"pk": sent.id}))
+
         return HttpResponseRedirect(reverse("view_request") + f"?request={from_page}")
 
 
@@ -81,7 +83,7 @@ def addFavourite(request, pk):
             sent.favourites.remove(request.user)
 
         from_page = request.GET.get("from")
-        if from_page is None:
+        if from_page == "":
             return HttpResponseRedirect(reverse('sentence', kwargs={"pk": sent.id}))
         return HttpResponseRedirect(reverse("view_request") + f"?request={from_page}")
 
