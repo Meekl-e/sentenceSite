@@ -28,7 +28,8 @@ class Parent_to_children(models.Model):
 
 class Sentence(models.Model):
 
-    text = models.CharField(max_length=3000, blank=False)
+    text = models.CharField(max_length=100000, blank=False)
+    text_clear = models.CharField(max_length=100000, blank=False)
     len = models.IntegerField(blank=False)
     date = models.DateTimeField(auto_now_add=True, blank=False)
     # tokens = models.ManyToManyField(Token, blank=True,through="Sentence_To_Token")

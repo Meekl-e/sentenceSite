@@ -21,7 +21,9 @@ class checkSentencePage(FormView):
         text = clear_text(form.cleaned_data["text"])
         sentences = sentence_tokenize(text)
         if len(sentences) == 1:
-            candidate = Sentence.objects.filter(text=text)
+            text_c = text.replace(",","").replace(" ","").replace(".","").replace(";","").replace(":", "").replace("-","")
+
+            candidate = Sentence.objects.filter(text_clear=text_c)
             if candidate.count() > 0:
                 candidate[0].count += 1
                 candidate[0].save()

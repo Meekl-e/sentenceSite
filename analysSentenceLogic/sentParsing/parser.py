@@ -71,6 +71,11 @@ class SentenceDefault:
     def __eq__(self, other):
         return all(s == o for s, o in zip(self.simple_sentences_in, other.simple_sentences_in))
 
+    def get_clear(self):
+        return "".join([t.text for t in self.tokens if t.pos not in ["PUNCT"]]).lower()
+
+
+
 
 class PartSentence:
     text = str()
@@ -121,6 +126,8 @@ class PartSentence:
         return (all(f1 == f2 and t1 == t2 and q1 == q2 for (f1, t1, q1), (f2, t2, q2) in
                     zip(self.question_list, other.question_list))
                 and all(s == o for s, o in zip(self.tokens, other.tokens)))
+
+
 
 
 class TokenDefault:
@@ -204,7 +211,7 @@ def translate_dep_to_line(dep):
         "acl:relcl":"double_line"
     }
 
-    return dep_map.get(dep, dep)#"none")
+    return dep_map.get(dep, "none")#"none")
 
 
 def translate_pos(pos):

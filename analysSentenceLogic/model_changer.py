@@ -22,7 +22,8 @@ def create_sentence(sentences=None):
     sent = Sentence.objects.create(
         len=len(sentences[0]),
         text=str(sentences[0]),
-        data=json_values
+        data=json_values,
+        text_clear = sentences[0].get_clear()
         # image=sentence.url
     )
 
