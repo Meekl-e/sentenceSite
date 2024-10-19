@@ -50,6 +50,7 @@ class RequestSentences(models.Model):
 
     id_request = models.CharField(max_length=50,  blank=False)
     request_sentences = models.ManyToManyField(to=Sentence, related_name="query_sentences")
+    date = models.DateField(blank=False, auto_now_add=True)
 
 
     def __str__(self):

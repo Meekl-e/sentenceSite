@@ -7,7 +7,7 @@ import spacy
 from natasha import NewsEmbedding, Segmenter, NewsSyntaxParser, Doc, NewsMorphTagger
 from ufal.udpipe import Model, Pipeline
 
-nlp = spacy.load("ru_core_news_sm")
+nlp = spacy.load("ru_core_news_lg")
 print("Loading Spacy completed")
 
 emb = NewsEmbedding()
@@ -49,6 +49,8 @@ class SentenceDefault:
 
         self.name = name
 
+        self.clear_text = re.sub(r"\W", "", "".join([t.text for t in self.tokens])).lower()
+
     def __dict__(self):
         return {
             "name": self.name,
@@ -72,7 +74,7 @@ class SentenceDefault:
         return all(s == o for s, o in zip(self.simple_sentences_in, other.simple_sentences_in))
 
     def get_clear(self):
-        return "".join([t.text for t in self.tokens if t.pos not in ["PUNCT"]]).lower()
+        return self.clear_text
 
 
 
@@ -222,20 +224,20 @@ def translate_pos(pos):
         "ADV": "Наречие",
         "AUX": "Глагол-связка",
         "CCONJ": 'Сочинительный союз',
-        "DET": "Артикль",
+        "DET": "Местоимение",
         "INTJ": "Междометие",
         "NOUN": 'Существительное',
         "NUM": "Числительное",
         "PART": "Частица",
         "PRON": "Местоимение",
         "PROPN": "Имя собственное",
-        "PUNCT": "",
+        "PUNCT": " ",
         "SCONJ": "Подчинительный союз",
-        "SYM": "Символ",
+        "SYM": "",
         "VERB": "Глагол",
         "X": ""
     }
-    return pos_map.get(pos, " ")
+    return pos_map.get(pos, "")
 
 
 def clear_text(text=str()):
@@ -258,6 +260,33 @@ def clear_text(text=str()):
     except requests.RequestException as e:
         print("TooLarge")
     return text
+
+
+def text2clear_text(text=""):
+    """Возвращает текст без пробелов и знаков препиния"""
+
+    c_t = re.sub(r"\W", "", text).lower()
+    no_sign_text = ""
+
+    if "!" in text or "?" in text:
+        for i, el in enumerate(text):
+            if el == "!":
+                c_t += "!"
+                if i != 0 and not text[i - 1] in "?!":
+                    no_sign_text += el
+            elif el == "?":
+                c_t += "?"
+                if i != 0 and not text[i - 1] in "?!":
+                    no_sign_text += el
+            else:
+                no_sign_text += el
+    else:
+        no_sign_text = text
+
+    print(c_t, no_sign_text)
+
+    return c_t, no_sign_text
+
 
 
 def sentence_tokenize(text) -> list:
@@ -304,7 +333,8 @@ def analysis_spacy(text) -> [SentenceDefault]:
             if q != " ":
                 question_list.append((token.id, tokens_map[child.i], translate_to_question(child.dep_)))
     # print(question_list, tokens, "SPACY")
-    return analysis_full(PartSentence(text, tokens, question_list, "Spacy"))
+    return analysis_full(PartSentence(text, tokens, question_list, "Spacy")), PartSentence(text, tokens, question_list,
+                                                                                           "Sp").tokens
 
 
 def analysis_natasha(text) -> [SentenceDefault]:
@@ -333,17 +363,57 @@ def analysis_natasha(text) -> [SentenceDefault]:
         if q != " ":
             question_list.append((head_id, id, q))
 
-    print(question_list, tokens, "NATASHA")
-    return analysis_full(PartSentence(text, tokens, question_list, "Natasha"))
+    # print(question_list, tokens, "NATASHA")
+    return analysis_full(PartSentence(text, tokens, question_list, "Natasha")), PartSentence(text, tokens,
+                                                                                             question_list, "N").tokens
 
 
-def analysis_UDPipe(text) -> [SentenceDefault]:
-    processed = pipeline.process(text)
+def analysis_UDPipe(all_text) -> [SentenceDefault]:
+    processed = pipeline.process(all_text)
 
     tokens = []
     question_list = []
 
-    for line in processed.split("\n"):
+    lines = processed.split("\n")
+
+    tokens_map = {}
+    minus = 0
+
+    adding = False
+    for idx, line in enumerate(lines):
+
+        if line.startswith("#") or len(line) == 0:
+            continue
+
+        token_parsed = line.split("\t")
+
+        id = int(token_parsed[0]) - 1
+        text = token_parsed[1]
+        dep = token_parsed[7]
+        pos = token_parsed[3]
+
+        if adding:
+            token_first = tokens.pop(-1)
+            tokens.append(TokenDefault(token_first.text + "-" + text,
+                                       token_first.id,
+                                       token_first.line, token_first.pos))
+
+            minus += 2
+            adding = False
+            tokens_map[id] = id - minus
+            tokens_map[id - 1] = id - minus + 1
+        elif text == "-":
+            if all_text.find(tokens[-1].text + " -") == -1:
+                adding = True
+            else:
+                tokens_map[id] = id - minus
+        else:
+            tokens_map[id] = id - minus
+
+            tokens.append(TokenDefault(
+                text, tokens_map[id], translate_dep_to_line(dep), pos
+            ))
+    for idx, line in enumerate(lines):
         if line.startswith("#") or len(line) == 0:
             continue
 
@@ -353,25 +423,26 @@ def analysis_UDPipe(text) -> [SentenceDefault]:
         text = token_parsed[1]
         dep = token_parsed[7]
         head_id = int(token_parsed[6]) - 1
-        pos = token_parsed[3]
-
-        tokens.append(TokenDefault(
-            text, id, translate_dep_to_line(dep), pos
-        ))
         if head_id != 0:
             question = translate_to_question(dep)
             if question != " ":
-                question_list.append((head_id, id, question))
+                question_list.append((tokens_map[head_id], tokens_map[id], question))
 
-    print(question_list, tokens, "UDPipe")
+    # print(question_list, tokens, "UDPipe")
 
-    return analysis_full(PartSentence(text, tokens, question_list, "UDPipe"))
+    return analysis_full(PartSentence(all_text, tokens, question_list, "UDPipe")), PartSentence(all_text, tokens,
+                                                                                                question_list,
+                                                                                                "UDPipe").tokens
 
 
 def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
-    candidates = [token for token in sentence.tokens if token.pos == ""]
+    candidates = [token for token in sentence.tokens if token.pos == " "]
     result = []
     used_question = []
+    print("====")
+    print(len(sentence.tokens))
+
+    print(candidates, sentence.name)
 
     for idx, sep in enumerate(candidates):
         id_end = sep.id
@@ -391,7 +462,7 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
                         break
                     else:
                         lst_questions.append((f, t, q))
-                elif id_start <= t < id_end:
+                if id_start <= t < id_end:
                     if f > id_end or f < id_start:
                         # print(f, t, q, "question_break", id_start, id_end, "2")
                         isSent = False
@@ -400,10 +471,16 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
                         lst_questions.append((f, t, q))
             if isSent:
                 append = True
-                for q in used_question:
-                    if q in lst_questions:
-                        append = False
-                        break
+
+                if id_start >= len(sentence.tokens) - 2:
+                    append = False
+                elif sentence.tokens[id_start + 1].pos in [" ", ""]:
+                    append = False
+                else:
+                    for q in used_question:
+                        if q in lst_questions:
+                            append = False
+                            break
                 if append:
                     tokens = sentence.tokens[id_start + 1:id_end + 1]
                     sent_part = PartSentence(text=" ".join([i.text for i in tokens]), tokens=tokens, question_list=lst_questions, )
@@ -415,7 +492,7 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
 
 
     print(result)
-
+    print("====")
 
     if len(result) == 0:
         return [sentence]
@@ -438,7 +515,7 @@ def analys_part_sentence(part_sentence) -> bool():
         elif token.line == "double_line":
             if idx != 0 and part_sentence.tokens[idx - 1].line != "double_line":
                 count_sk += 1
-        elif raspr is False:
+        elif raspr is False and token.pos not in ["", " "]:
             raspr = True
             part_sentence.second_members = "Распространённое"
 
@@ -521,11 +598,13 @@ def analysis_full(sentence) -> SentenceDefault:
 def parsing(text=""):
     """Подавать только очищенный текст"""
 
-
-    spacy_res = analysis_spacy(text)
+    spacy_res, sp = analysis_spacy(text)
     # return [spacy_res]
-    natasha_res = analysis_natasha(text)
-    udpipe_res = analysis_UDPipe(text)
+    natasha_res, nat = analysis_natasha(text)
+    udpipe_res, ud = analysis_UDPipe(text)
+
+    for s, n, u in zip(sp, nat, ud):
+        print(s.text, n.text, u.text, )
 
     if spacy_res == natasha_res == udpipe_res:
         result = [spacy_res]

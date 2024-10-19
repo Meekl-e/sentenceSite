@@ -1,7 +1,8 @@
 from analysSentenceLogic.models import *
 
-"""
+
 Sentence.objects.all().delete()
+"""
 Token.objects.all().delete()
 Parent_to_children.objects.all().delete()
 """
@@ -54,6 +55,9 @@ def create_sentence(sentences=None):
 
 
 def save_to_request(request="", id_sents=[]) ->None:
+    if RequestSentences.objects.count() >= MAX_OBJECTS:
+        RequestSentences.objects
+
     req = RequestSentences.objects.create(
         id_request=request,
     )

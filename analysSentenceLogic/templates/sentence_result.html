@@ -16,7 +16,8 @@
                   {% endif %}
                   {% for result in sentence.nn_results %}
                       {% if sentence.nn_results|length != 1 %}
-                  <h5 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети "{{ result.name }}":</h5>
+                          <h2 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети
+                              "{{ result.name }}":</h2>
                       {% endif %}
 
 
@@ -25,7 +26,7 @@
                       <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
                       <a style="font-size: x-small">{{ token.pos }}</a>
                           <br>
-                      <a class="{{ token.line }}">{{ token.text }}</a>
+                          <a class="{{ token.line }}">{{ token.text }} {{ forloop.counter0 }}</a>
                       </label>
 
                       {% endfor %}
@@ -46,8 +47,8 @@
                                   <li>{{ result.gram_bases }}</li>
                                   <li>{{ result.simple_sentences_in.0.main_members }}</li>
                                   <li>{{ result.simple_sentences_in.0.second_members }}</li>
-                                  <li>{{ result.simple_sentences_in.0.lost_members }}</li>
                                   <li>{{ result.simple_sentences_in.0.difficulty_members }}</li>
+                                  <li>{{ result.simple_sentences_in.0.lost_members }}</li>
                                   <li>Схема: [{% for token in result.tokens %}
                                       {% if token.line == "none" %}
                                           {{ token.text }}

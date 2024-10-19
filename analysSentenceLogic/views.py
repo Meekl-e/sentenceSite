@@ -9,7 +9,7 @@ from django.views.generic import FormView
 from analysSentenceLogic.forms import NameForm
 from analysSentenceLogic.model_changer import create_sentence, save_to_request
 from analysSentenceLogic.models import Sentence, RequestSentences
-from analysSentenceLogic.sentParsing.parser import parsing, clear_text, sentence_tokenize
+from analysSentenceLogic.sentParsing.parser import parsing, clear_text, sentence_tokenize, text2clear_text
 from utils import BaseMixin
 
 
@@ -19,9 +19,11 @@ class checkSentencePage(FormView):
 
     def form_valid(self, form):
         text = clear_text(form.cleaned_data["text"])
+
+        text_c, text = text2clear_text(text)
+
         sentences = sentence_tokenize(text)
         if len(sentences) == 1:
-            text_c = text.replace(",","").replace(" ","").replace(".","").replace(";","").replace(":", "").replace("-","")
 
             candidate = Sentence.objects.filter(text_clear=text_c)
             if candidate.count() > 0:
@@ -37,7 +39,8 @@ class checkSentencePage(FormView):
         id_request = "".join(rnd.choice(string.ascii_lowercase + string.digits) for _ in range(5))
         ids_sents = []
         for sentence in sentences:
-            sentence_candidates = Sentence.objects.filter(text=sentence)
+            text_c, sentence = text2clear_text(sentence)
+            sentence_candidates = Sentence.objects.filter(text_clear=text_c)
             if sentence_candidates.count() > 0:
                 id_sent = sentence_candidates[0].id
 
