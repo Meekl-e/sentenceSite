@@ -17,6 +17,9 @@ class checkSentencePage(FormView):
     form_class = NameForm
     template_name = "sentence_result.html"
 
+    def form_invalid(self, form):
+        return redirect("home")
+
     def form_valid(self, form):
         text = clear_text(form.cleaned_data["text"])
 
@@ -26,6 +29,7 @@ class checkSentencePage(FormView):
         if len(sentences) == 1:
 
             candidate = Sentence.objects.filter(text_clear=text_c)
+            print(text_c)
             if candidate.count() > 0:
                 candidate[0].count += 1
                 candidate[0].save()

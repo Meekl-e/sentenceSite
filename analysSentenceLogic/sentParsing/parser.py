@@ -7,7 +7,10 @@ import spacy
 from natasha import NewsEmbedding, Segmenter, NewsSyntaxParser, Doc, NewsMorphTagger
 from ufal.udpipe import Model, Pipeline
 
-nlp = spacy.load("ru_core_news_sm")
+# from spacy import displacy
+
+
+nlp = spacy.load("ru_core_news_lg")
 print("Loading Spacy completed")
 
 emb = NewsEmbedding()
@@ -36,16 +39,13 @@ class SentenceDefault:
     type_intonation = "Невосклицательное"
     gram_bases = "Простое"
 
-    def __init__(self, name, simple_sentence_in):
+    def __init__(self, name, simple_sentence_in, tokens):
         """
         Обёртка для всех предложений.
         """
         self.simple_sentences_in = simple_sentence_in
 
-        self.tokens = []
-
-        for part in simple_sentence_in:
-            self.tokens += part.tokens
+        self.tokens = tokens
 
         self.name = name
 
@@ -104,6 +104,8 @@ class PartSentence:
         self.question_list = question_list
         self.tokens = tokens
         self.name = name
+        self.length = len(tokens)
+
 
     def __dict__(self):
         return {
@@ -119,7 +121,7 @@ class PartSentence:
         return len(self.text)
 
     def __repr__(self):
-        return f"{self.text}".lower()
+        return f"|{self.text}|".lower()
 
     def __str__(self):
         return self.text
@@ -142,6 +144,9 @@ class TokenDefault:
         self.pos = translate_pos(pos)
         self.type = None
 
+        if len(self.text) == 1:
+            self.line = "none"
+
     def __len__(self):
         return len(self.text)
 
@@ -158,12 +163,13 @@ class TokenDefault:
             return self.text + "\n" + (r"\/" * (len(self.text) // 2))
         if self.line == "circle":
             return self.text + "\n" + (r"()" * (len(self.text) // 2))
+        return self.text
 
     def __repr__(self):
         return f"{self.id}-{self.text}-{self.line}-{self.pos}".lower()
 
     def __eq__(self, other):
-        return self.text.lower() == other.text.lower() and self.line == other.line and self.pos == other.pos
+        return self.text.lower() == other.text.lower() and self.line == other.line and self.pos == other.pos and self.id == other.id
 
     def __dict__(self):
         return {
@@ -184,11 +190,14 @@ def translate_to_question(dep):
         "amod": "Какой?",
         "nmod": "Чей?",
         "det": "Какой?",
-        "cc": "И?",
+        "cc": " ",
         "mark": "Как?",
         "aux": "Что?",
         "cop": "Что?",
-        "parataxis": "Что?"
+        "parataxis": "Что?",
+        "conj": "ОЧП",
+        "advcl": "Что делая?",
+
     }
     return question_map.get(dep, " ")
 
@@ -197,7 +206,7 @@ def translate_dep_to_line(dep, word):
     dep = dep.lower()
     dep_map = {
         "root": "double_line",
-        "conj": "double_line",
+        "conj": "double_line",  # dotted_line
         "amod": "wavy_line",
         "det": "wavy_line",
         "nmod": "dotted_line",
@@ -215,7 +224,7 @@ def translate_dep_to_line(dep, word):
         "punct":"none",
         "appos":"wavy_line",
         "compound":"wavy_line",
-        "advcl":"test"
+        "advcl": "dotted_circle_line"
     }
     res  = dep_map.get(dep, dep)#"none")
     if res in ["advcl"]:
@@ -253,10 +262,21 @@ def translate_pos(pos):
 
 
 def clear_text(text=str()):
-    text = re.sub(pattern=r" {2,}", repl=" ", string=text)
+    text = re.sub(r"[\n\t\r]", " ", text)
+    text = re.sub(pattern=r" +", repl=" ", string=text).strip()
+    text = re.sub(pattern=r'[«‹„❝❮「『‚“‘‛„‚]', repl='«', string=text)
+    text = re.sub(pattern=r'[»›“❞❯」』‘”’’”’]', repl='»', string=text)
+    text = re.sub(pattern=r'[`\"\']', repl='"', string=text)
+    text = re.sub(r'\"{2,}', '"', text)
+
+    text = text[0].upper() + text[1:]
+
     sym = text[-1]
-    if not sym in "!.?":
+    if sym in ",:;":
+        text = text[:-1] + "."
+    elif not sym in "!.?":
         text += "."
+
 
     api_url = "https://speller.yandex.net/services/spellservice.json/checkText"
     params = {"text": text, "lang": "ru"}
@@ -305,10 +325,21 @@ def sentence_tokenize(text) -> list:
     return nltk.tokenize.sent_tokenize(text, "russian")
 
 def get_word_tokenize(text):
-    return nltk.tokenize.word_tokenize(text, "russian")
+    res = "|separator|".join(nltk.tokenize.word_tokenize(text, "russian"))
+    res = re.sub(r"[\n\t\r]", " ", res)
+    res = re.sub(r" +", " ", res)
+    res = re.sub(pattern=r'[«‹„❝❮「『‚“‘‛„‚]', repl='«', string=res)
+    res = re.sub(pattern=r'[»›“❞❯」』‘”’’”’]', repl='»', string=res)
+    res = re.sub(pattern=r'[`\"\']', repl='"', string=res)
+    return re.sub(r'\"{2,}', '"', res).split("|separator|")
+
+
+
 
 def analysis_spacy(text, tokenized) -> [SentenceDefault]:
     doc = nlp(text)
+
+    # displacy.serve(doc, style="dep")
 
     question_list = []
     tokens = []
@@ -318,8 +349,8 @@ def analysis_spacy(text, tokenized) -> [SentenceDefault]:
 
     adding = False
     for token in doc:
-        if translate_dep_to_line(token.dep_, token.text) == token.dep_:
-            print(token.text, token.dep_, text[token.idx - 10: token.idx + 10])
+        # if translate_dep_to_line(token.dep_, token.text) == token.dep_:
+        # print(token.text, token.dep_, text[token.idx - 10: token.idx + 10])
 
         if adding:
             token_first = tokens.pop(-1)
@@ -333,7 +364,7 @@ def analysis_spacy(text, tokenized) -> [SentenceDefault]:
             adding = False
             tokens_map[token.i] = token.i - minus
             tokens_map[token.i - 1] = token.i - minus + 1
-        elif token.text == "-":
+        elif token.i != 0 and token.text == "-":
 
             if text[token.idx-1] != " ":
                 adding = True
@@ -365,6 +396,9 @@ def analysis_natasha(text, tokenized) -> [SentenceDefault]:
     doc.parse_syntax(syntax_parser)
     doc.tag_morph(tagger)
 
+    # doc.sents[0].syntax.print()
+
+
     question_list = []
     tokens = []
 
@@ -392,6 +426,8 @@ def analysis_natasha(text, tokenized) -> [SentenceDefault]:
                     if q != " ":
                         question_list.append((head_first_id, id - minus, q))
                 append = False
+                all_text_tokens = ""
+
             continue
 
 
@@ -416,6 +452,16 @@ def analysis_natasha(text, tokenized) -> [SentenceDefault]:
         if q != " ":
             question_list.append((head_id, id - minus, q))
 
+    if all_text_tokens != "":
+        tokens.append(TokenDefault(all_text_tokens,
+                                   id - minus,
+                                   translate_dep_to_line(rel_first, all_text_tokens),
+                                   token.pos))
+        if head_first_id != -1:
+            q = translate_to_question(rel_first)
+            if q != " ":
+                question_list.append((head_first_id, id - minus, q))
+
     # print(question_list, tokens, "NATASHA")
     return analysis_full(PartSentence(text, tokens, question_list, "Natasha")), PartSentence(text, tokens,
                                                                                              question_list, "N").tokens
@@ -435,6 +481,11 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
 
     adding = False
     id_token_start = 0
+
+    wait_for_token = False
+    all_token_text = ""
+    count_wait = 0
+
     for idx, line in enumerate(lines):
 
         if line.startswith("#") or len(line) == 0:
@@ -448,6 +499,27 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
         dep = token_parsed[7]
         pos = token_parsed[3]
 
+        if wait_for_token:
+            all_token_text += text
+            if all_token_text == tokenized[id - minus]:
+                wait_for_token = False
+                for c in range(count_wait):
+                    tokens_map[id - c] = id - minus
+                tokens.append(TokenDefault(all_token_text,
+                                           tokens_map[id],
+                                           translate_dep_to_line(dep, all_token_text), pos))
+            else:
+                minus += 1
+                count_wait += 1
+            continue
+
+        if text != tokenized[id - minus]:
+            if text[0] != "«":
+                wait_for_token = True
+                all_token_text = text
+                count_wait += 1
+                minus += 1
+                continue
 
         if adding:
             token_first = tokens.pop(-1)
@@ -459,7 +531,7 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
             adding = False
             tokens_map[id] = id - minus
             tokens_map[id - 1] = id - minus + 1
-        elif text == "-":
+        elif id != 0 and text == "-":
             # print(all_text[id_token_start -3: id_token_start + 3], [all_text[id_token_start -1]], "r")
             if all_text[id_token_start -1] != " ":
                 adding = True
@@ -524,12 +596,14 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
 
 def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
     candidates = [token for token in sentence.tokens if token.pos == " "]
+
     result = []
-    used_question = []
+
+    used_tokens = []
     print("====")
     print(len(sentence.tokens))
-
     print(candidates, sentence.name)
+
 
     for idx, sep in enumerate(candidates):
         id_end = sep.id
@@ -537,19 +611,21 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
         for id_start in range(idx - 1, -2, -1):
             if id_start != -1:
                 id_start = candidates[id_start].id
+            else:
+                id_start = 0
 
             isSent = True
             lst_questions = []
 
             for f, t, q in sentence.question_list:
-                if id_start <= f < id_end:
+                if id_start < f < id_end:
                     if t > id_end or t < id_start:
                         # print(f, t, q, "question_break", id_start, id_end)
                         isSent = False
                         break
                     else:
                         lst_questions.append((f, t, q))
-                if id_start <= t < id_end:
+                if id_start < t < id_end:
                     if f > id_end or f < id_start:
                         # print(f, t, q, "question_break", id_start, id_end, "2")
                         isSent = False
@@ -558,18 +634,39 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
                         lst_questions.append((f, t, q))
             if isSent:
                 append = True
-
+                tokens_all = sentence.tokens[id_start:id_end + 1]
+                # print(tokens_all)
                 if id_start >= len(sentence.tokens) - 2:
                     append = False
+
                 elif sentence.tokens[id_start + 1].pos in [" ", ""]:
                     append = False
-                else:
-                    for q in used_question:
-                        if q in lst_questions:
-                            append = False
-                            break
+
                 if append:
-                    tokens = sentence.tokens[id_start + 1:id_end + 1]
+                    tokens = []
+                    for t in tokens_all:
+                        if t not in used_tokens:
+                            tokens.append(t)
+                            used_tokens.append(t)
+                    if len(tokens) == 0 or (len(tokens) == 1 and tokens[0].pos in [" ", ""]):
+                        continue
+
+                    if tokens[0].pos in [" ", ""]:
+                        tokens = tokens[1:]
+
+                    for idx_used, p_used in enumerate(result):
+                        break_find = False
+                        for t in tokens:
+
+                            if t in p_used.tokens:
+
+                                if p_used.length < len(tokens):
+                                    result.pop(idx_used)
+                                    break_find = True
+                                    break
+                        if break_find:
+                            break
+
                     sent_part = PartSentence(text=" ".join([i.text for i in tokens]), tokens=tokens, question_list=lst_questions, )
 
                     result.append(
@@ -580,6 +677,7 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
 
     print(result)
     print("====")
+    result.sort(key=lambda x: x.tokens[0].id)
 
     if len(result) == 0:
         return [sentence]
@@ -657,7 +755,9 @@ def analys_part_sentence(part_sentence) -> bool():
     return pobyditel
 
 
-def analysis_full(sentence) -> SentenceDefault:
+def analysis_full(sentence) -> SentenceDefault or None:
+    if len(sentence.tokens) == 0:
+        return None
 
 
     parts = split_hard_sentence(sentence)
@@ -668,7 +768,7 @@ def analysis_full(sentence) -> SentenceDefault:
         if analys_part_sentence(part_sentence):
             sentence.type_goal = "Побудительное"
 
-    mainSentence = SentenceDefault(sentence.name, parts)
+    mainSentence = SentenceDefault(sentence.name, parts, sentence.tokens)
 
     if sentence.tokens[-1].text == "!":
         mainSentence.type_intonation = "Восклицательное"
@@ -687,16 +787,14 @@ def analysis_full(sentence) -> SentenceDefault:
 def parsing(text=""):
     """Подавать только очищенный текст"""
     tokenized = get_word_tokenize(text)
-
+    print(tokenized, text)
     spacy_res, sp = analysis_spacy(text, tokenized)
     # return [spacy_res]
     natasha_res, nat = analysis_natasha(text, tokenized)
     udpipe_res, ud = analysis_UDPipe(text, tokenized)
 
-
-    #
-    # for s, n, u, t in zip(sp, nat, ud, tokenized):
-    #     print(s.text, n.text, u.text, t )
+    for s, n, u, t in zip(sp, nat, ud, tokenized):
+        print([s.text, n.text, u.text, t])
 
     if spacy_res == natasha_res == udpipe_res:
         result = [spacy_res]
