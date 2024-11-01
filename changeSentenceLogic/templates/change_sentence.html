@@ -32,7 +32,12 @@
                       <br>
                       <a style="font-size: small">{{ token.pos }} ✏️</a>
                           <br>
-                      <a name="token">{{ token.text }}</a>
+                      <a id="edit_token_{{ forloop.counter }}_txt" name="token">{{ token.text }} <btn name="edit_token" id="edit_token_{{ forloop.counter }}">✏️</btn></a>
+                      <br>
+
+                      <input id="edit_token_{{ forloop.counter }}_input" type="hidden" >
+                      <button name="confirm_edit" value="{% url 'edit_token' sent_id  forloop.counter0 %}?value=" id="edit_token_{{ forloop.counter }}_btn" class="btn btn-primary" hidden="hidden">Сохранить</button>
+
                       <br>
                       {{ form.type }}
                   </label>
@@ -52,8 +57,8 @@
                   {{ question_form.width }}
 
               </form>
-              {% for render in rendered %}
-                  <img src="{{ render }}" alt="">
+              {% for question in questions_txt %}
+                  <label>{{ question }}</label>
                   <form name="form-remove" method="post" action="{% url 'remove_relation' sent_id %}">
                   {% csrf_token %}
                       {{ form_remove.id_remove }}
@@ -68,9 +73,15 @@
                   {{ send_form.lines }}
                   <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-11">Опубликовать</button>
               </form>
+              {% if back == "" %}
               <a href="{% url 'sentence' sent_id %}">
                   <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-12">Вернуться назад</button>
               </a>
+                  {% else %}
+                  <a href="{% url 'view_request' %}?from={{ back }}">
+                  <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-12">Вернуться назад</button>
+              </a>
+                  {% endif %}
 
 
 

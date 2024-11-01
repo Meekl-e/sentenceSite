@@ -24,7 +24,6 @@ def addLike(request, pk):
 
         from_page = request.GET.get("from")
         if from_page == "":
-
             return HttpResponseRedirect(reverse('sentence', kwargs={"pk":sent.id}))
         return HttpResponseRedirect(reverse("view_request")+f"?request={from_page}")
 

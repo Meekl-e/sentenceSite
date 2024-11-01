@@ -3,19 +3,14 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
-from analysSentenceLogic.sentParsing.creating_image import draw, getDefaultParametrs
 
 from utils import BaseMixin
 from .forms import *
 from analysSentenceLogic.models import Sentence, Parent_to_children
+from analysSentenceLogic.sentParsing.parser import get_word_tokenize
 
-def draw_realtion(token_from, token_to,question, width):
-    params = getDefaultParametrs()
-    params["name"] = (token_from + "_" + token_to).lower()
-    params["width"] = width
-
-    return draw([token_from, token_to], [" ", " "], [(0, 1, question)],
-               params)
+def words2questions(w_from, w_to, question) -> str:
+    return w_from + f" == {question.capitalize()} ==> " + w_to
 
 class ChangeSentence(BaseMixin, TemplateView):
     template_name = "change_sentence.html"
@@ -60,9 +55,8 @@ class ChangeSentence(BaseMixin, TemplateView):
 
         if not request.user.change_sentence[kwargs["pk"]].get("question_list"):
             request.user.change_sentence[kwargs["pk"]]["question_list"] = []
+            request.user.change_sentence[kwargs["pk"]]["text_question_list"] = []
 
-        if not request.user.change_sentence[kwargs["pk"]].get("media_list"):
-            request.user.change_sentence[kwargs["pk"]]["media_list"] = []
 
         append = True
 
@@ -75,18 +69,16 @@ class ChangeSentence(BaseMixin, TemplateView):
                 o = request.user.change_sentence[kwargs["pk"]]["question_list"][i]
                 if o[0] == from_i and o[1] == to_i:
                     request.user.change_sentence[kwargs["pk"]]["question_list"].pop(i)
-                    src = request.user.change_sentence[kwargs["pk"]]["media_list"].pop(i)
-                    fs.delete(src.removeprefix("/media/"))
+                    request.user.change_sentence[kwargs["pk"]]["text_question_list"].pop(i)
                     request.user.save()
                     break
 
         request.user.change_sentence[kwargs["pk"]]["lined"] = lined
         if append:
             token_from, token_to = tokens[from_i], tokens[to_i]
-            src = draw_realtion(token_from, token_to, question, question_form.cleaned_data["width"] // 2)
-            print(src)
+            request.user.change_sentence[kwargs["pk"]]["text_question_list"].append(words2questions(token_from, token_to, question))
             request.user.change_sentence[kwargs["pk"]]["question_list"].append((from_i, to_i, question.capitalize()))
-            request.user.change_sentence[kwargs["pk"]]["media_list"].append(src)
+
 
 
 
@@ -106,6 +98,10 @@ class ChangeSentence(BaseMixin, TemplateView):
 
 
         pk = str(kwargs["pk"])
+        from_page = request.GET.get("from")
+
+
+
 
         sentence = Sentence.objects.filter(id=pk)
         if sentence.count() == 0:
@@ -113,32 +109,41 @@ class ChangeSentence(BaseMixin, TemplateView):
 
         data_sent = sentence[0].data[0]
 
-        tokens = data_sent["tokens"]
 
 
 
         change_sentence_data = request.user.change_sentence.get(pk) if request.user.change_sentence else None
 
-        media_list = []
+
+        tokens = data_sent["tokens"]
+
+        if change_sentence_data and change_sentence_data.get("tokens") is not None:
+            if change_sentence_data and len(change_sentence_data.get("tokens")) != len(tokens):
+                print("ERROR", len(change_sentence_data.get("tokens")), len(tokens))
+            if change_sentence_data and change_sentence_data.get("tokens") is not None:
+                for i, text_token in enumerate(change_sentence_data.get("tokens")):
+                    if i < len(tokens):
+                        tokens[i]["text"] = text_token
+
+
+
         question_list = sum([p["question_list"] for p in data_sent["simple_sentences_in"]], [])
-        # print(question_list)
+        questions_txt_list = []
+
+        for f,t,q in question_list:
+            questions_txt_list.append(words2questions(tokens[f]["text"], tokens[t]["text"], q))
+
         if change_sentence_data and change_sentence_data.get("lined") is not None:
             data = [{"type": word} for word in change_sentence_data.get("lined")]
-            if change_sentence_data.get("media_list"):
-                media_list = change_sentence_data.get("media_list")
         else:
             data = [{"type": word["line"]} for word in tokens]
             lined = [ word["line"] for word in tokens]
-            print(question_list)
-            for f, t, q in question_list:
-                src = draw_realtion(tokens[f]["text"], tokens[t]["text"], q, 300)
-                print(src)
-                media_list.append(src)
+
             if not request.user.change_sentence:
-                request.user.change_sentence = {pk:{"lined":lined, "question_list":question_list, "media_list":media_list}}
+                request.user.change_sentence = {pk:{"lined":lined, "question_list":question_list,"questions_txt_list":questions_txt_list, "tokens":[w["text"] for w in tokens] }}
 
             elif not request.user.change_sentence.get(pk):
-                request.user.change_sentence[pk] = {"lined": lined, "question_list": question_list, "media_list": media_list}
+                request.user.change_sentence[pk] = {"lined": lined, "question_list": question_list, "questions_txt_list":questions_txt_list, "tokens":[w["text"] for w in tokens] }
             request.user.save()
 
 
@@ -150,10 +155,13 @@ class ChangeSentence(BaseMixin, TemplateView):
             formset=formset,
             question_form=question_form,
             list_forms=zip(formset, tokens),
-            rendered=media_list,
+            questions=question_list,
+            questions_txt=questions_txt_list,
             sent_id=pk,
             send_form=SendForm(),
-            form_remove=RemoveForm()
+            form_remove=RemoveForm(),
+            back=from_page,
+            form_text_token=TextTokenForm()
         ))
 
         return self.render_to_response(context=data)
@@ -193,45 +201,35 @@ class SaveSentence(BaseMixin, TemplateView):
             sentence = sentence[0]
 
             question_list = changed_sent.get("question_list")
-            media_list= changed_sent.get("media_list")
+
             lined = form_send.cleaned_data["lines"].split()
-            print(lined)
+            tokens = changed_sent.get("tokens")
+            print(tokens)
 
 
             # lined
 
             id_part = 0
             id_t = 0
-            for token, line in zip(sentence.data[0]["tokens"], lined):
+            for token, line, token_txt in zip(sentence.data[0]["tokens"], lined, tokens):
                 token["line"] = line
                 if id_t > len(sentence.data[0]["simple_sentences_in"][id_part]) -1:
                     id_part+=1
                     if id_part >= len(sentence.data[0]["simple_sentences_in"]):
                         break
                 sentence.data[0]["simple_sentences_in"][id_part]["tokens"][id_t]["line"] = line
+                sentence.data[0]["simple_sentences_in"][id_part]["tokens"][id_t]["text"] = token_txt
                 id_t+=1
 
 
             # Question list
             sentence.data[0]["question_list"] = question_list
 
-            # Parent_to_children.objects.filter(sentence_id=pk).delete()
-            # for f,t,q in question_list:
-            #     Parent_to_children.objects.create(
-            #         sentence_id=pk,
-            #         parent_id=f,
-            #         child_id=t,
-            #         question=q,
-            #     )
-
-            # image
 
             sentence.verified = True
             sentence.save()
 
             #media delete
-            for file in media_list:
-                fs.delete(file.removeprefix("/media/"))
 
             # clear user
 
@@ -257,16 +255,34 @@ def remove_sentence(request, pk):
 
 
 
-    if id_remove >= len(request.user.change_sentence[pk]["media_list"]) or id_remove < 0:
+    if id_remove >= len(request.user.change_sentence[pk]["question_list"]) or id_remove < 0:
         print("redirect")
         return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-    src = request.user.change_sentence[pk]["media_list"].pop(id_remove)
     request.user.change_sentence[pk]["question_list"].pop(id_remove)
 
-    fs.delete(src.removeprefix("/media/"))
+    request.user.save()
+    return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
+
+
+def edit_token_text(request, pk, token_id_0):
+    pk = str(pk)
+    if (request.method != "GET" or
+            not request.user.is_authenticated or
+            not request.user.change_sentence.get(pk)):
+        return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
+    new_value = request.GET.get("value")
+    if new_value =="":
+        return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
+    if request.user.change_sentence[pk].get("tokens") is None:
+        data=Sentence.objects.filter(id=pk)[0].data[0]["tokens"]
+        request.user.change_sentence[pk]["tokens"] = [t["text"] for t in data]
+
+    request.user.change_sentence[pk]["tokens"][int(token_id_0)] = new_value
     request.user.save()
     return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
 
 
 
-fs = FileSystemStorage()
+
+
+

@@ -1,9 +1,58 @@
 document.addEventListener('DOMContentLoaded', function () {
     let selectedCheckboxes = [];
 
+    let active_edits = [];
+
+    document.getElementsByName("edit_token").forEach(function (token_edit){
+        token_edit.addEventListener("click",function () {
+            var input = document.getElementById(token_edit.id+"_input");
+            var btn = document.getElementById(token_edit.id+"_btn");
+            if (input.type === "hidden"){
+                input.type = "text";
+                console.log(document.getElementById(token_edit.id+"_txt").textContent);
+                var txt_cont = document.getElementById(token_edit.id+"_txt").textContent
+
+                input.value = txt_cont.slice(0,txt_cont.length-3);
+                btn.hidden = null;
+                active_edits.push(token_edit);
+            }else {
+                input.type = "hidden";
+                btn.hidden = "hidden";
+                setTimeout(() => active_edits = active_edits.filter((el) => el !== token_edit), 10);
+            }
+        } );
+    });
+    document.getElementsByName("confirm_edit").forEach(function (confirm_btn){
+        confirm_btn.addEventListener("click",function () {
+            active_edits.forEach(function (token_edit) {
+                var btn = document.getElementById(token_edit.id+"_btn");
+                var input = document.getElementById(token_edit.id+"_input");
+                fetch(btn.value+input.value);
+
+
+            });
+            location.reload();
+        } );
+
+    });
+
 
     document.querySelectorAll('.form-check-input').forEach(function (checkbox) {
-        checkbox.addEventListener('change', function () {
+        checkbox.addEventListener('change', function (event) {
+            var chb_id = checkbox.getAttribute("name").split("_");
+
+            console.log("edit_token_"+chb_id[chb_id.length-1]);
+
+            var find_obj = document.getElementById("edit_token_"+chb_id[chb_id.length-1]);
+
+            if (active_edits.find(function (value, index, array) {
+                return value === find_obj;
+            }) !== undefined) {
+                checkbox.checked = ! checkbox.checked;
+                event.preventDefault();
+                return;
+            }
+
             if (checkbox.checked) {
 
                 if (selectedCheckboxes.length < 2) {
@@ -15,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementsByName("counter_"+selectedCheckboxes[selectedCheckboxes.length - 1].name.split("_")[1])[0].textContent = "";
                     selectedCheckboxes.pop();
                     selectedCheckboxes.push(checkbox);
-                    console.log(selectedCheckboxes);
+
 
                 }
 
@@ -76,7 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
      line_elem.value = lines_list;
 
 
+
 });
+
+
    var idx = 0;
     document.getElementsByName("form-remove").forEach(function (form) {
         let inputs = form.getElementsByTagName("input")[1];

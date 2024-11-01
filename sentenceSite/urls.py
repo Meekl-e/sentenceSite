@@ -42,6 +42,7 @@ urlpatterns = [
     path('favourite/<int:pk>/', addFavourite, name='favourite'),
     path('sentence/<int:pk>/change/', ChangeSentence.as_view(), name='change_sentence'),
     path('sentence/<int:pk>/change/remove/', remove_sentence, name='remove_relation'),
+    path('sentence/<int:pk>/change/edit_token/<int:token_id_0>/', edit_token_text, name='edit_token'),
     path('sentence/<int:pk>/change/save/', SaveSentence.as_view(), name='save_sentence'),
 
 ]

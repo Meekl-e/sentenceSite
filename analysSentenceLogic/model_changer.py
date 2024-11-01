@@ -1,7 +1,7 @@
 from analysSentenceLogic.models import *
 
 
-Sentence.objects.all().delete()
+# Sentence.objects.all().delete()
 """
 Token.objects.all().delete()
 Parent_to_children.objects.all().delete()

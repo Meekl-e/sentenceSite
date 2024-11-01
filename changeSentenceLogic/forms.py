@@ -45,6 +45,10 @@ class RelationForm(forms.Form):
 class SendForm(forms.Form):
     lines = forms.CharField(required=True, widget=forms.HiddenInput(attrs={"id":"lines-send-hidden"}))
 
+
+class TextTokenForm(forms.Form):
+    token_text = forms.CharField(required=True, widget=forms.HiddenInput(attrs={"id":"edit_token_{{ forloop.counter }}_input"}))
+
 class RemoveForm(forms.Form):
     id_remove = forms.IntegerField(required=True,  widget=forms.HiddenInput())
 

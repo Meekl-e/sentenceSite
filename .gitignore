@@ -2,3 +2,8 @@
 /venv/
 /media/
 /db.sqlite3/
+/analysSentenceLogic/migrations/
+/authLogic/migrations/
+/changeSentenceLogic/migrations/
+/mainPage/migrations/
+/userLogic/migrations/

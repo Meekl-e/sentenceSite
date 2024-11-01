@@ -26,7 +26,10 @@
                       <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
                       <a style="font-size: x-small">{{ token.pos }}</a>
                           <br>
-                          <a class="{{ token.line }}">{{ token.text }} {{ forloop.counter0 }}</a>
+                          <a class="{{ token.line }}">{{ token.text }} 
+                          
+                          
+                          </a>
                       </label>
 
                       {% endfor %}
@@ -144,7 +147,7 @@
                       </form>
                       </label>
                       <label>
-                          <a href="{% url 'change_sentence' sentence.sent_id %}">
+                          <a href="{% url 'change_sentence' sentence.sent_id %}?from={{ from_request }}">
                               <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Изменить</button>
                           </a>
                       </label>
