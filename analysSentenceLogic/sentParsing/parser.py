@@ -23,8 +23,8 @@ print("Loading UDPipe completed")
 morph = pymorphy3.MorphAnalyzer()
 print("Loading pymorphy3 completed")
 
-# nltk.download('punkt')
-# nltk.download('punkt_tab')
+nltk.download('punkt')
+nltk.download('punkt_tab')
 print("Loading NLTK completed")
 
 
