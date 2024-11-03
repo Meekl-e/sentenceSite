@@ -7,10 +7,7 @@ import spacy
 from natasha import NewsEmbedding, Segmenter, NewsSyntaxParser, Doc, NewsMorphTagger
 from ufal.udpipe import Model, Pipeline
 
-from spacy import displacy
-
-
-nlp = spacy.load("ru_core_news_sm")
+nlp = spacy.load("ru_core_news_lg")
 print("Loading Spacy completed")
 
 emb = NewsEmbedding()
