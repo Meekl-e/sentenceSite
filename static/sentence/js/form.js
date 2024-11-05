@@ -5,15 +5,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementsByName("edit_token").forEach(function (token_edit){
         token_edit.addEventListener("click",function () {
-            var input = document.getElementById(token_edit.id+"_input");
-            var btn = document.getElementById(token_edit.id+"_btn");
+
+            if (active_edits.length > 0) {
+                var elem = active_edits.pop();
+                var btn = document.getElementById(elem.id + "_btn");
+                var input = document.getElementById(elem.id + "_input");
+                btn.hidden = "hidden";
+                input.hidden = "hidden";
+
+                // location.reload();
+            }
+
+            input = document.getElementById(token_edit.id + "_input");
+            btn = document.getElementById(token_edit.id + "_btn");
             if (input.type === "hidden"){
                 input.type = "text";
-                console.log(document.getElementById(token_edit.id+"_txt").textContent);
+
                 var txt_cont = document.getElementById(token_edit.id+"_txt").textContent
 
-                input.value = txt_cont.slice(0,txt_cont.length-3);
+                input.value = txt_cont;
                 btn.hidden = null;
+                input.hidden = null;
                 active_edits.push(token_edit);
             }else {
                 input.type = "hidden";
@@ -22,32 +34,43 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } );
     });
+
+    document.getElementsByName("remove_token").forEach(function (token_remove) {
+        token_remove.addEventListener("click", function () {
+
+
+        });
+    });
     document.getElementsByName("confirm_edit").forEach(function (confirm_btn){
         confirm_btn.addEventListener("click",function () {
             active_edits.forEach(function (token_edit) {
                 var btn = document.getElementById(token_edit.id+"_btn");
                 var input = document.getElementById(token_edit.id+"_input");
+                var text_el = document.getElementById(token_edit.id + "_txt");
                 fetch(btn.value+input.value);
+                btn.hidden = "hidden";
+                input.hidden = "hidden";
+
+                text_el.textContent = input.value;
 
 
             });
-            location.reload();
+            setTimeout(() => location.reload(), 100);
+            active_edits = [];
         } );
 
     });
 
 
-    document.querySelectorAll('.form-check-input').forEach(function (checkbox) {
+    document.getElementsByName('checkbox_question').forEach(function (checkbox) {
         checkbox.addEventListener('change', function (event) {
-            var chb_id = checkbox.getAttribute("name").split("_");
+            var chb_id = checkbox.id.split("_");
 
             console.log("edit_token_"+chb_id[chb_id.length-1]);
 
             var find_obj = document.getElementById("edit_token_"+chb_id[chb_id.length-1]);
 
-            if (active_edits.find(function (value, index, array) {
-                return value === find_obj;
-            }) !== undefined) {
+            if (active_edits.length > 0 && active_edits.find((val, index, arr) => val === find_obj) !== undefined) {
                 checkbox.checked = ! checkbox.checked;
                 event.preventDefault();
                 return;
@@ -61,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
 
                     selectedCheckboxes[selectedCheckboxes.length - 1].checked = false;
-                    document.getElementsByName("counter_"+selectedCheckboxes[selectedCheckboxes.length - 1].name.split("_")[1])[0].textContent = "";
+                    document.getElementById("counter_" + selectedCheckboxes[selectedCheckboxes.length - 1].name.split("_")[1])[0].textContent = "";
                     selectedCheckboxes.pop();
                     selectedCheckboxes.push(checkbox);
 
@@ -73,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 selectedCheckboxes = selectedCheckboxes.filter(function (item) {
                     return item !== checkbox;
                 });
-                document.getElementsByName("counter_"+checkbox.name.split("_")[1])[0].textContent = "";
+                document.getElementById("counter_" + checkbox.name.split("_")[1])[0].textContent = "";
 
             }
             for (let i = 0; i <selectedCheckboxes.length; i++){
@@ -84,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         txt = "к"
                     }
 
-                    document.getElementsByName("counter_"+selectedCheckboxes[i].name.split("_")[1])[0].textContent = txt;
+                document.getElementById("counter_" + selectedCheckboxes[i].name.split("_")[1])[0].textContent = txt;
                 }
 
         });

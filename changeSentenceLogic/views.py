@@ -4,10 +4,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 
-from utils import BaseMixin
-from .forms import *
 from analysSentenceLogic.models import Sentence, Parent_to_children
 from analysSentenceLogic.sentParsing.parser import get_word_tokenize
+from utils import BaseMixin
+from .forms import *
+
 
 def words2questions(w_from, w_to, question) -> str:
     return w_from + f" == {question.capitalize()} ==> " + w_to
@@ -149,7 +150,7 @@ class ChangeSentence(BaseMixin, TemplateView):
 
         formset = WordFormSet(initial=data)
         # questions_list = data_sent["question_list"] # Parent_to_children.objects.values_list('question', flat=True).distinct()
-        question_form = RelationForm(questions=question_list)
+        question_form = RelationForm()  # questions=question_list)
 
         data = super().get_mixin_context(super().get_context_data(
             formset=formset,

@@ -27,12 +27,15 @@
               {% for form, token in list_forms %}
 
                   <label class="u-custom-font u-font-georgia u-text u-text-9">
-                      <input type="checkbox" class="form-check-input" name="checkbox_{{ forloop.counter }}" value="{{ forloop.counter }}">
+                      <input type="checkbox" class="form-check-input" name="checkbox_question"
+                             id="checkbox_{{ forloop.counter }}" value="{{ forloop.counter }}">
                       <a name="counter_{{ forloop.counter }}"></a>
                       <br>
                       <a style="font-size: small">{{ token.pos }} ✏️</a>
                           <br>
-                      <a id="edit_token_{{ forloop.counter }}_txt" name="token">{{ token.text }} <btn name="edit_token" id="edit_token_{{ forloop.counter }}">✏️</btn></a>
+                      <a id="edit_token_{{ forloop.counter }}_txt" name="token">{{ token.text }}</a>
+                      <btn name="edit_token" id="edit_token_{{ forloop.counter }}">✏️</btn>
+                      <btn name="remove_token" id="remove_token_{{ forloop.counter }}">❌</btn>
                       <br>
 
                       <input id="edit_token_{{ forloop.counter }}_input" type="hidden" >
