@@ -303,7 +303,7 @@ def clear_text(text=str()):
 
 
 def text2clear_text(text=""):
-    """Возвращает текст без пробелов и знаков препиния"""
+    """Возвращает текст без пробелов и знаков препинания"""
 
     c_t = re.sub(r"\W", "", text).lower()
     no_sign_text = ""

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'sentence/css/sentence_result.css' %}" media="screen">
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="main-container" class="u-container-style u-layout-cell u-size-45 u-layout-cell-3">
+
+        <div class="u-container-layout u-container-layout-3">
+            <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Редактирование
+                предложения. Разбивка сложного предложения на простые</h3>
+            {% if not unathorized %}
+
+                <br>
+
+                <h5 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Нажмите на квадратик над словом,
+                    где начинается часть предложения</h5>
+                <h5 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Далее нажмите на квадратик над
+                    словом, где заканчивается часть предложение</h5>
+                <h5 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Если предложение простое,
+                    выделите первое и последнее слово. Нажмите на кнопку "Добавить часть"</h5>
+                <br>
+                <div style="margin-left: 10px">
+
+                    {% for  token in tokens %}
+                        <p style="display: inline-block;" class="u-custom-font u-font-georgia u-text u-text-9">
+                            <input type="checkbox" class="form-check-input" name="checkbox_question"
+                                   id="checkbox_{{ forloop.counter }}" value="{{ forloop.counter }}">
+                            <a style="font-size: xx-large" id="counter_{{ forloop.counter }}"></a>
+                        </p>
+                        <p style="display: inline-block;" class="u-custom-font u-font-georgia u-text u-text-9">
+
+
+                            <a style="font-size: x-small">{{ token.pos }}</a>
+                            <br>
+                            <a style="color: #0f0f0f; font-size: larger" class="{{ token.line }}">{{ token.text }}</a>
+                        </p>
+
+
+                    {% endfor %}
+                    <br>
+                    <form id="form-relation" method="post" action="{% url 'add_part' sent_id %}">
+                        {% csrf_token %}
+
+                        <div hidden="hidden">
+                            <p id="start-symbol">[</p>
+                            <p id="end-symbol">]</p>
+                        </div>
+
+                        {{ part_form.selected }}
+                        <label class="u-custom-font u-font-georgia u-text input-group mb-3" style="width: 400px;">
+                            {{ part_form.type }}
+                            <button type="submit"
+                                    class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-11">
+                                Добавить часть
+                            </button>
+                        </label>
+
+                        <label id="form-error" class="u-custom-font u-font-georgia u-text text-danger"></label>
+                    </form>
+
+
+                    <form id="form-relation" method="post" action="{% url 'save_parts' sent_id %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-11">
+                            Опубликовать
+                        </button>
+                    </form>
+                    {% if back == "" %}
+                        <a href="{% url 'change_sentence' sent_id %}">
+                            <button type="submit"
+                                    class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-12">
+                                Вернуться назад
+                            </button>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'change_sentence' sent_id %}?from={{ back }}">
+                            <button type="submit"
+                                    class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-12">
+                                Вернуться назад
+                            </button>
+                        </a>
+                    {% endif %}
+
+
+                </div>
+            {% else %}
+                <br>
+                <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для редактирования предложения
+                    необходимо авторизоваться</h3>
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+
+    <script src="{% static 'sentence/js/change_sentence_parts.js' %}"></script>
+
+{% endblock %}

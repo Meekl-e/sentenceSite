@@ -24,26 +24,45 @@
               <form id="form-relation" method="post">
               {% csrf_token %}
               {{ formset.management_form }}
+                  <a style="font-size: xx-large" href="{% url 'add_token' sent_id 0 %}">➕</a>
               {% for form, token in list_forms %}
+                  <p style="display: inline-block;" class="u-custom-font u-font-georgia u-text u-text-9">
 
-                  <label class="u-custom-font u-font-georgia u-text u-text-9">
                       <input type="checkbox" class="form-check-input" name="checkbox_question"
                              id="checkbox_{{ forloop.counter }}" value="{{ forloop.counter }}">
+
                       <a name="counter_{{ forloop.counter }}"></a>
                       <br>
-                      <a style="font-size: small">{{ token.pos }} ✏️</a>
-                          <br>
+                      <a id="edit_pos_{{ forloop.counter }}_txt" style="font-size: small">{{ token.pos }}</a>
+                      <a name="edit_pos" id="edit_pos_{{ forloop.counter }}">✏️</a>
+
+
+                      <input id="edit_pos_{{ forloop.counter }}_input" type="hidden">
+                      <button type="button" name="confirm_edit"
+                              value="{% url 'edit_pos' sent_id  forloop.counter0 %}?value="
+                              id="edit_pos_{{ forloop.counter }}_btn" class="btn btn-primary" hidden="hidden">Сохранить
+                      </button>
+
+                      <br>
                       <a id="edit_token_{{ forloop.counter }}_txt" name="token">{{ token.text }}</a>
-                      <btn name="edit_token" id="edit_token_{{ forloop.counter }}">✏️</btn>
-                      <btn name="remove_token" id="remove_token_{{ forloop.counter }}">❌</btn>
+                      <a name="edit_token" id="edit_token_{{ forloop.counter }}">✏️</a>
+                      <a href="{% url 'remove_token' sent_id forloop.counter0 %}">❌</a>
                       <br>
 
                       <input id="edit_token_{{ forloop.counter }}_input" type="hidden" >
-                      <button name="confirm_edit" value="{% url 'edit_token' sent_id  forloop.counter0 %}?value=" id="edit_token_{{ forloop.counter }}_btn" class="btn btn-primary" hidden="hidden">Сохранить</button>
+                      <button type="button" name="confirm_edit"
+                              value="{% url 'edit_token' sent_id  forloop.counter0 %}?value="
+                              id="edit_token_{{ forloop.counter }}_btn" class="btn btn-primary" hidden="hidden">
+                          Сохранить
+                      </button>
 
-                      <br>
+
                       {{ form.type }}
-                  </label>
+                      <button id="form-{{ forloop.counter0 }}-type-btn"
+                              value="{% url 'edit_line' sent_id  forloop.counter0 %}?value=" hidden="hidden"></button>
+                  </p>
+                  <a style="font-size: xx-large; padding-bottom: 50%"
+                     href="{% url 'add_token' sent_id forloop.counter %}">➕</a>
 
                 {% endfor %}
               <br>
@@ -57,11 +76,10 @@
                   {{ question_form.datalist|safe }}
                   {{ question_form.selected }}
                   {{ question_form.tokens }}
-                  {{ question_form.width }}
 
               </form>
               {% for question in questions_txt %}
-                  <label>{{ question }}</label>
+                  <p>{{ question }}</p>
                   <form name="form-remove" method="post" action="{% url 'remove_relation' sent_id %}">
                   {% csrf_token %}
                       {{ form_remove.id_remove }}
@@ -70,12 +88,10 @@
                   <br>
 
               {% endfor %}
-
-              <form id="form-send" method="post" action="{% url 'save_sentence' sent_id %}">
-                  {% csrf_token %}
-                  {{ send_form.lines }}
-                  <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-11">Опубликовать</button>
-              </form>
+                  <a href="{% url 'change_parts' sent_id %}"
+                     class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-11">К
+                      разбивке на части
+                  </a>
               {% if back == "" %}
               <a href="{% url 'sentence' sent_id %}">
                   <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-12">Вернуться назад</button>
@@ -100,6 +116,6 @@
 </div>
 
 
-    <script src="{% static 'sentence/js/form.js' %}"></script>
+    <script src="{% static 'sentence/js/change_sentence_tokens.js' %}"></script>
 
 {% endblock %}
