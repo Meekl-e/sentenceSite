@@ -22,6 +22,7 @@ from django.urls import path
 from analysSentenceLogic.views import *
 from authLogic.views import *
 from changeSentenceLogic.views_first_stage import *
+from changeSentenceLogic.views_save import save_sentence
 from changeSentenceLogic.views_second_stage import *
 from mainPage.views import *
 from userLogic.views import *
@@ -50,7 +51,9 @@ urlpatterns = [
     path('sentence/<int:pk>/change/edit_line/<int:token_id_0>/', edit_line, name='edit_line'),
     path('sentence/<int:pk>/change_part/', ChangeParts.as_view(), name='change_parts'),
     path('sentence/<int:pk>/change_part/add_part', add_part, name='add_part'),
-    path('sentence/<int:pk>/change_part/save/', SaveSentence.as_view(), name='save_parts'),
+    path('sentence/<int:pk>/change_part/remove_part/<int:id>', remove_part, name='remove_part'),
+    path('sentence/<int:pk>/change_part/<int:id_part>/change_elem/<str:type>', change_elem, name='change_elem'),
+    path('sentence/<int:pk>/change_part/save/', save_sentence, name='save_sentence'),
 
 ]
 if settings.DEBUG:

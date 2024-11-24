@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -9,7 +11,10 @@ from .forms import *
 
 
 def words2questions(w_from, w_to, question) -> str:
-    return w_from + f" == {question.capitalize()} ==> " + w_to
+    if question.lower() != "очп":
+        return w_from + f" == {question.capitalize()} ==> " + w_to
+    else:
+        return f"{w_from}, {w_to} - Однородные члены предложения"
 
 class ChangeSentence(BaseMixin, TemplateView):
     template_name = "change_sentence.html"
@@ -156,11 +161,21 @@ class ChangeSentence(BaseMixin, TemplateView):
             if not request.user.change_sentence:
                 request.user.change_sentence = {}
 
+            schema = data_sent["schema"]
+            schema_cor = []
+            for line, word in schema:
+                if word not in "[]()":
+                    schema_cor.append(line)
+
             request.user.change_sentence[pk] = {"lined": lined, "question_list": question_list,
                                                 "tokens": [w["text"] for w in tokens],
-                                                "pos": pos}
-            request.user.save()
+                                                "pos": pos, "parts": data_sent.get("simple_sentences_in"),
+                                                "gram_bases": data_sent["gram_bases"],
+                                                "type_goal": data_sent["type_goal"],
+                                                "type_intonation": data_sent["type_intonation"],
+                                                "schema": schema_cor}
 
+            request.user.save()
 
         formset = WordFormSet(initial=data)
         # questions_list = data_sent["question_list"] # Parent_to_children.objects.values_list('question', flat=True).distinct()
@@ -287,10 +302,12 @@ def add_token(request, pk, token_id):
         return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
 
     data = request.user.change_sentence[pk]
-    print(data)
+
     data["tokens"].insert(token_id, "измените текст")
     data["lined"].insert(token_id, "none")
     data["pos"].insert(token_id, "без ЧР")
+    data["pos"].insert(token_id, "без ЧР")
+    data["schema"].insert(token_id, "none")
     new_questions = []
     for f, t, q in data["question_list"]:
         if f >= token_id:
@@ -300,9 +317,31 @@ def add_token(request, pk, token_id):
         new_questions.append((f, t, q))
     data["question_list"] = new_questions
 
-    print(new_questions)
+    change = False
+    for p in data["parts"]:
+        if change:
+            for t in p["tokens"]:
+                t["id_in_sentence"] += 1
 
-    print(request.user.change_sentence.get(pk))
+        if p["tokens"][0]["id_in_sentence"] <= token_id <= p["tokens"][-1]["id_in_sentence"]:
+            idx = 0
+            for t in p["tokens"]:
+                if t["id_in_sentence"] == token_id and change is False:
+                    p["tokens"].insert(idx, {
+                        "id_in_sentence": token_id,
+                        "text": "измените текст",
+                        "line": "none",
+                        "pos": "без ЧР"
+                    })
+                    change = True
+                    continue
+                if change:
+                    t["id_in_sentence"] += 1
+                idx += 1
+
+    pprint(data["parts"])
+
+
     request.user.save()
     return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
 

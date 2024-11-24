@@ -18,6 +18,8 @@
                       {% if sentence.nn_results|length != 1 %}
                           <h2 class="u-custom-font u-font-georgia u-text u-text-9">Результат нейросети
                               "{{ result.name }}":</h2>
+                      {% elif result.name == "verified" %}
+                          <h2 class="u-custom-font u-font-georgia u-text u-text-9">Разбор, проверенный учителем! ✅</h2>
                       {% endif %}
 
 
@@ -52,13 +54,13 @@
                                   <li>{{ result.simple_sentences_in.0.second_members }}</li>
                                   <li>{{ result.simple_sentences_in.0.difficulty_members }}</li>
                                   <li>{{ result.simple_sentences_in.0.lost_members }}</li>
-                                  <li>Схема: [{% for token in result.tokens %}
-                                      {% if token.line == "none" %}
-                                          {{ token.text }}
-                                      {% else %}
-                                          <a class="{{ token.line }}" style="color: transparent">_____</a>
+                                  <li>Схема: {% for token in result.schema %}
+                                      {% if token.0 == "word" %}
+                                          {{ token.1 }}
+                                      {% elif token.0 != "none" %}
+                                          <a class="{{ token.0 }}" style="color: transparent">_____</a>
                                       {% endif %}
-                                  {% endfor %}]
+                                  {% endfor %}
                                   </li>
                               </ol>
                           </div>
@@ -77,13 +79,14 @@
                                   <h6>II.</h6>
                                   <ol>
                                       <li>{{ result.gram_bases }}</li>
-                                      <li>Схема: [{% for token in result.tokens %}
-                                          {% if token.line == "none" %}
-                                              {{ token.text }}
-                                          {% elif token.line == "line" or token.line == "double_line" %}
-                                              <a class="{{ token.line }}" style="color: transparent">_____</a>
+                                      <li>Схема:
+                                          {% for token in result.schema %}
+                                              {% if token.0 == "word" %}
+                                                  {{ token.1 }}
+                                              {% elif token.0 != "none" %}
+                                                  <a class="{{ token.0 }}" style="color: transparent">_____</a>
                                           {% endif %}
-                                      {% endfor %}]
+                                          {% endfor %}
                                       </li>
                                   </ol>
                               </div>

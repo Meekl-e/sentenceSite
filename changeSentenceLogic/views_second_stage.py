@@ -1,9 +1,9 @@
+from pprint import pprint
+
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-from analysSentenceLogic.models import Sentence
-from analysSentenceLogic.sentParsing.parser import text2clear_text
 from utils import BaseMixin
 from .forms import *
 
@@ -15,19 +15,6 @@ def words2questions(w_from, w_to, question) -> str:
 class ChangeParts(BaseMixin, TemplateView):
     template_name = "change_sentence_parts.html"
 
-    def post(self, request, **kwargs):
-        pk = str(kwargs["pk"])
-        if not request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-
-        change_sentence_data = request.user.change_sentence.get(pk) if request.user.change_sentence else None
-
-        if change_sentence_data is None:
-            return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-
-        request.user.save()
-
-        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
 
     def get(self, request, **kwargs):
         pk = str(kwargs["pk"])
@@ -42,110 +29,57 @@ class ChangeParts(BaseMixin, TemplateView):
             return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
 
         tokens = []
+        i = 0
         for l, p, t in zip(change_sentence_data["lined"], change_sentence_data["pos"], change_sentence_data["tokens"]):
-            tokens.append({"pos": p, "line": l, "text": t})
+            tokens.append({"id_in_sentence": i, "pos": p, "line": l, "text": t, })
+            i += 1
+
+        parts = change_sentence_data.get("parts")
+
+        indexes = []
+
+        for p in parts:
+            sp = []
+            for t in p["tokens"]:
+                sp.append(tokens[t["id_in_sentence"]])
+            p["tokens"] = sp
+            last_id = max(p["tokens"], key=lambda x: x["id_in_sentence"])
+            first_id = min(p["tokens"], key=lambda x: x["id_in_sentence"])
+
+            for t in p["tokens"]:
+                if t == first_id:
+                    indexes.append((p["type_part"], "start"))
+                elif t == last_id:
+                    indexes.append((p["type_part"], "end"))
+                else:
+                    indexes.append(None)
+
+        schema = [{"type_line": type} for type in change_sentence_data.get("schema")]
+        print(schema)
+        print(indexes)
+        print(tokens)
+        pprint(parts)
+
+
+
+
+
 
         # questions_list = data_sent["question_list"] # Parent_to_children.objects.values_list('question', flat=True).distinct()
-        part_form = PartForm()  # questions=question_list)
+        part_form = PartForm(initial=request.user.change_sentence[pk])  # questions=question_list)
 
         data = super().get_mixin_context(super().get_context_data(
             part_form=part_form,
             sent_id=pk,
             back=from_page,
             tokens=tokens,
+            parts=zip(PartsFormSet(initial=parts), parts),
+            schema=zip(SchemaFormSet(initial=schema), indexes, tokens)
+
+
         ))
 
         return self.render_to_response(context=data)
-
-
-class SaveSentence(BaseMixin, TemplateView):
-    template_name = "index.html"
-
-    def post(self, request, **kwargs):
-        pk = str(self.kwargs["pk"])
-        if not request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-
-        form_send = SendForm(request.POST)
-        if not form_send.is_valid():
-            print(form_send.errors)
-            return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-
-        changed = request.user.change_sentence
-
-        if not changed or not changed.get(pk):
-            print("404")
-            return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-        changed_sent = changed.get(pk)
-
-        if request.user.verified:
-            sentence = Sentence.objects.filter(id=pk)
-            if len(sentence) == 0:
-                return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-            sentence = sentence[0]
-
-            if ['lined', 'pos', 'question_list', 'tokens'] != sorted(list(changed_sent.keys())):
-                print("NOT COR USER")
-                return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
-
-            question_list = changed_sent.get("question_list")
-            lined = form_send.cleaned_data["lines"].split()
-            tokens = changed_sent.get("tokens")
-            pos = changed_sent.get("pos")
-            print(tokens)
-
-            # lined
-
-            id_t = 0
-
-            sentence.data[0]["tokens"].clear()
-            sentence.data[0]["simple_sentences_in"].clear()
-            sentence.data[0]["simple_sentences_in"].append({
-                "question_list": question_list,
-                "tokens": [],
-                "main_members": "Двусоставное",
-                "second_members": "Распространённое",
-                "lost_members": "Полное",
-                "difficulty_members": "Неосложнённое"
-            })
-            print(lined)
-            for line, token_txt, p in zip(lined, tokens, pos):
-                sentence.data[0]["simple_sentences_in"][0]["tokens"].append(
-                    {
-                        "id_in_sentence": id_t,
-                        "line": line,
-                        "text": token_txt,
-                        "pos": p
-                    }
-                )
-                sentence.data[0]["tokens"].append({
-                    "id_in_sentence": id_t,
-                    "text": token_txt,
-                    "line": line,
-                    "pos": p
-                })
-                id_t += 1
-            print(sentence.data[0]["simple_sentences_in"])
-            print(sentence.data[0]["tokens"])
-
-            # Question list
-            sentence.data[0]["question_list"] = question_list
-            sentence.text = " ".join(tokens)
-            sentence.text_clear, _ = text2clear_text("".join(tokens))
-
-            sentence.data = [sentence.data[0]]
-
-            sentence.verified = True
-            sentence.save()
-
-            # media delete
-
-            # clear user
-
-            request.user.change_sentence.pop(pk)
-            request.user.save()
-            print(request.user.change_sentence)
-        return HttpResponseRedirect(reverse("sentence", kwargs={"pk": pk}))
 
 
 def add_part(request, pk):
@@ -155,4 +89,129 @@ def add_part(request, pk):
             not request.user.change_sentence.get(pk)):
         return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
 
+    data = PartForm(request.POST)
+    if not data.is_valid():
+        print("Errors", data.errors)
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+    tokens = request.user.change_sentence[pk].get("tokens")
+    lined = request.user.change_sentence[pk].get("lined")
+    pos = request.user.change_sentence[pk].get("pos")
+
+    if not tokens or not lined or not pos:
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+    f_part, t_part = map(int, data.cleaned_data["selected"].split("-"))
+
+    f_part, t_part = min(f_part, t_part), max(f_part, t_part)
+    t_part += 1
+
+    txt_in_part = tokens[f_part:t_part]
+    lines_in_part = lined[f_part:t_part]
+    pos_in_part = pos[f_part:t_part]
+
+    tokens_in_part = []
+    for i, t, l, p in zip(range(f_part, t_part), txt_in_part, lines_in_part, pos_in_part):
+        tokens_in_part.append({
+            "id_in_sentence": i,
+            "text": t,
+            "line": l,
+            "pos": p
+        })
+
+    parts = request.user.change_sentence[pk].get("parts")
+
+    if parts is not None:
+        for p in parts:
+            for token_other in p["tokens"].copy():
+                if f_part <= token_other["id_in_sentence"] <= t_part:
+                    p["tokens"].remove(token_other)
+
+    question_list = []
+    for f, t, q in request.user.change_sentence[pk].get("question_list"):
+        if f >= f_part and t <= t_part:
+            question_list.append((f, t, q))
+
+    data_sent = request.user.change_sentence[pk]
+    if data_sent.get("parts") is None:
+        data_sent["parts"] = []
+
+    data_sent["parts"].append({
+        "tokens": tokens_in_part,
+        "question_list": question_list,
+
+        "main_members": "Двусоставное",
+        "second_members": "Распространённое",
+        "lost_members": "Полное",
+        "difficulty_members": "Неосложнённое",
+        "type_part": data.cleaned_data["type"]
+
+    })
+
+    request.user.save()
+    print(request.user.change_sentence[pk])
+
+    return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+
+def remove_part(request, pk, id):
+    pk = str(pk)
+    if (request.method != "GET" or
+            not request.user.is_authenticated or
+            not request.user.change_sentence.get(pk)):
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+    parts = request.user.change_sentence.get(pk).get("parts")
+    if not parts:
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+    if id < 0 or id >= len(parts):
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+    print("delete suc")
+    print(request.user.change_sentence[pk]["parts"].pop(id))
+    request.user.save()
+    return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+
+def change_elem(request, pk, id_part, type):
+    pk = str(pk)
+    if (request.method != "GET" or
+            not request.user.is_authenticated or
+            not request.user.change_sentence.get(pk)):
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+    parts = request.user.change_sentence.get(pk).get("parts")
+    if (id_part < 0 or id_part >= len(parts)) and type != "change_line":
+        print("range")
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+    print(id_part)
+
+    if type in ["gram_bases", "type_goal", "type_intonation"]:
+        value = request.GET.get("value")
+        if type == "gram_bases" and value == "Простое":
+            request.user.change_sentence[pk]["simple_sentence_in"] = max(
+                request.user.change_sentence[pk]["simple_sentence_in"], key=lambda x: len(x["tokens"]))
+            print("change", request.user.change_sentence[pk]["simple_sentence_in"])
+        if value and value != "":
+            request.user.change_sentence[pk][type] = value
+            request.user.save()
+
+    elif type == "change_line":
+
+        value = request.GET.get("value")
+        if value and value != "":
+            if id_part < len(request.user.change_sentence[pk]["schema"]):
+                request.user.change_sentence[pk]["schema"][id_part] = value
+                request.user.save()
+    else:
+        part_sent = parts[id_part]
+        if part_sent.get(type) is None:
+            print(type, "mme")
+            return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+        value = request.GET.get("value")
+        if value and value != "":
+            part_sent[type] = value
+            request.user.save()
+
+    print(request.user.change_sentence[pk]["parts"])
     return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))

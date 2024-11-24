@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
     hiddenInput.value = selectedCheckboxes.map(cb => cb.value-1).join('-');
 
 });
-    document.getElementById("part-type").addEventListener("change", function (event) {
+    document.getElementById("part_type").addEventListener("change", function (event) {
 
         if (event.target.value === "composition") {
             document.getElementById("start-symbol").textContent = "[";
@@ -88,6 +88,22 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
+    document.querySelectorAll("select").forEach(function (elem) {
+        if (elem.id !== "part_type") {
+            elem.addEventListener('change', function () {
+                console.log(elem.id);
+                window.location.href = document.getElementById(elem.id + "-href").href + "?value=" + elem.value;
+
+            });
+        }
+    });
+
+    var elem = document.getElementById("gram_bases");
+    if (elem.value === "Сложное") {
+        document.getElementsByName("simple_clas").forEach(function (elem) {
+            elem.hidden = "hidden";
+        });
+    }
 
 
 });

@@ -10,6 +10,40 @@ class WordForm(forms.Form):
                  ("dotted_line", "Дополнение"),("circle", "Союз"),))
 
 
+class PartOptionChange(forms.Form):
+    main_members = forms.ChoiceField(required=True, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "",
+        "style": "width:auto;display: inline-block"}, ),
+                                     choices=(
+                                         ("Двусоставное", "Двусоставное"),
+                                         ("Односоставное определенно-личное", "Односоставное определенно-личное"),
+                                         ("Односоставное неопределенно-личное", "Односоставное неопределенно-личное"),
+                                         ("Односоставное обобщённо-личное", "Односоставное обобщённо-личное"),
+                                         ("Односоставное безличное", "Односоставное безличное")))
+    second_members = forms.ChoiceField(required=True, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "",
+        "style": "width:auto;display: inline-block"}, ),
+                                       choices=(
+                                           ("Распространенное", "Распространенное"),
+                                           ("Нераспространенное", "Нераспространенное")))
+    lost_members = forms.ChoiceField(required=True, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "",
+        "style": "width:auto;display: inline-block"}, ),
+                                     choices=(
+                                         ("Полное", "Полное"), ("Неполное", "Неполное")))
+    difficulty_members = forms.ChoiceField(required=True, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "",
+        "style": "width:auto;display: inline-block"}, ),
+                                           choices=(
+                                               ("Неосложнённое", "Неосложнённое"),
+                                               ("Осложнено ОЧП", "Осложнено однородными членами предложения "),
+                                               ("Осложнено обособленными членами",
+                                                "Осложнено компонентами, не являющихся членами предложения"),))
+
 class RelationForm(forms.Form):
     question = forms.CharField(
         required=True,
@@ -44,15 +78,82 @@ class RelationForm(forms.Form):
 
 class PartForm(forms.Form):
     type = forms.ChoiceField(required=True, label="",
-                             widget=forms.Select(attrs={"id": "part-type", "class": "form-select",
+                             widget=forms.Select(attrs={"id": "part_type", "class": "form-select",
                                                         "aria-label": "",
                                                         }, ),
                              choices=(
-                                 ("composition", "Сочинительная часть"), ("subordination", "Подчинительная часть")))
+                                 ("Сочинительная часть", "Сочинительная часть"),
+                                 ("Подчинительная часть", "Подчинительная часть")))
     selected = forms.CharField(required=True, max_length=100,
                                widget=forms.HiddenInput(attrs={"id": "selected_order"}), )
 
+    type_goal = forms.ChoiceField(required=False, label="",
+                                  widget=forms.Select(attrs={"id": "type_goal", "class": "form-select",
+                                                             "aria-label": "",
+                                                             }, ),
+                                  choices=(
+                                      ("Повествовательное", "Повествовательное"),
+                                      ("Вопросительное", "Вопросительное"),
+                                      ("Побудительное", "Побудительное")))
 
+    type_intonation = forms.ChoiceField(required=False, label="",
+                                        widget=forms.Select(attrs={"id": "type_intonation", "class": "form-select",
+                                                                   "aria-label": "",
+                                                                   }, ),
+                                        choices=(
+                                            ("Невосклицательное", "Невосклицательное"),
+                                            ("Восклицательное", "Восклицательное"),))
+
+    gram_bases = forms.ChoiceField(required=False, label="",
+                                   widget=forms.Select(attrs={"id": "gram_bases", "class": "form-select",
+                                                              "aria-label": "",
+                                                              }, ),
+                                   choices=(
+                                       ("Простое", "Простое"),
+                                       ("Сложное", "Сложное")))
+
+    main_members = forms.ChoiceField(required=False, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "", }, ),
+                                     choices=(
+                                         ("Двусоставное", "Двусоставное"),
+                                         ("Односоставное определенно-личное", "Односоставное определенно-личное"),
+                                         ("Односоставное неопределенно-личное", "Односоставное неопределенно-личное"),
+                                         ("Односоставное обобщённо-личное", "Односоставное обобщённо-личное"),
+                                         ("Односоставное безличное", "Односоставное безличное")))
+    second_members = forms.ChoiceField(required=False, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "", }, ),
+                                       choices=(
+                                           ("Распространенное", "Распространенное"),
+                                           ("Нераспространенное", "Нераспространенное")))
+    lost_members = forms.ChoiceField(required=False, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "",
+    }, ),
+                                     choices=(
+                                         ("Полное", "Полное"), ("Неполное", "Неполное")))
+    difficulty_members = forms.ChoiceField(required=False, label="", widget=forms.Select(attrs={
+        "class": "form-select",
+        "aria-label": "",
+    }, ),
+                                           choices=(
+                                               ("Неосложнённое", "Неосложнённое"),
+                                               ("Осложнено ОЧП", "Осложнено однородными членами предложения "),
+                                               ("Осложнено обособленными членами",
+                                                "Осложнено компонентами, не являющихся членами предложения"),))
+
+
+class SchemaElem(forms.Form):
+    type_line = forms.ChoiceField(required=True, label="", widget=forms.Select(attrs={"class": "form-select",
+                                                                                      "aria-label": "",
+                                                                                      "style": "width:auto; display:inline-block"}, ),
+                                  choices=(
+                                      ("none", "Без линии"), ("word", "Слово"), ("line", "Линия подлежащего"),
+                                      ("double_line", "Линия сказуемого"),
+                                      ("wavy_line", "Линия определения"),
+                                      ("dotted_circle_line", "Линия обстоятельства"),
+                                      ("dotted_line", "Линия дополнения"),))
 
 
 
@@ -60,7 +161,6 @@ class RemoveForm(forms.Form):
     id_remove = forms.IntegerField(required=True,  widget=forms.HiddenInput())
 
 WordFormSet = formset_factory(WordForm, extra=0)
+SchemaFormSet = formset_factory(SchemaElem, extra=0)
 
-
-class SendForm(forms.Form):
-    pass
+PartsFormSet = formset_factory(PartOptionChange, extra=0)

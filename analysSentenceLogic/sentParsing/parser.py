@@ -35,6 +35,7 @@ class SentenceDefault:
     type_goal = "Повествовательное"
     type_intonation = "Невосклицательное"
     gram_bases = "Простое"
+    schema = []
 
     def __init__(self, name, simple_sentence_in, tokens):
         """
@@ -48,6 +49,28 @@ class SentenceDefault:
 
         self.clear_text = re.sub(r"\W", "", "".join([t.text for t in self.tokens])).lower()
 
+        schema_all = []
+        for p in simple_sentence_in:
+            i = 0
+            last_id = max(p.tokens, key=lambda x: x.id)
+            first_id = min(p.tokens, key=lambda x: x.id)
+            for t in p.tokens:
+                if t == first_id:
+                    if p.type_part == "Сочинительная часть":
+                        schema_all.append(("word", "["))
+                    if p.type_part == "Подчинительная часть":
+                        schema_all.append(("word", "("))
+                if t == last_id:
+                    if p.type_part == "Сочинительная часть":
+                        schema_all.append(("word", "]"))
+                    if p.type_part == "Подчинительная часть":
+                        schema_all.append(("word", ")"))
+                schema_all.append((p.tokens[i].line, p.tokens[i].text))
+
+                i += 1
+        self.schema = schema_all
+
+
     def __dict__(self):
         return {
             "name": self.name,
@@ -55,7 +78,8 @@ class SentenceDefault:
             "type_intonation": self.type_intonation,
             "gram_bases": self.gram_bases,
             "simple_sentences_in": [i.__dict__() for i in self.simple_sentences_in],
-            "tokens": [t.__dict__() for t in self.tokens]
+            "tokens": [t.__dict__() for t in self.tokens],
+            "schema": self.schema
         }
 
     def __len__(self):
@@ -87,6 +111,7 @@ class PartSentence:
     second_members = "Нераспространенное"
     lost_members = "Полное"
     difficulty_members = "Неосложнённое"
+    type_part = "Сочинительная часть"
 
     def __init__(self, text, tokens, question_list, name=""):
         """
@@ -104,6 +129,7 @@ class PartSentence:
         self.length = len(tokens)
 
 
+
     def __dict__(self):
         return {
             "question_list": self.question_list,
@@ -112,6 +138,7 @@ class PartSentence:
             "second_members": self.second_members,
             "lost_members": self.lost_members,
             "difficulty_members": self.difficulty_members,
+            "type_part": self.type_part,
         }
 
     def __len__(self):
@@ -141,7 +168,7 @@ class TokenDefault:
         self.pos = translate_pos(pos)
         self.type = None
 
-        if len(self.text) == 1 and self.text.lower() !="я":
+        if len(self.text) == 1 and self.text.lower() != "я" and self.pos != " ":
             self.line = "none"
 
     def __len__(self):
@@ -192,7 +219,7 @@ def translate_to_question(dep):
         "aux": "Что?",
         "cop": "Что?",
         "parataxis": "Что?",
-        "conj": "ОЧП",
+        # "conj": "ОЧП",
         "advcl": "Что делая?",
         "xcomp":"Что?"
 
@@ -212,7 +239,7 @@ def translate_dep_to_line(dep, word):
         "obj": "dotted_line",
         "obl": "dotted_line",
         "nsubj": "line",
-        "cc": "circle",
+        "cc": "word",
         "advmod": "dotted_circle_line",
         "mark": "dotted_circle_line",
         "cop": "line",
@@ -222,7 +249,9 @@ def translate_dep_to_line(dep, word):
         "appos":"wavy_line",
         "compound":"wavy_line",
         "advcl": "dotted_circle_line",
-        "xcomp": "dotted_line"
+        "xcomp": "dotted_line",
+        "case": "none",
+        "punct": "word"
     }
     res  = dep_map.get(dep, dep)#"none")
     if res in ["advcl"]:

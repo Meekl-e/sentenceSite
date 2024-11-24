@@ -63,14 +63,125 @@
                         <label id="form-error" class="u-custom-font u-font-georgia u-text text-danger"></label>
                     </form>
 
+                    <h6 class="u-custom-font u-font-georgia u-text u-text-9">Характеристика предложения:</h6>
+                    <div class="u-custom-font u-font-georgia u-text u-text-9" style="display: flex;">
+                        <div style="flex: 1;">
+                            <h6>I.</h6>
+                            <ol>
+                                <li>{{ part_form.type_goal }}</li>
+                                <li>{{ part_form.type_intonation }}</li>
+                            </ol>
+                        </div>
+                        <div style="flex: 1;">
+                            <h6>II.</h6>
+                            <ol>
+                                <li>{{ part_form.gram_bases }}</li>
+                                <li name="simple_clas">{{ part_form.main_members }}</li>
+                                <li name="simple_clas">{{ part_form.second_members }}</li>
+                                <li name="simple_clas">{{ part_form.difficulty_members }}</li>
+                                <li name="simple_clas">{{ part_form.lost_members }}</li>
+                                <li>Схема:
+                                    {% for form, tok_idx, tok in schema %}
+                                        {% if tok_idx.0 == "Сочинительная часть" %}
+                                            {% if tok_idx.1 == "start" %}
+                                                [
+                                            {% else %}
+                                                ]
+                                            {% endif %}
+                                        {% elif tok_idx.0 == "Подчинительная часть" %}
+                                            {% if tok_idx.1 == "start" %}
+                                                (
+                                            {% else %}
+                                                )
+                                            {% endif %}
+                                        {% endif %}
+                                        <p>
+                                            {{ tok.text }}
+                                            {{ form.type_line }}
+                                        </p>
+                                        <p hidden="hidden">
+                                            <a id="id_form-{{ forloop.counter0 }}-type_line-href"
+                                               href="{% url 'change_elem' sent_id  forloop.counter0  'change_line' %}"
+                                               hidden="hidden"></a>
+                                        </p>
 
-                    <form id="form-relation" method="post" action="{% url 'save_parts' sent_id %}">
-                        {% csrf_token %}
+                                    {% endfor %}
+
+
+                                </li>
+                            </ol>
+                        </div>
+                        <p hidden>
+                            <a id="gram_bases-href" href="{% url 'change_elem' sent_id  0  'gram_bases' %}"
+                               hidden="hidden"></a>
+                            <a id="id_main_members-href" href="{% url 'change_elem' sent_id  0  'main_members' %}"
+                               hidden="hidden"></a>
+                            <a id="id_second_members-href" href="{% url 'change_elem' sent_id  0  'second_members' %}"
+                               hidden="hidden"></a>
+                            <a id="id_difficulty_members-href"
+                               href="{% url 'change_elem' sent_id  0  'difficulty_members' %}" hidden="hidden"></a>
+                            <a id="id_lost_members-href" href="{% url 'change_elem' sent_id  0  'lost_members' %}"
+                               hidden="hidden"></a>
+                            <a id="type_goal-href" href="{% url 'change_elem' sent_id  0  'type_goal' %}"
+                               hidden="hidden"></a>
+                            <a id="type_intonation-href" href="{% url 'change_elem' sent_id  0  'type_intonation' %}"
+                               hidden="hidden"></a>
+                        </p>
+                    </div>
+                    {% if part_form.gram_bases.value == "Сложное" %}
+                        {% for form, part_result in parts %}
+
+                            <p class="u-custom-font u-font-georgia u-text u-text-9">
+                                <b>Часть предложения:</b> <br>
+                                {% if part_result.type_part == "Сочинительная часть" %}
+                                    <a style="font-size: xx-large">[</a>
+                                {% else %}
+                                    <a style="font-size: xx-large">(</a>
+                                {% endif %}
+                                {% for token in part_result.tokens %}
+                                    <label class="u-custom-font u-font-georgia u-text u-text-9"
+                                           style="text-align: center">
+                                        <a class="{{ token.line }}">{{ token.text }}</a>
+                                    </label>
+                                {% endfor %}
+                                {% if part_result.type_part == "Сочинительная часть" %}
+                                    <a style="font-size: xx-large">]</a>
+                                {% else %}
+                                    <a style="font-size: xx-large">)</a>
+                                {% endif %}
+                                -
+                                ({{ form.main_members }}; {{ form.second_members }}; {{ form.lost_members }}; {{ form.difficulty_members }})
+                            <p hidden>
+                                <a id="id_form-{{ forloop.counter0 }}-main_members-href"
+                                   href="{% url 'change_elem' sent_id  forloop.counter0  'main_members' %}"
+                                   hidden="hidden"></a>
+                                <a id="id_form-{{ forloop.counter0 }}-second_members-href"
+                                   href="{% url 'change_elem' sent_id  forloop.counter0  'second_members' %}"
+                                   hidden="hidden"></a>
+                                <a id="id_form-{{ forloop.counter0 }}-lost_members-href"
+                                   href="{% url 'change_elem' sent_id  forloop.counter0  'lost_members' %}"
+                                   hidden="hidden"></a>
+                                <a id="id_form-{{ forloop.counter0 }}-difficulty_members-href"
+                                   href="{% url 'change_elem' sent_id  forloop.counter0  'difficulty_members' %}"
+                                   hidden="hidden"></a>
+                            </p>
+
+                            <br><br>
+                            <a href="{% url 'remove_part' sent_id  forloop.counter0 %}" type="submit"
+                               class="btn btn-danger u-align-center u-custom-font u-font-georgia ">Удалить</a>
+
+                            </p>
+
+                        {% endfor %}
+                    {% endif %}
+
+
+                    <a href="{% url 'save_sentence' sent_id %}">
                         <button type="submit"
                                 class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-11">
                             Опубликовать
                         </button>
-                    </form>
+                    </a>
                     {% if back == "" %}
                         <a href="{% url 'change_sentence' sent_id %}">
                             <button type="submit"
