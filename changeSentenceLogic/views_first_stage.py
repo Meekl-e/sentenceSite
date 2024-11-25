@@ -271,6 +271,7 @@ def remove_token(request, pk, token_id_0):
     data["tokens"].pop(token_id_0)
     data["lined"].pop(token_id_0)
     data["pos"].pop(token_id_0)
+    data["schema"].pop(token_id_0)
     new_questions = []
     for f, t, q in data["question_list"]:
         if f == token_id_0 or t == token_id_0:
@@ -282,9 +283,21 @@ def remove_token(request, pk, token_id_0):
         new_questions.append((f, t, q))
     data["question_list"] = new_questions
 
-    print(new_questions)
+    change = False
+    for p in data["parts"]:
+        idx = 0
+        for t in p["tokens"]:
+            print(change, t)
+            if change:
+                t["id_in_sentence"] -= 1
+            if t["id_in_sentence"] == token_id_0 - 1 and change is False:
+                p["tokens"].pop(idx + 1)
+                change = True
+            idx += 1
 
-    print(request.user.change_sentence.get(pk))
+    pprint(data["parts"])
+
+
     request.user.save()
     return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
 
@@ -319,25 +332,19 @@ def add_token(request, pk, token_id):
 
     change = False
     for p in data["parts"]:
-        if change:
-            for t in p["tokens"]:
+        idx = 0
+        for t in p["tokens"]:
+            if change:
                 t["id_in_sentence"] += 1
-
-        if p["tokens"][0]["id_in_sentence"] <= token_id <= p["tokens"][-1]["id_in_sentence"]:
-            idx = 0
-            for t in p["tokens"]:
-                if t["id_in_sentence"] == token_id and change is False:
-                    p["tokens"].insert(idx, {
-                        "id_in_sentence": token_id,
-                        "text": "измените текст",
-                        "line": "none",
-                        "pos": "без ЧР"
-                    })
-                    change = True
-                    continue
-                if change:
-                    t["id_in_sentence"] += 1
-                idx += 1
+            if t["id_in_sentence"] == token_id and change is False:
+                p["tokens"].insert(idx, {
+                    "id_in_sentence": token_id,
+                    "text": "измените текст",
+                    "line": "none",
+                    "pos": "без ЧР"
+                })
+                change = True
+            idx += 1
 
     pprint(data["parts"])
 
