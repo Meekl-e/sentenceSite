@@ -13,3 +13,10 @@ class Task(models.Model):
     date_expired = models.DateField(default=datetime.fromisoformat("2099-12-31"))
     check_phrases = models.BooleanField(null=False, default=False)
     apply = models.BooleanField(blank=False, default=False)
+
+    def __str__(self):
+        if self.date_expired.isoformat() == "2099-12-31":
+            s = "Разобрать предложения"
+        else:
+            s = "Разобрать предложения до " + self.date_expired.isoformat()
+        return s

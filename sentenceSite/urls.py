@@ -18,26 +18,25 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from nltk.corpus import names
 
 from analysSentenceLogic.views import *
 from authLogic.views import *
+from changeSentenceLogic.urls import urls_change
 from changeSentenceLogic.views_first_stage import *
-from changeSentenceLogic.views_save import save_sentence
 from changeSentenceLogic.views_second_stage import *
 from mainPage.views import *
+from studentTasksLogic.views import *
+from teacherTasksLogic.urls import urls_task_logic
+from teacherTasksLogic.views import *
 from teacherTasksLogic.views_selects import *
 from userLogic.views import *
-from teacherTasksLogic.views import *
 
-from changeSentenceLogic.urls import urls_change
-from teacherTasksLogic.urls import urls_task_logic
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homePage.as_view(), name='home'),
     path('accounts/login/', homePage.as_view()),
     path('about/', aboutPage.as_view()),
-    path('student/', studentPage.as_view()),
+    path('student/', studentPage.as_view(), name="student_page"),
     path('teacher/', teacherPage.as_view(), name="teacher_page"),
     path('registration/', RegisterUser.as_view(), name='registration'),
     path('login/', loginPage.as_view(), name='login'),
@@ -51,6 +50,8 @@ urlpatterns = [
     path('get_invite_link/', get_invite_link, name='get_invite_link'),
     path('add_student/<str:code>', AddStudent2Teacher.as_view(), name='add_student_link'),
     path('remove_student/<int:id_student>', RemoveStudentFromTeacher.as_view(), name='remove_student'),
+    path('task/<int:id_task>', TaskView.as_view(), name='task'),
+    path('task/edit/<int:sent_id>/<int:id_task>/', sent_task, name='sent_task'),
 
     *urls_change,
     *urls_task_logic

@@ -1,6 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
+#
+# class Student2Teacher(models.Model):
+#     student = IntegerField()
+#     teacher = IntegerField()
+
 class CorrectUser(AbstractUser):
     ROLE_CHOICES = [
         ('student', 'Ученик'),

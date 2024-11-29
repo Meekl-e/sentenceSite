@@ -18,12 +18,17 @@
             <div class="u-container-style u-layout-cell u-size-27 u-layout-cell-3">
               <div class="u-container-layout u-container-layout-4">
                 <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-7">Избранное</h4>
-                <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">Задания</h4>
+                  <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">Задания:</h4>
+                  <ol class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">
+                      {% for t in tasks %}
+                          <li><a href="{% url 'task' t.id %}">{{ t }}</a></li>
+                      {% endfor %}
+                  </ol>
                 <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">Учителя:</h4>
                 <ol class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-10">
-                  <li>Учитель 1</li>
-                  <li>Учитель 2</li>
-                  <li>Учитель 3</li>
+                    {% for t in teachers %}
+                        <li>{{ t }}</li>
+                    {% endfor %}
                 </ol>
               </div>
             </div>

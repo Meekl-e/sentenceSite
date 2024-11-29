@@ -1,8 +1,8 @@
 from django.urls import reverse
 from django.views.generic import *
 
-from analysSentenceLogic.forms import NameForm
 from analysSentenceLogic.models import Sentence
+from teacherTasksLogic.models import Task
 from userLogic.models import CorrectUser
 from utils import BaseMixin
 
@@ -40,6 +40,11 @@ class studentPage(BaseMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
+        if not self.request.user.is_authenticated:
+            return self.get_mixin_context(context)
+        student = CorrectUser.objects.get(id=self.request.user.id)
+        context["teachers"] = CorrectUser.objects.filter(teacher_students__id=student.id)
+        context["tasks"] = Task.objects.filter(apply=True, students_to__id=student.id)
         return self.get_mixin_context(context)
 
 

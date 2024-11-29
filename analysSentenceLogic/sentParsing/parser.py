@@ -1,5 +1,4 @@
 import re
-from xml.dom.minidom import parse
 
 import nltk
 import pymorphy3
@@ -93,6 +92,8 @@ class SentenceDefault:
         return " ".join([t.text for t in self.tokens]).lower()
 
     def __eq__(self, other):
+        if not other:
+            return False
         return all(s == o for s, o in zip(self.simple_sentences_in, other.simple_sentences_in))
 
     def get_clear(self):
@@ -430,8 +431,17 @@ def get_word_tokenize(res):
     return nltk.tokenize.word_tokenize(res, "russian")
 
 
+def exeption_test(func):
+    def test(text, tokenized):
+        try:
+            return func(text, tokenized)
+        except Exception:
+            return None, None
+
+    return test
 
 
+@exeption_test
 def analysis_spacy(text, tokenized) -> [SentenceDefault]:
     doc = nlp(text)
 
@@ -488,6 +498,7 @@ def analysis_spacy(text, tokenized) -> [SentenceDefault]:
                                                                                            "Sp").tokens
 
 
+@exeption_test
 def analysis_natasha(text, tokenized) -> [SentenceDefault]:
     doc = Doc(text)
     doc.segment(segmenter)
@@ -569,6 +580,7 @@ def analysis_natasha(text, tokenized) -> [SentenceDefault]:
                                                                                              question_list, "N").tokens
 
 
+@exeption_test
 def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
     processed = pipeline.process(all_text)
 
@@ -617,6 +629,9 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
             else:
                 minus += 1
                 count_wait += 1
+            id_token_start += len(text)
+            if not token_parsed[-1].startswith("SpaceAfter=No"):
+                id_token_start += 1
 
             continue
 
@@ -703,6 +718,9 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
         id_token_start += len(text)
         if not token_parsed[-1].startswith("SpaceAfter=No"):
             id_token_start+=1
+
+    print(tokens_map)
+
     for idx, line in enumerate(lines):
         if line.startswith("#") or len(line) == 0:
             continue
@@ -726,6 +744,7 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
     return analysis_full(PartSentence(all_text, tokens, question_list, "UDPipe")), PartSentence(all_text, tokens,
                                                                                                 question_list,
                                                                                                 "UDPipe").tokens
+
 
 
 def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
@@ -752,7 +771,9 @@ def split_hard_sentence(sentence=PartSentence) -> [PartSentence]:
             lst_questions = []
 
             for f, t, q in sentence.question_list:
+
                 if id_start < f < id_end:
+
                     if t > id_end or t < id_start:
                         # print(f, t, q, "question_break", id_start, id_end)
                         isSent = False
@@ -941,27 +962,32 @@ def parsing(text=""):
     natasha_res, nat = analysis_natasha(text, tokenized)
     udpipe_res, ud = analysis_UDPipe(text, tokenized)
 
-    m_tokens = len(max(spacy_res, natasha_res, udpipe_res, key=lambda x:len(x)))
+    results = []
+    if spacy_res:
+        results.append(spacy_res)
+    if natasha_res:
+        results.append(natasha_res)
+    if udpipe_res:
+        results.append(udpipe_res)
 
-    print(spacy_res.tokens)
+    m_tokens = len(max(results, key=lambda x: len(x)))
 
+    res = []
+    for r in results:
+        for r_o in results:
+            if r.name == r_o.name:
+                continue
+            if r == r_o:
+                if r_o not in res and r not in res:
+                    res.append(r)
+            else:
+                if r not in res:
+                    res.append(r)
+                if r_o not in res:
+                    res.append(r_o)
 
-    print(len(spacy_res), len(natasha_res), len(udpipe_res), len(tokenized))
+    for r in results:
+        if len(r) < m_tokens:
+            res.remove(r)
 
-    if spacy_res == natasha_res == udpipe_res:
-        result = [spacy_res]
-    elif spacy_res == natasha_res or udpipe_res == natasha_res:
-        result = [spacy_res, udpipe_res]
-    elif spacy_res == udpipe_res:
-        result = [spacy_res, natasha_res]
-    else:
-        result = [spacy_res, udpipe_res, natasha_res]
-
-    if len(spacy_res) < m_tokens:
-        result.remove(spacy_res)
-    if len(udpipe_res) < m_tokens:
-        result.remove(udpipe_res)
-    if len(natasha_res) < m_tokens:
-        result.remove(natasha_res)
-
-    return result
+    return res
