@@ -12,7 +12,7 @@ from .forms import *
 
 def words2questions(w_from, w_to, question) -> str:
     if question.lower() != "очп":
-        return w_from + f" == {question.capitalize()} ==> " + w_to
+        return w_from.capitalize() + f" ({question.capitalize()}) " + w_to.lower()
     else:
         return f"{w_from}, {w_to} - Однородные члены предложения"
 
@@ -124,14 +124,15 @@ class ChangeSentence(BaseMixin, TemplateView):
 
         if change_sentence_data and change_sentence_data.get("tokens") is not None:
             tokens.clear()
-            for i, (text_token, l, p) in enumerate(
+            for i, (text_token, l, p, t) in enumerate(
                     zip(change_sentence_data.get("tokens"), change_sentence_data.get("lined"),
-                        change_sentence_data.get("pos"))):
+                        change_sentence_data.get("pos"), change_sentence_data.get("type"), )):
                 tokens.append({
                     "id_in_sentence": i,
                     "line": l,
                     "pos": p,
-                    "text": text_token
+                    "text": text_token,
+                    "type": t,
                 })
 
         if not change_sentence_data:
@@ -157,6 +158,7 @@ class ChangeSentence(BaseMixin, TemplateView):
         if not change_sentence_data:
             lined = [ word["line"] for word in tokens]
             pos = [word["pos"] for word in tokens]
+            type_words = [word["type"] for word in tokens]
 
             if not request.user.change_sentence:
                 request.user.change_sentence = {}
@@ -173,7 +175,7 @@ class ChangeSentence(BaseMixin, TemplateView):
                                                 "gram_bases": data_sent["gram_bases"],
                                                 "type_goal": data_sent["type_goal"],
                                                 "type_intonation": data_sent["type_intonation"],
-                                                "schema": schema_cor}
+                                                "schema": schema_cor, "type": type_words}
 
             request.user.save()
 
@@ -255,6 +257,22 @@ def edit_pos_text(request, pk, token_id_0):
     return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
 
 
+def edit_type_text(request, pk, token_id_0):
+    pk = str(pk)
+    if (request.method != "GET" or
+            not request.user.is_authenticated or
+            not request.user.change_sentence.get(pk)):
+        return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
+    new_value = request.GET.get("value")
+    if new_value == "":
+        return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
+
+    request.user.change_sentence[pk]["type"][int(token_id_0)] = new_value
+
+    request.user.save()
+    return HttpResponseRedirect(reverse("change_sentence", kwargs={"pk": pk}))
+
+
 def remove_token(request, pk, token_id_0):
     pk = str(pk)
 
@@ -271,6 +289,7 @@ def remove_token(request, pk, token_id_0):
     data["tokens"].pop(token_id_0)
     data["lined"].pop(token_id_0)
     data["pos"].pop(token_id_0)
+    data["type"].pop(token_id_0)
     data["schema"].pop(token_id_0)
     new_questions = []
     for f, t, q in data["question_list"]:
@@ -319,7 +338,7 @@ def add_token(request, pk, token_id):
     data["tokens"].insert(token_id, "измените текст")
     data["lined"].insert(token_id, "none")
     data["pos"].insert(token_id, "без ЧР")
-    data["pos"].insert(token_id, "без ЧР")
+    data["type"].insert(token_id, "")
     data["schema"].insert(token_id, "none")
     new_questions = []
     for f, t, q in data["question_list"]:
@@ -341,7 +360,8 @@ def add_token(request, pk, token_id):
                     "id_in_sentence": token_id,
                     "text": "измените текст",
                     "line": "none",
-                    "pos": "без ЧР"
+                    "pos": "без ЧР",
+                    "type": "",
                 })
                 change = True
             idx += 1

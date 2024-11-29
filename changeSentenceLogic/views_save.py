@@ -25,7 +25,7 @@ def save_sentence(request, pk, ):
             return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
         sentence = sentence[0]
 
-        if ['gram_bases', 'lined', 'parts', 'pos', 'question_list', 'schema', 'tokens', 'type_goal',
+        if ['gram_bases', 'lined', 'parts', 'pos', 'question_list', 'schema', 'tokens', 'type', 'type_goal',
             'type_intonation'] != sorted(list(changed_sent.keys())):
             print("NOT COR USER")
             return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
@@ -33,6 +33,7 @@ def save_sentence(request, pk, ):
         lined = changed_sent.get("lined")
         tokens = changed_sent.get("tokens")
         pos = changed_sent.get("pos")
+        types = changed_sent.get("type")
         parts = changed_sent.get("parts")
 
         # lined
@@ -41,12 +42,13 @@ def save_sentence(request, pk, ):
 
         tokens_all = []
 
-        for line, token_txt, p in zip(lined, tokens, pos):
+        for line, token_txt, p, t in zip(lined, tokens, pos, types):
             tokens_all.append({
                 "id_in_sentence": id_t,
                 "text": token_txt,
                 "line": line,
-                "pos": p
+                "pos": p,
+                "type": t
             })
             id_t += 1
 
@@ -55,6 +57,8 @@ def save_sentence(request, pk, ):
         i = 0
         schema_all = []
         for p in parts:
+            if len(p["tokens"]) == 0:
+                continue
 
             last_id = max(p["tokens"], key=lambda x: x["id_in_sentence"])
             first_id = min(p["tokens"], key=lambda x: x["id_in_sentence"])

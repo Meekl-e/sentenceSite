@@ -13,7 +13,7 @@
         <div class="u-container-layout u-container-layout-3">
             <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Редактирование
                 предложения. Разбивка сложного предложения на простые</h3>
-            {% if not unathorized %}
+            {% if request.user.is_authenticated %}
 
                 <br>
 
@@ -35,6 +35,8 @@
                         <p style="display: inline-block;" class="u-custom-font u-font-georgia u-text u-text-9">
 
 
+                            <a style="font-size: x-small">{{ token.type }}</a>
+                            <br>
                             <a style="font-size: x-small">{{ token.pos }}</a>
                             <br>
                             <a style="color: #0f0f0f; font-size: larger" class="{{ token.line }}">{{ token.text }}</a>

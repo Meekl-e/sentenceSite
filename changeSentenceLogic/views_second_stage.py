@@ -30,8 +30,9 @@ class ChangeParts(BaseMixin, TemplateView):
 
         tokens = []
         i = 0
-        for l, p, t in zip(change_sentence_data["lined"], change_sentence_data["pos"], change_sentence_data["tokens"]):
-            tokens.append({"id_in_sentence": i, "pos": p, "line": l, "text": t, })
+        for l, p, t, ty in zip(change_sentence_data["lined"], change_sentence_data["pos"],
+                               change_sentence_data["tokens"], change_sentence_data["type"]):
+            tokens.append({"id_in_sentence": i, "pos": p, "line": l, "text": t, "type": ty})
             i += 1
 
         parts = change_sentence_data.get("parts")
@@ -42,7 +43,11 @@ class ChangeParts(BaseMixin, TemplateView):
             sp = []
             for t in p["tokens"]:
                 sp.append(tokens[t["id_in_sentence"]])
+            if len(sp) == 0:
+                parts.remove(p)
+                continue
             p["tokens"] = sp
+
             last_id = max(p["tokens"], key=lambda x: x["id_in_sentence"])
             first_id = min(p["tokens"], key=lambda x: x["id_in_sentence"])
 
@@ -97,8 +102,9 @@ def add_part(request, pk):
     tokens = request.user.change_sentence[pk].get("tokens")
     lined = request.user.change_sentence[pk].get("lined")
     pos = request.user.change_sentence[pk].get("pos")
+    types = request.user.change_sentence[pk].get("type")
 
-    if not tokens or not lined or not pos:
+    if not tokens or not lined or not pos or not types:
         return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
 
     f_part, t_part = map(int, data.cleaned_data["selected"].split("-"))
@@ -109,23 +115,27 @@ def add_part(request, pk):
     txt_in_part = tokens[f_part:t_part]
     lines_in_part = lined[f_part:t_part]
     pos_in_part = pos[f_part:t_part]
+    type_in_part = types[f_part:t_part]
 
     tokens_in_part = []
-    for i, t, l, p in zip(range(f_part, t_part), txt_in_part, lines_in_part, pos_in_part):
+    for i, t, l, p, ty in zip(range(f_part, t_part), txt_in_part, lines_in_part, pos_in_part, type_in_part):
         tokens_in_part.append({
             "id_in_sentence": i,
             "text": t,
             "line": l,
-            "pos": p
+            "pos": p,
+            "type": ty,
         })
 
     parts = request.user.change_sentence[pk].get("parts")
 
     if parts is not None:
-        for p in parts:
+        for p in parts.copy():
             for token_other in p["tokens"].copy():
                 if f_part <= token_other["id_in_sentence"] <= t_part:
                     p["tokens"].remove(token_other)
+            if len(p["tokens"]) == 0:
+                parts.remove(p)
 
     question_list = []
     for f, t, q in request.user.change_sentence[pk].get("question_list"):
@@ -189,9 +199,16 @@ def change_elem(request, pk, id_part, type):
     if type in ["gram_bases", "type_goal", "type_intonation"]:
         value = request.GET.get("value")
         if type == "gram_bases" and value == "Простое":
-            request.user.change_sentence[pk]["simple_sentence_in"] = max(
-                request.user.change_sentence[pk]["simple_sentence_in"], key=lambda x: len(x["tokens"]))
-            print("change", request.user.change_sentence[pk]["simple_sentence_in"])
+
+            tokens_to_parts = []
+            parts = request.user.change_sentence[pk]["parts"]
+            for p in parts:
+                tokens_to_parts = tokens_to_parts + p["tokens"]
+            print(tokens_to_parts)
+            parts[0]["tokens"] = tokens_to_parts
+            request.user.change_sentence[pk]["parts"] = [parts[0]]
+
+            print("change", request.user.change_sentence[pk]["parts"])
         if value and value != "":
             request.user.change_sentence[pk][type] = value
             request.user.save()

@@ -1,4 +1,5 @@
 import re
+from xml.dom.minidom import parse
 
 import nltk
 import pymorphy3
@@ -159,6 +160,30 @@ class PartSentence:
 
 
 class TokenDefault:
+
+    def set_type(self):
+        if self.line == "wavy_line":
+            if self.pos in ["Прилагательное", "Причастие", "Числительное"]:
+                self.type = "согласованное"
+            else:
+                self.type = "несогласованное"
+        elif self.line == "double_line":
+            if self.pos != "Глагол":
+                self.type = "СИС"
+            elif morph.parse(self.text)[0].tag.POS == "INFN":
+                self.type = "СГС"
+            else:
+                self.type = "ПГС"
+        elif self.line == "dotted_line":
+            form_word = morph.parse(self.text)[0].tag
+            if form_word.POS == "NOUN" and form_word.case == "accs":
+                self.type = "Прямое"
+            else:
+                self.type = "Косвенное"
+        else:
+            self.type = " "
+
+
     def __init__(self, text, id, line, pos, children=None):
 
         self.text = text
@@ -170,6 +195,10 @@ class TokenDefault:
 
         if len(self.text) == 1 and self.text.lower() != "я" and self.pos != " ":
             self.line = "none"
+        if self.pos in ["Союз"]:
+            self.line = "word"
+
+        self.set_type()
 
     def __len__(self):
         return len(self.text)
@@ -201,10 +230,11 @@ class TokenDefault:
             "text": self.text,
             "line": self.line,
             "pos": self.pos,
+            "type": self.type,
         }
 
 
-def translate_to_question(dep):
+def translate_to_question(dep, f_word):
     dep = dep.lower()
     question_map = {
         "nsubj": " ",
@@ -219,13 +249,30 @@ def translate_to_question(dep):
         "aux": "Что?",
         "cop": "Что?",
         "parataxis": "Что?",
-        # "conj": "ОЧП",
+        "conj": "ОЧП",
         "advcl": "Что делая?",
         "xcomp":"Что?"
 
     }
-    print(question_map.get(dep, " "))
-    return question_map.get(dep, " ")
+
+    res = question_map.get(dep, " ")
+    if res in ["Какой?", "Чей?"]:
+        word_tag = morph.parse(f_word)[0].tag.gender
+
+        if word_tag:
+
+            if word_tag == "femn":
+                if res == "Какой?":
+                    res = "Какая?"
+                else:
+                    res = "Чья?"
+            elif word_tag == "neut":
+                if res == "Какой?":
+                    res = "Какое?"
+                else:
+                    res = "Чьё?"
+
+    return res
 
 
 def translate_dep_to_line(dep, word):
@@ -264,9 +311,14 @@ def translate_dep_to_line(dep, word):
 
 
 def translate_pos(pos):
+    if not pos:
+        return " "
     pos = pos.upper()
     pos_map = {
         "ADJ": "Прилагательное",
+        "ADJF": "Прилагательное",
+        "ADJS": "Прилагательное",
+        "COMP": "Наречие",
         "ADP": "Предлог",
         "ADV": "Наречие",
         "AUX": "Глагол-связка",
@@ -278,10 +330,21 @@ def translate_pos(pos):
         "PART": "Частица",
         "PRON": "Местоимение",
         "PROPN": "Имя собственное",
+        "PRTF": "Причастие",
+        "PRTS": "Причастие",
+        "GRND": "Деепричастие",
+        "NUMR": "Числительное",
+        "ADVB": "Наречие",
+        "NPRO": "Местоимение",
+        "PRED": "Предиактив",
+        "PREP": "Предлог",
+        "CONJ": "Союз",
+        "PRCL": "Частица",
         "PUNCT": " ",
         "SCONJ": "Подчинительный союз",
         "SYM": "",
         "VERB": "Глагол",
+        "INFN": "Глагол",
         "X": ""
     }
     return pos_map.get(pos, "")
@@ -404,20 +467,22 @@ def analysis_spacy(text, tokenized) -> [SentenceDefault]:
 
             else:
                 tokens_map[token.i] = token.i - minus
+                pos = morph.parse(token.text)[0].tag.POS
 
                 tokens.append(TokenDefault(token.text, tokens_map[token.i], translate_dep_to_line(token.dep_, token.text),
-                                           token.pos_, token.children))
+                                           pos, token.children))
         else:
             tokens_map[token.i] = token.i - minus
+            pos = morph.parse(token.text)[0].tag.POS
             tokens.append(TokenDefault(token.text, tokens_map[token.i], translate_dep_to_line(token.dep_, token.text),
-                                       token.pos_, token.children))
+                                       pos, token.children))
     # print(tokens_map)
     for token in tokens:
 
         for child in token.children:
-            q = translate_to_question(child.dep_)
+            q = translate_to_question(child.dep_, child.text)
             if q != " ":
-                question_list.append((token.id, tokens_map[child.i], translate_to_question(child.dep_)))
+                question_list.append((token.id, tokens_map[child.i], translate_to_question(child.dep_, child.text)))
     # print(question_list, tokens, "SPACY")
     return analysis_full(PartSentence(text, tokens, question_list, "Spacy")), PartSentence(text, tokens, question_list,
                                                                                            "Sp").tokens
@@ -459,7 +524,7 @@ def analysis_natasha(text, tokenized) -> [SentenceDefault]:
                                            translate_dep_to_line(rel_first, all_text_tokens),
                                            token.pos))
                 if head_first_id != -1:
-                    q = translate_to_question(rel_first)
+                    q = translate_to_question(rel_first, all_text_tokens)
                     if q != " ":
                         question_list.append((head_first_id, id - minus, q))
                 append = False
@@ -485,7 +550,7 @@ def analysis_natasha(text, tokenized) -> [SentenceDefault]:
         if head_id == all_ids -1:
             continue
         rel = token.rel
-        q = translate_to_question(rel)
+        q = translate_to_question(rel, token.text)
         if q != " ":
             question_list.append((head_id, id - minus, q))
 
@@ -495,7 +560,7 @@ def analysis_natasha(text, tokenized) -> [SentenceDefault]:
                                    translate_dep_to_line(rel_first, all_text_tokens),
                                    token.pos))
         if head_first_id != -1:
-            q = translate_to_question(rel_first)
+            q = translate_to_question(rel_first, all_text_tokens)
             if q != " ":
                 question_list.append((head_first_id, id - minus, q))
 
@@ -534,7 +599,7 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
         id =  idx - min_tokenize #int(token_parsed[0]) - 1
         text = token_parsed[1]
         dep = token_parsed[7]
-        pos = token_parsed[3]
+        pos = morph.parse(text)[0].tag.POS
 
         # print(id)
         if wait_for_token:
@@ -645,14 +710,14 @@ def analysis_UDPipe(all_text, tokenized) -> [SentenceDefault]:
         token_parsed = line.split("\t")
 
         id = int(token_parsed[0]) - 1
-        # text = token_parsed[1]
+        text = token_parsed[1]
         dep = token_parsed[7]
         head_id = int(token_parsed[6]) - 1
 
 
 
         if head_id != 0:
-            question = translate_to_question(dep)
+            question = translate_to_question(dep, text)
             if question != " ":
                 question_list.append((tokens_map[head_id], tokens_map[id], question))
 
@@ -763,6 +828,8 @@ def analys_part_sentence(part_sentence) -> bool():
 
     raspr = False
 
+    no_in_sentence = False
+
     for idx, token in enumerate(part_sentence.tokens):
         if token.line == "line":
 
@@ -774,6 +841,7 @@ def analys_part_sentence(part_sentence) -> bool():
             raspr = True
             part_sentence.second_members = "Распространённое"
 
+
     if count_p > 0 and count_sk > 0:
         one_main = False
     else:
@@ -783,6 +851,11 @@ def analys_part_sentence(part_sentence) -> bool():
 
     for idx, token in enumerate(part_sentence.tokens):
         # token = TokenDefault()
+
+        if token.text.lower() in ["не", "нет", "жалко", "жаль"]:
+            no_in_sentence = True
+
+
 
         if token.pos == "":
             if token.text == "-" and idx < len(part_sentence.tokens) - 1:
@@ -801,6 +874,11 @@ def analys_part_sentence(part_sentence) -> bool():
             continue
 
         parsed = morph.parse(token.text)[0]
+
+        if no_in_sentence and token.line == "dotted_line" and parsed.tag.POS == "NOUN" and parsed.tag.case == "gent":
+            token.type = "Прямое"
+
+
 
         if not parsed.tag.mood is None and parsed.tag.mood == "impr":  # повелит. наклон
             pobyditel = True

@@ -44,14 +44,21 @@ document.addEventListener('DOMContentLoaded', function () {
             if (active_edits !== null) {
                 var btn = document.getElementById(active_edits.id + "_btn");
                 var input = document.getElementById(active_edits.id + "_input");
+                var br = document.getElementById(active_edits.id + "_br");
                 btn.hidden = "hidden";
                 input.type = "hidden";
+                br.hidden = "hidden";
+                if (active_edits === token_edit) {
+                    active_edits = null;
+                    return;
+                }
                 active_edits = null;
             }
 
 
             input = document.getElementById(token_edit.id + "_input");
             btn = document.getElementById(token_edit.id + "_btn");
+            br = document.getElementById(token_edit.id + "_br")
             if (input.type === "hidden") {
                 input.type = "text";
 
@@ -60,11 +67,55 @@ document.addEventListener('DOMContentLoaded', function () {
                 input.value = txt_cont;
                 btn.hidden = null;
                 input.hidden = null;
+                br.hidden = null;
                 active_edits = token_edit;
             } else {
 
                 input.type = "hidden";
                 btn.hidden = "hidden";
+                br.hidden = "hidden";
+                active_edits = null;
+
+            }
+        });
+    });
+    document.getElementsByName("edit_type").forEach(function (token_edit) {
+        token_edit.addEventListener("click", function () {
+
+
+            if (active_edits !== null) {
+                var btn = document.getElementById(active_edits.id + "_btn");
+                var input = document.getElementById(active_edits.id + "_input");
+                var br = document.getElementById(active_edits.id + "_br");
+                btn.hidden = "hidden";
+                input.type = "hidden";
+                br.hidden = "hidden";
+                if (active_edits === token_edit) {
+                    active_edits = null;
+                    return;
+                }
+                active_edits = null;
+            }
+
+
+            input = document.getElementById(token_edit.id + "_input");
+            btn = document.getElementById(token_edit.id + "_btn");
+            br = document.getElementById(token_edit.id + "_br")
+            if (input.type === "hidden") {
+                input.type = "text";
+
+                var txt_cont = document.getElementById(token_edit.id + "_txt").textContent
+
+                input.value = txt_cont;
+                btn.hidden = null;
+                input.hidden = null;
+                br.hidden = null;
+                active_edits = token_edit;
+            } else {
+
+                input.type = "hidden";
+                btn.hidden = "hidden";
+                br.hidden = "hidden";
                 active_edits = null;
 
             }

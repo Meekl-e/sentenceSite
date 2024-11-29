@@ -7,6 +7,7 @@
 
 {% block content %}
 <div class="u-container-style u-layout-cell u-size-19 u-layout-cell-2">
+    {% if request.user.is_authenticated %}
               <div class="u-container-layout u-container-layout-3">
                 <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Ваша статистика</h3>
                 <p class="u-text u-text-5">Разборов выполнено: <span style="font-weight: 700;">999</span>
@@ -18,8 +19,33 @@
             <div class="u-container-style u-layout-cell u-size-27">
               <div class="u-container-layout u-container-layout-4">
                 <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-7">Избранное</h4>
-                <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">Создать задание</h4>
-                <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">Ученики</h4>
+                  <a href="{% url 'create_task' %}"><h4
+                          class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">Создать
+                      задание</h4></a>
+                  <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">Ученики:</h4>
+                  <ol class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">
+                      {% for st in students %}
+                          <li>{{ st }} <a href="{% url 'remove_student' st.id %}" style="font-size: medium"
+                                          class="btn btn-danger">Удалить</a></li>
+
+                      {% endfor %}
+                  </ol>
+
+                  <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">Чтобы добавить
+                      ученика, попросите его перейти по ссылке:</h4>
+                  {% if teacher.student_invite %}
+                      <div style="font-size: medium" id="copy-text" class="badge bg-secondary text-wrap">
+                          {{ students_link }}
+                      </div>
+                      <button id="copy-btn" class="btn btn-primary">Скопировать</button>
+                  {% else %}
+                      <a href="{% url 'get_invite_link' %}">Сгенерировать ссылку</a>
+                  {% endif %}
               </div>
             </div>
+    {% else %}
+        <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для получения информации необходимо
+            авторизоваться</h3>
+    {% endif %}
+    <script src="{% static 'mainPage/js/teacher.js' %}"></script>
 {% endblock %}

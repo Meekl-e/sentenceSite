@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <div class="u-container-layout u-container-layout-2">
+
+        {% block link %}
+            <link rel="stylesheet" href="{% static 'create_task/css/create_task.css' %}" media="screen">
+        {% endblock %}
+
+        {% if request.user.is_authenticated %}
+            <div class="u-expanded-width u-form u-form-1">
+                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Создание
+                    домашней работы</h3>
+                <h5 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Введите предложения, которые
+                    необходимо выполнить ученикам</h5>
+
+
+                {% for sent_id, result in sentences %}
+                    {% for token in result.tokens %}
+                        <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
+                            <a style="font-size: x-small">{{ token.pos }}</a>
+                            <br>
+                            <a class="{{ token.line }}">{{ token.text }}
+
+                            </a>
+                        </label>
+                    {% endfor %}
+
+
+                    <br>
+                    {% if result.simple_sentences_in|length == 1 %}
+                        <h6 class="u-custom-font u-font-georgia u-text u-text-9">Характеристика предложения:</h6>
+                        <div class="u-custom-font u-font-georgia u-text u-text-9" style="display: flex;">
+                            <div style="flex: 1;">
+                                <h6>I.</h6>
+                                <ol>
+                                    <li>{{ result.type_goal }}</li>
+                                    <li>{{ result.type_intonation }}</li>
+                                </ol>
+                            </div>
+                            <div style="flex: 1;">
+                                <h6>II.</h6>
+                                <ol>
+                                    <li>{{ result.gram_bases }}</li>
+                                    <li>{{ result.simple_sentences_in.0.main_members }}</li>
+                                    <li>{{ result.simple_sentences_in.0.second_members }}</li>
+                                    <li>{{ result.simple_sentences_in.0.difficulty_members }}</li>
+                                    <li>{{ result.simple_sentences_in.0.lost_members }}</li>
+                                    <li>Схема: {% for token in result.schema %}
+                                        {% if token.0 == "word" %}
+                                            {{ token.1 }}
+                                        {% elif token.0 != "none" %}
+                                            <a class="{{ token.0 }}" style="color: transparent">_____</a>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    {% else %}
+                        <h6 class="u-custom-font u-font-georgia u-text u-text-9">Характеристика предложения:</h6>
+                        <div class="u-custom-font u-font-georgia u-text u-text-9" style="display: flex;">
+                            <div style="flex: 1;">
+                                <h6>I.</h6>
+                                <ol>
+                                    <li>{{ result.type_goal }}</li>
+                                    <li>{{ result.type_intonation }}</li>
+                                </ol>
+                            </div>
+                            <div style="flex: 1;">
+                                <h6>II.</h6>
+                                <ol>
+                                    <li>{{ result.gram_bases }}</li>
+                                    <li>Схема:
+                                        {% for token in result.schema %}
+                                            {% if token.0 == "word" %}
+                                                {{ token.1 }}
+                                            {% elif token.0 != "none" %}
+                                                <a class="{{ token.0 }}" style="color: transparent">_____</a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                        {% for part_result in result.simple_sentences_in %}
+
+                            <label class="u-custom-font u-font-georgia u-text u-text-9">
+                                <b>Часть предложения:</b> <br>
+                                {% for token in part_result.tokens %}
+                                    <label class="u-custom-font u-font-georgia u-text u-text-9"
+                                           style="text-align: center">
+                                        <a style="font-size: x-small">{{ token.pos }}</a>
+                                        <br>
+                                        <a class="{{ token.line }}">{{ token.text }}</a>
+                                    </label>
+                                {% endfor %} -
+                                ({{ part_result.main_members }}; {{ part_result.second_members }}; {{ part_result.lost_members }}; {{ part_result.difficulty_members }})
+
+                            </label>
+                            <br><br>
+
+
+                        {% endfor %}
+                    {% endif %}
+                    <div style="display: flex">
+                        <p style="flex: 1">
+                            <a href="{% url 'change_sentence' sent_id %}">
+                                <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">
+                                    Изменить
+                                </button>
+                            </a>
+                        </p>
+                        <p style="flex: 2;">
+                            <a href="{% url 'remove_sentence' sent_id %}">
+                                <button class=" u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9 danger">
+                                    Удалить
+                                </button>
+                            </a>
+                        </p>
+                    </div>
+
+                {% endfor %}
+
+                <form method="post" name="form" style="padding: 10px;">
+                    {% csrf_token %}
+
+                    {{ form.text }}
+
+                    <br>
+                    <button type="submit" class="btn btn-primary">
+                        Добавить предложение
+                    </button>
+
+
+                </form>
+                <br>
+                <br>
+                <a href="{% url 'create_task_students' %}" class="btn btn-primary">
+                    К добавлению учеников
+                </a>
+            </div>
+        {% else %}
+            <br>
+            <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для редактирования предложения
+                необходимо авторизоваться</h3>
+        {% endif %}
+
+    </div>
+{% endblock %}

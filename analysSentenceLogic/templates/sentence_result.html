@@ -26,8 +26,11 @@
 
                   {% for token in result.tokens %}
                       <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
+                          <a style="font-size: x-small">{{ token.type }}</a>
+                          <br>
                       <a style="font-size: x-small">{{ token.pos }}</a>
                           <br>
+
                           <a class="{{ token.line }}">{{ token.text }} 
                           
                           

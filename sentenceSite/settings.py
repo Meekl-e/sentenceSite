@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'authLogic',
     "userLogic",
     "analysSentenceLogic",
-    "changeSentenceLogic"
+    "changeSentenceLogic",
+    'teacherTasksLogic'
 ]
 
 MIDDLEWARE = [

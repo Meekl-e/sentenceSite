@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <div class="u-container-layout u-container-layout-2">
+
+        {% block link %}
+            <link rel="stylesheet" href="{% static 'mainPage/css/teacher.css' %}" media="screen">
+        {% endblock %}
+
+
+        {% if request.user.is_authenticated %}
+            {% if not student_to_remove %}
+                <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Ученик {{ already_remove }} не
+                    является вашим учеником.</h3>
+            {% else %}
+                <div class="u-expanded-width u-form u-form-1">
+                    <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Вы уверены, что хотите
+                        удалить ученика {{ student_to_remove }}?</h3>
+
+                    <div class="u-custom-font u-font-georgia u-text u-text-9" style="display: flex;">
+                        <div style="flex: 1;">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="code" id="id_code" value="{{ student_to_remove.id }}">
+                                <button type="submit" style=" width: 100px" class="btn btn-success">Да</button>
+                            </form>
+                        </div>
+                        <div style="flex: 2; width: 50%">
+                            <a href="{% url 'teacher_page' %}">
+                                <button style=" width: 100px" class="btn btn-danger">Нет</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <br>
+            <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Чтобы управлять своими учениками,
+                необходимо авторизоваться</h3>
+        {% endif %}
+
+    </div>
+
+
+{% endblock %}

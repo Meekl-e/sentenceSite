@@ -1,7 +1,9 @@
-from django.views.generic import *#TemplateView, FormView, ListView
+from django.urls import reverse
+from django.views.generic import *
 
 from analysSentenceLogic.forms import NameForm
 from analysSentenceLogic.models import Sentence
+from userLogic.models import CorrectUser
 from utils import BaseMixin
 
 
@@ -46,6 +48,14 @@ class teacherPage(BaseMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
+        if not self.request.user.is_authenticated:
+            return self.get_mixin_context(context)
+        teacher = CorrectUser.objects.get(id=self.request.user.id)
+        context["teacher"] = teacher
+        if teacher.student_invite:
+            context["students_link"] = self.request.build_absolute_uri(
+                reverse('add_student_link', kwargs={"code": teacher.student_invite}))
+        context["students"] = teacher.teacher_students.all()
         return self.get_mixin_context(context)
 
 

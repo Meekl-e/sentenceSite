@@ -12,7 +12,7 @@
 
               <div class="u-container-layout u-container-layout-3">
                   <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Редактирование предложения</h3>
-              {% if not unathorized %}
+                  {% if request.user.is_authenticated %}
 
               <br>
 
@@ -33,10 +33,21 @@
 
                       <a name="counter_{{ forloop.counter }}"></a>
                       <br>
+                      <a id="edit_type_{{ forloop.counter }}_txt" style="font-size: small">{{ token.type }}</a>
+                      <a name="edit_type" id="edit_type_{{ forloop.counter }}">✏️</a>
+
+                      <br id="edit_type_{{ forloop.counter }}_br" hidden="hidden">
+
+                      <input id="edit_type_{{ forloop.counter }}_input" type="hidden">
+                      <button type="button" name="confirm_edit"
+                              value="{% url 'edit_type' sent_id  forloop.counter0 %}?value="
+                              id="edit_type_{{ forloop.counter }}_btn" class="btn btn-primary" hidden="hidden">Сохранить
+                      </button>
+
+                      <br>
                       <a id="edit_pos_{{ forloop.counter }}_txt" style="font-size: small">{{ token.pos }}</a>
                       <a name="edit_pos" id="edit_pos_{{ forloop.counter }}">✏️</a>
-
-
+                      <br id="edit_pos_{{ forloop.counter }}_br" hidden="hidden">
                       <input id="edit_pos_{{ forloop.counter }}_input" type="hidden">
                       <button type="button" name="confirm_edit"
                               value="{% url 'edit_pos' sent_id  forloop.counter0 %}?value="
