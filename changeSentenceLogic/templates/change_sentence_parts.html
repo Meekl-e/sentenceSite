@@ -181,7 +181,7 @@
                     <a href="{% url 'save_sentence' sent_id %}">
                         <button type="submit"
                                 class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-radius u-btn-11">
-                            Опубликовать
+                            {% if task %}Сохранить{% else %}Опубликовать{% endif %}
                         </button>
                     </a>
                     {% if back == "" %}

@@ -1,6 +1,6 @@
 /.idea/
 /venv/
-/media/
+/images/
 /db.sqlite3/
 /analysSentenceLogic/migrations/
 /authLogic/migrations/

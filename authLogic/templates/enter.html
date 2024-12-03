@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block link %}
+    <link rel="stylesheet" href="{% static 'authLogic/css/enter.css' %}" media="screen">
+{% endblock %}
+{% block content %}
+
+    <section class="u-clearfix u-section-5" id="sec-91f2">
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <div class="u-form u-form-1">
+                <form method="post" class="u-clearfix u-form-spacing-25 u-form-vertical u-inner-form"
+                      style="padding: 50px;">
+                    <p class="u-align-center u-form-group u-form-text u-text u-text-1">Вход </p>
+                    {% csrf_token %}
+                    {{ auth_form.username }}
+
+                    <br>
+                    {{ auth_form.password }}
+
+                    <div class="form-error">{{ error }}</div>
+
+                    <div class="u-align-right u-form-group u-form-submit">
+                        <button type="submit"
+                                class="u-active-white u-border-2 u-border-grey-75 u-btn u-btn-submit u-button-style u-hover-black u-white u-btn-1">
+                            Войти
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            <a href="{% url 'registration' %}"
+               class="u-active-none u-align-center u-border-2 u-border-no-left u-border-no-right u-border-no-top u-border-palette-1-base u-btn u-btn-rectangle u-button-style u-hover-none u-none u-btn-2">Зарегистрироваться </a>
+            <a href="#"
+               class="u-active-none u-align-right u-border-2 u-border-no-left u-border-no-right u-border-no-top u-border-palette-1-base u-btn u-btn-rectangle u-button-style u-hover-none u-none u-btn-3">Забыли
+                пароль? (в разработке)</a>
+        </div>
+    </section>
+{% endblock %}

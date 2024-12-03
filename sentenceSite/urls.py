@@ -18,6 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+from nltk.corpus import names
 
 from analysSentenceLogic.views import *
 from authLogic.views import *
@@ -34,8 +35,9 @@ from userLogic.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homePage.as_view(), name='home'),
-    path('accounts/login/', homePage.as_view()),
-    path('about/', aboutPage.as_view()),
+    path('', homePage.as_view(), name=''),
+    path('about/', aboutPage.as_view(), name="about_page"),
+    path('profile/', profilePage.as_view(), name="profile"),
     path('student/', studentPage.as_view(), name="student_page"),
     path('teacher/', teacherPage.as_view(), name="teacher_page"),
     path('registration/', RegisterUser.as_view(), name='registration'),

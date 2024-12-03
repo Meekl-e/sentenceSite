@@ -1,25 +1,19 @@
 {% extends "base.html" %}
 {% load static %}
-
-
-{% block content %}
-    <div class="u-container-layout u-container-layout-2">
-
-        {% block link %}
+{% block link %}
             <link rel="stylesheet" href="{% static 'create_task/css/create_task.css' %}" media="screen">
         {% endblock %}
 
-        {% if request.user.is_authenticated %}
-            <div class="u-expanded-width u-form u-form-1">
-                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Создание
-                    домашней работы</h3>
-                <h5 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Введите предложения, которые
-                    необходимо выполнить ученикам</h5>
-
-
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <section class="u-clearfix u-section-1" id="sec-1796">
+            <div class="u-clearfix u-sheet u-sheet-1">
+                <h4 class="u-text u-text-default u-text-1">Задание </h4>
                 {% for sent_id, result in sentences %}
                     {% for token in result.tokens %}
                         <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
+                            <a style="font-size: x-small">{{ token.type }}</a>
+                            <br>
                             <a style="font-size: x-small">{{ token.pos }}</a>
                             <br>
                             <a class="{{ token.line }}">{{ token.text }}
@@ -56,6 +50,14 @@
                                         {% endif %}
                                     {% endfor %}
                                     </li>
+                                    {% if result.question_list %}
+                                        <li>Словосочетания:</li>
+                                        <ul>
+                                            {% for q in result.question_list %}
+                                                <li>{{ q }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
                                 </ol>
                             </div>
                         </div>
@@ -82,7 +84,16 @@
                                             {% endif %}
                                         {% endfor %}
                                     </li>
+                                    {% if result.question_list %}
+                                        <li>Словосочетания:</li>
+                                        <ul>
+                                            {% for q in result.question_list %}
+                                                <li>{{ q }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
                                 </ol>
+
                             </div>
                         </div>
                         {% for part_result in result.simple_sentences_in %}
@@ -108,7 +119,7 @@
                     <div style="display: flex">
                         <p style="flex: 1">
                             <a href="{% url 'change_sentence' sent_id %}">
-                                <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">
+                                <button class="u-active-black u-border-2 u-border-grey-75 u-border-hover-white u-btn u-btn-submit u-button-style u-hover-black u-text-hover-white u-white u-btn-1">
                                     Изменить
                                 </button>
                             </a>
@@ -123,30 +134,56 @@
                     </div>
 
                 {% endfor %}
-
-                <form method="post" name="form" style="padding: 10px;">
+                <div class="u-align-center u-form u-form-1">
+                    <form method="post" name="form" style="padding: 10px;">
                     {% csrf_token %}
-
                     {{ form.text }}
 
                     <br>
-                    <button type="submit" class="btn btn-primary">
+                        <button type="submit"
+                                class="u-active-black u-border-2 u-border-grey-75 u-border-hover-white u-btn u-btn-submit u-button-style u-hover-black u-text-hover-white u-white u-btn-1">
                         Добавить предложение
                     </button>
 
 
-                </form>
-                <br>
-                <br>
-                <a href="{% url 'create_task_students' %}" class="btn btn-primary">
-                    К добавлению учеников
-                </a>
+                    </form>
+
+
+                    <div class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form" style="padding: 10px;">
+                        <div class="u-form-date u-form-group u-form-group-2">
+                            <label for="date-expired" class="u-label">Срок сдачи задания</label>
+                            <input type="date" placeholder="ММ/ДД/ГГГГ" id="date" value="{{ date }}" name="date-expired"
+                                   class="u-input u-input-rectangle" required="" data-date-format="mm/dd/yyyy">
+                            <a id="date-href" href="{% url 'change_date_task' %}" hidden=""></a>
+                        </div>
+                        <div class="u-form-checkbox u-form-group u-form-group-3">
+                            <input type="checkbox" id="checkbox-30d0" name="checkbox-1" value="On" class="u-field-input"
+                                   {% if date_inf %}checked{% endif %}>
+                            <label for="checkbox-30d0" class="u-field-label">Бессрочная</label>
+                        </div>
+
+                        <div class="u-form-checkbox u-form-group u-form-group-4">
+                            <input type="checkbox" id="check-phrases" name="checkbox" value="On" class="u-field-input"
+                                   {% if check_phrases %}checked{% endif %}>
+                            <label for="check-phrases" class="u-field-label">Проверка словосочетаний (будьте аккуратны,
+                                нейронная сеть их плохо определяет)</label>
+                            <a id="check-phrases-href" href="{% url 'change_phrases' %}" hidden="hidden"></a>
+                        </div>
+
+                        <div class="u-align-left u-form-group u-form-submit">
+                            <a href="{% url 'apply_task' %}"
+                               class="u-active-black u-border-2 u-border-grey-75 u-border-hover-white u-btn u-btn-submit u-button-style u-hover-black u-text-hover-white u-white u-btn-1">Отправить
+                                задание </a>
+                            <input type="submit" value="submit" class="u-form-control-hidden">
+                        </div>
+
+                    </div>
+                </div>
             </div>
-        {% else %}
+        </section>
+    {% else %}
             <br>
             <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для редактирования предложения
                 необходимо авторизоваться</h3>
         {% endif %}
-
-    </div>
 {% endblock %}

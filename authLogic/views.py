@@ -14,13 +14,12 @@ from analysSentenceLogic.forms import NameForm
 class RegisterUser(CreateView):
     template_name = 'registration.html'
     form_class = RegisterFrom
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('login')
 
 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["entrance"] = True
         return context
 
 
@@ -28,14 +27,13 @@ class RegisterUser(CreateView):
 
 class loginPage(BaseMixin, LoginView):
     authentication_form  = LoginForm
-    template_name = 'index.html'
+    template_name = 'enter.html'
 
     def form_invalid(self, form):
-        to = self.request.GET.get("from")
-        form.errors["__all__"] = "Неправильные имя пользователя или пароль"
 
-        data = super().get_mixin_context(super().get_context_data(auth_form=form))
-        data["sentences"] = Sentence.objects.exclude(count=1).order_by("-count")[:5]
+        error = "Неправильные имя пользователя или пароль"
+
+        data = super().get_mixin_context(super().get_context_data(auth_form=form, error=error))
         return self.render_to_response(data)
     def form_valid(self, form):
         to = self.request.GET.get("from")
@@ -46,9 +44,9 @@ class loginPage(BaseMixin, LoginView):
         else:
             return HttpResponseRedirect(to)
 
-
-    def get(self,request,*args, **kwargs):
-        return redirect('home')
+    def get_context_data(self, **kwargs):
+        data = super().get_mixin_context(super().get_context_data(auth_form=LoginForm()))
+        return data
 
 
 

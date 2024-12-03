@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'mainPage/css/profile.css' %}" media="screen">
+{% endblock %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <section class="u-clearfix u-section-1" id="sec-08b2">
+            <div class="u-clearfix u-sheet u-sheet-1"></div>
+        </section>
+    {% else %}
+        <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для получения информации необходимо
+            авторизоваться</h3>
+    {% endif %}
+    <script src="{% static 'mainPage/js/teacher.js' %}"></script>
+{% endblock %}

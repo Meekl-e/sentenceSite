@@ -6,4 +6,11 @@ class TaskSentences(models.Model):
     user = IntegerField(blank=False)
     task = IntegerField(blank=False)
     sentence = IntegerField(blank=False)
-    sentence_data = JSONField(blank=False, default={})
+    sentence_data = JSONField(blank=False)
+
+
+class StudentTask(models.Model):
+    user = IntegerField(blank=False)
+    task = IntegerField(blank=False)
+    sentences = models.ManyToManyField(TaskSentences, "sentences")
+    result_check = models.JSONField(blank=True)

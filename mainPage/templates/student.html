@@ -6,31 +6,125 @@
 {% endblock %}
 
 {% block content %}
-<div class="u-container-style u-layout-cell u-size-19 u-layout-cell-2">
-              <div class="u-container-layout u-container-layout-3">
-                <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Ваша статистика</h3>
-                <p class="u-text u-text-5">Разборов выполнено: <span style="font-weight: 700;">999</span>
-                </p>
-                <p class="u-text u-text-6">Заданий решено: <span style="font-weight: 700;">999</span>
-                </p>
+    {% if request.user.is_authenticated %}
+        <section class="u-clearfix u-section-1" id="sec-f04c">
+            <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+                <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-1" id="link-4b23"
+                   aria-controls="4b23" aria-selected="true">
+                    <h4 class="u-accordion-link-text">Избранное </h4><span
+                        class="u-accordion-link-icon u-icon u-text-grey-40 u-icon-1"><svg class="u-svg-link"
+                                                                                          preserveAspectRatio="xMidYMin slice"
+                                                                                          viewBox="0 0 16 16" style=""><use
+                        xlink:href="#svg-4975"></use></svg><svg class="u-svg-content" viewBox="0 0 16 16" x="0px"
+                                                                y="0px" id="svg-4975"><path d="M8,10.7L1.6,5.3c-0.4-0.4-1-0.4-1.3,0c-0.4,0.4-0.4,0.9,0,1.3l7.2,6.1c0.1,0.1,0.4,0.2,0.6,0.2s0.4-0.1,0.6-0.2l7.1-6
+	c0.4-0.4,0.4-0.9,0-1.3c-0.4-0.4-1-0.4-1.3,0L8,10.7z"></path></svg></span>
+                </a>
+                {% if favourites|length == 0 %}
+                    <h4 class="u-align-center u-text u-text-default u-text-2">В избранном пока ничего нет</h4>
+                {% else %}
+                    {% for sent in favourites %}
+                        <div class="u-accordion u-expanded-width u-accordion-1">
+
+                            <div class="u-accordion-item">
+
+                                <div class="u-accordion-active u-accordion-pane u-container-style u-accordion-pane-1"
+                                     id="4b23" aria-labelledby="link-4b23">
+                                    <div class="u-container-layout u-valign-top u-container-layout-1">
+                                        <div class="u-border-1 u-border-black u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-1">
+                                            <div class="u-container-layout u-container-layout-2">
+                                                <a href="#"
+                                                   class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-1"><span
+                                                        class="u-file-icon u-icon u-icon-2"><img
+                                                        src={% static "images/58253.png" %} alt=""></span>
+                                                </a>
+                                                <p class="u-text u-text-1"><a
+                                                        href="{% url 'sentence' sent.id %}">{{ sent|slice:":50" }}</a>
+                                                </p>
+                                            </div>
+                                        </div>
               </div>
             </div>
-            <div class="u-container-style u-layout-cell u-size-27 u-layout-cell-3">
-              <div class="u-container-layout u-container-layout-4">
-                <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-7">Избранное</h4>
-                  <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">Задания:</h4>
-                  <ol class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">
-                      {% for t in tasks %}
-                          <li><a href="{% url 'task' t.id %}">{{ t }}</a></li>
-                      {% endfor %}
-                  </ol>
-                <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">Учителя:</h4>
-                <ol class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-10">
-                    {% for t in teachers %}
-                        <li>{{ t }}</li>
+                            </div>
+
+                        </div>
                     {% endfor %}
-                </ol>
-              </div>
+                {% endif %}
+                <h4 class="u-align-center u-text u-text-default u-text-2">Учителя </h4>
+
+                <div class="u-accordion u-expanded-width u-accordion-2">
+                    {% if teachers|length == 0 %}
+                        <h4 class="u-align-center u-text u-text-default u-text-2">Пока у вас нет учителей. Попросите
+                            учителя поделиться ссылкой для добавления учеников. </h4>
+                    {% else %}
+                        {% for t in teachers %}
+                            <div class="u-accordion u-expanded-width u-accordion-2">
+                                <div class="u-accordion-item">
+                                    <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-2"
+                                       id="link-4b23" aria-controls="4b23" aria-selected="true">
+                                        <span class="u-accordion-link-text">{{ t.school }}</span><span
+                                            class="u-accordion-link-icon u-icon u-text-grey-40 u-icon-3"><svg
+                                            class="u-svg-link" preserveAspectRatio="xMidYMin slice" viewBox="0 0 16 16"
+                                            style=""><use xlink:href="#svg-f1fb"></use></svg><svg class="u-svg-content"
+                                                                                                  viewBox="0 0 16 16"
+                                                                                                  x="0px" y="0px"
+                                                                                                  id="svg-f1fb"><path
+                                            d="M8,10.7L1.6,5.3c-0.4-0.4-1-0.4-1.3,0c-0.4,0.4-0.4,0.9,0,1.3l7.2,6.1c0.1,0.1,0.4,0.2,0.6,0.2s0.4-0.1,0.6-0.2l7.1-6
+	c0.4-0.4,0.4-0.9,0-1.3c-0.4-0.4-1-0.4-1.3,0L8,10.7z"></path></svg></span>
+                                    </a>
+                                    <div class="u-accordion-active u-accordion-pane u-container-style u-accordion-pane-2"
+                                         id="4b23" aria-labelledby="link-4b23">
+                                        <div class="u-container-layout u-valign-top u-container-layout-3">
+                                            <div class="u-border-1 u-border-black u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-2">
+                                                <div class="u-container-layout u-container-layout-4">
+                                                    <a class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-2"><span
+                                                            class="u-file-icon u-icon u-icon-4"><img
+                                                            src="{% static 'images/58253.png' %}" alt=""></span>
+                                                    </a>
+                                                    <p class="u-text u-text-3">&nbsp;{{ t }}&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
             </div>
+        </section>
+        <section class="u-clearfix u-section-2" id="sec-66ee">
+            <div class="u-clearfix u-sheet u-sheet-1">
+                <h4 class="u-align-center u-text u-text-default u-text-1">Задания </h4>
+
+                {% if tasks|length == 0 %}
+                    <h4 class="u-align-center u-text u-text-default u-text-1">Активных заданий нет </h4>
+                {% else %}
+
+                    {% for t in tasks %}
+                        <div class="u-border-1 u-border-black u-container-style u-expanded-width-md u-expanded-width-sm u-expanded-width-xs u-group u-radius u-shape-round u-white u-group-1">
+                            <div class="u-container-layout u-container-layout-1">
+                                <a href="#"
+                                   class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-1"><span
+                                        class="u-file-icon u-icon u-icon-1"><img
+                                        src={% static "images/58253.png" %} alt=""></span>
+                                </a>
+                                <h4 class="u-align-center u-text u-text-default u-text-2"> Не решено </h4>
+                                <p class="u-text u-text-3">
+                                    <span style="text-decoration: underline !important;"
+                                          class="u-text-palette-1-base">{{ t }}</span>&nbsp; &nbsp; &nbsp; &nbsp;Дата
+                                    сдачи: {{ t.date_expired }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </section>
+    {% else %}
+        <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для получения информации необходимо
+            авторизоваться</h3>
+    {% endif %}
 
 {% endblock %}

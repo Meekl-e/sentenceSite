@@ -133,7 +133,18 @@
                         </p>
 
                     {% endfor %}
+
             {% endif %}
+            <p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="task_id" id="id_task_id" value="{{ id_task }}">
+                <button type="submit"
+                        class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">
+                    Сдать
+                </button>
+            </form>
+            </p>
 
         {% else %}
             <div class="u-container-layout u-container-layout-3">

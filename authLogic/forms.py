@@ -1,3 +1,5 @@
+from random import choices
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
@@ -5,50 +7,55 @@ from userLogic.models import CorrectUser
 
 
 class RegisterFrom(UserCreationForm):
-    first_name = forms.CharField(label="Имя",
+    username = forms.CharField(label="",
+                               widget=forms.TextInput(
+                                   attrs={"class": "u-input u-input-rectangle", "id": "email",
+                                          "placeholder": "Логин (Ваш e-mail)", "type": "email"}))
+    first_name = forms.CharField(label="",
                                  widget=forms.TextInput(
-                                     attrs={"class": "form-control", "id": "first_name",
-                                            "placeholder": "Введите имя"}))
-    username = forms.CharField(label="Логин (отображаемое имя)",
-                                 widget=forms.TextInput(
-                                     attrs={"class": "form-control", "id": "username",
-                                            "placeholder": "Логин (отображаемое имя)"}))
-    last_name = forms.CharField(label="Фамилия",
-                                widget=forms.TextInput(
-                                    attrs={"class": "form-control", "id": "last_name",
-                                           "placeholder": "Введите фамилию"}))
-    email = forms.EmailField(label="Почта",
-                             widget=forms.EmailInput(
-                                 attrs={ "type":"email", "class":"form-control", "id":"email", "placeholder":"name@example.com"}))
-    birth = forms.DateField(label="Ваша дата рождения", required=False,
-                            widget=forms.DateInput(attrs={"type":"date", "id":"birth", "style":"font:Georgia" }))
+                                     attrs={"class": "u-input u-input-rectangle", "id": "first_name",
+                                            "placeholder": "Имя"}))
 
-    password1 = forms.CharField(label="Пароль",
+    last_name = forms.CharField(label="",
+                                 widget=forms.TextInput(
+                                     attrs={"class": "u-input u-input-rectangle", "id": "last_name",
+                                            "placeholder": "Фамилия"}))
+    city = forms.CharField(label="",
+                           widget=forms.TextInput(
+                               attrs={"class": "u-input u-input-rectangle", "id": "city",
+                                      "placeholder": "Город"}))
+    school = forms.CharField(label="",
+                             widget=forms.TextInput(
+                                 attrs={"class": "u-input u-input-rectangle", "id": "school",
+                                        "placeholder": "Школа"}))
+    s_class = forms.CharField(label="",
+                              widget=forms.TextInput(
+                                  attrs={"class": "u-input u-input-rectangle", "id": "s_sclass",
+                                         "placeholder": "Класс"}))
+    role = forms.ChoiceField(required=False, label="Роль",
+                             widget=forms.Select(attrs={"class": "u-form-select-wrapper", "id": "role",
+                                                        "aria-label": ""}, ),
+                             choices=(("student", "Ученик"), ("teacher", "Учитель")))
+
+    password1 = forms.CharField(label="",
                                widget=forms.PasswordInput(
-                                   attrs={"type": "password", "class": "form-control", "id": "password1",
+                                   attrs={"type": "password", "class": "u-input u-input-rectangle", "id": "password1",
                                           "placeholder": "Введите пароль"}))
     password2 = forms.CharField(label="Повторите пароль",
                                widget=forms.PasswordInput(
-                                   attrs={"type": "password", "class": "form-control", "id": "password2",
+                                   attrs={"type": "password", "class": "u-input u-input-rectangle", "id": "password2",
                                           "placeholder": "Повторите пароль"}))
-    role = forms.ChoiceField(required=False, label="Ваша роль", widget=forms.Select( attrs={"class": "form-select", "id":"role",
-                                                                                  "aria-label":""},),
-        choices=(("student", "Ученик"), ("teacher", "Учитель")))
+
     class Meta:
         model = CorrectUser
-        fields = ('username','first_name', 'last_name', 'email', 'birth', 'password1', 'password2', 'role')
+        fields = ('username', 'first_name', 'last_name', 's_class', 'school', 'city', 'password1', 'password2', 'role')
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(label="Логин",
+    username = forms.CharField(label="Логин", required=True,
                                  widget=forms.TextInput(
-                                     attrs={"class": "form-control", "id": "username",
-                                            "placeholder": "Введите логин", "style":"background-color: #4ac1f7; "}))
-    password = forms.CharField(label="Пароль",
+                                     attrs={"class": "u-input u-input-rectangle", "id": "username",
+                                            "placeholder": "Логин", }))
+    password = forms.CharField(label="Пароль", required=True,
                                  widget=forms.PasswordInput(
-                                     attrs={"type":"password", "class": "form-control ", "id": "password",
-                                            "placeholder": "Введите пароль", "style":"background-color: #4ac1f7; "}))
-
-
-
-
-
+                                     attrs={"type": "password", "class": "u-input u-input-rectangle ", "id": "password",
+                                            "placeholder": "Введите пароль", }))

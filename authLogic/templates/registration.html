@@ -6,84 +6,64 @@
 {% endblock %}
 
 {% block content%}
-<div class="u-container-layout u-container-layout-2">
-                <div class="u-expanded-width u-form u-form-1">
-                  <form method="post" name="form" style="padding: 10px;">
+    <section class="u-clearfix u-section-1" id="sec-5bdb">
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <div class="u-align-center u-form u-form-1">
+                <form method="post" name="form" class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form"
+                      style="padding: 10px;">
                     {% csrf_token %}
-
-                    <div class="row g-3">
-                      <div class="col-md">
-                        <div class="form-floating">
-                          {{form.username }}
-                          <label for="{{ form.username.id_for_label }}">{{form.username.label}}</label>
-                            <div class="form-error">{{form.username.errors}}</div>
-                        </div>
-                      </div>
-                        <div class="col-md">
-                        <div class="form-floating">
-                          {{form.first_name }}
-                          <label for="{{ form.first_name.id_for_label }}">{{form.first_name.label}}</label>
-                            <div class="form-error">{{form.first_name.errors}}</div>
-                        </div>
-                      </div>
-                       <div class="col-md">
-                        <div class="form-floating">
-                          {{form.last_name }}
-                          <label for="{{ form.last_name.id_for_label }}">{{form.last_name.label}}</label>
-                            <div class="form-error">{{form.last_name.errors}}</div>
-                        </div>
-                      </div>
+                    <h4 class="u-align-center u-form-group u-form-text u-text u-text-1"> Регистрация</h4>
+                    <div class="u-form-email u-form-group">
+                        {{ form.username }}
+                        <div class="form-error">{{ form.username.errors }}</div>
                     </div>
-                      <br>
-                    <div class="row g-2">
-                      <div class="col-md">
-                        <div class="form-floating">
-                          {{form.email }}
-                          <label for="{{ form.email.id_for_label }}">{{form.email.label}}</label>
-                            <div class="form-error">{{form.email.errors}}</div>
-                        </div>
-                      </div>
-                       <div class="col-md">
-                        <div class="form-floating">
-                          {{form.role }}
-                          <label for="{{ form.role.id_for_label }}">{{form.role.label}}</label>
-                            <div class="form-error">{{form.role.errors}}</div>
-                        </div>
-                      </div>
+                    <div class="u-form-group">
+                        {{ form.first_name }}
+                        <div class="form-error">{{ form.first_name.errors }}</div>
+                    </div>
+                    <div class="u-form-group">
+                        {{ form.last_name }}
+                        <div class="form-error">{{ form.last_name.errors }}</div>
+                    </div>
+                    <div class="u-form-group">
+                        {{ form.city }}
+                        <div class="form-error">{{ form.city.errors }}</div>
+                    </div>
+                    <div class="u-form-group">
+                        {{ form.school }}
+                        <div class="form-error">{{ form.school.errors }}</div>
                     </div>
 
-                        <br>
-                      <div class="row g-2">
-                      <div class="col-md">
-                        <div class="form-floating">
-                          {{form.password1 }}
-                          <label for="{{ form.password1.id_for_label }}">{{form.password1.label}}</label>
-                            <div class="form-error">{{form.password1.errors}}</div>
-                        </div>
-                      </div>
-                       <div class="col-md">
-                        <div class="form-floating">
-                          {{form.password2 }}
-                          <label for="{{ form.password2.id_for_label }}">{{form.password2.label}}</label>
-                            <div class="form-error">{{form.password2.errors}}</div>
-                        </div>
-                      </div>
+                    <div class="u-form-group">
+                        {{ form.s_class }}
+                        <div class="form-error">{{ form.s_class.errors }}</div>
                     </div>
-                      <div class="col-md">
-                        <div class="form-group">
-                            <p class="text-start" style="font-family: Georgia,serif" >{{ form.birth.label_tag }}
-                            {{form.birth }}</p>
-                            <div class="form-error">{{form.birth.errors}}</div>
-                        </div>
 
+                    <div class="u-form-group u-form-input-layout-horizontal u-form-radiobutton u-form-group-8">
+                        <label for="{{ form.role.id_for_label }}">{{ form.role.label }}</label>
+                        {{ form.role }}
 
-                    <button type="submit" class="btn btn-primary">
-                      Зарегистрироваться
-                    </button>
+                        <div class="form-error">{{ form.role.errors }}</div>
+                    </div>
+                    <div class="u-form-group u-form-group-9">
+                        {{ form.password1 }}
+                        <div class="form-error">{{ form.password1.errors }}</div>
+                    </div>
+                    <div class="u-form-group u-form-group-9">
+                        {{ form.password2 }}
+                        <div class="form-error">{{ form.password2.errors }}</div>
+                    </div>
 
+                    <div class="u-align-right u-form-group u-form-submit">
 
-                  </form>
-                </div>
+                        <button type="submit"
+                                class="u-border-2 u-border-grey-75 u-btn u-btn-submit u-button-style u-hover-black u-white u-btn-1">
+                            Зарегистрироваться
+                        </button>
 
-              </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
 {% endblock %}

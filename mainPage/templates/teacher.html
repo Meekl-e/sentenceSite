@@ -6,43 +6,107 @@
 {% endblock %}
 
 {% block content %}
-<div class="u-container-style u-layout-cell u-size-19 u-layout-cell-2">
     {% if request.user.is_authenticated %}
-              <div class="u-container-layout u-container-layout-3">
-                <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Ваша статистика</h3>
-                <p class="u-text u-text-5">Разборов выполнено: <span style="font-weight: 700;">999</span>
-                </p>
-                <p class="u-text u-text-6">Заданий решено: <span style="font-weight: 700;">999</span>
-                </p>
-              </div>
-            </div>
-            <div class="u-container-style u-layout-cell u-size-27">
-              <div class="u-container-layout u-container-layout-4">
-                <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-7">Избранное</h4>
-                  <a href="{% url 'create_task' %}"><h4
-                          class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-8">Создать
-                      задание</h4></a>
-                  <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">Ученики:</h4>
-                  <ol class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">
-                      {% for st in students %}
-                          <li>{{ st }} <a href="{% url 'remove_student' st.id %}" style="font-size: medium"
-                                          class="btn btn-danger">Удалить</a></li>
-
-                      {% endfor %}
-                  </ol>
-
-                  <h4 class="u-align-right u-custom-font u-font-georgia u-text u-text-default u-text-9">Чтобы добавить
-                      ученика, попросите его перейти по ссылке:</h4>
-                  {% if teacher.student_invite %}
-                      <div style="font-size: medium" id="copy-text" class="badge bg-secondary text-wrap">
+        <section class="u-clearfix u-section-1" id="sec-c85e">
+            <div class="u-clearfix u-sheet u-sheet-1">
+                <div class="u-container-style u-expanded-width u-group u-white u-group-1">
+                    <div class="u-container-layout u-container-layout-1">
+                        <a href="{% url 'create_task' %}"
+                           class="u-align-center-sm u-align-center-xs u-align-left-lg u-align-left-md u-align-left-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-text-active-white u-text-body-color u-text-hover-white u-white u-btn-1">Создать
+                            задание </a>
+                        {% if teacher.student_invite %}
+                            <div style="font-size: medium" id="copy-text" class="badge bg-secondary text-wrap">
                           {{ students_link }}
-                      </div>
-                      <button id="copy-btn" class="btn btn-primary">Скопировать</button>
-                  {% else %}
-                      <a href="{% url 'get_invite_link' %}">Сгенерировать ссылку</a>
-                  {% endif %}
-              </div>
+                            </div>
+                            <button id="copy-btn"
+                                    class="u-align-center-sm u-align-center-xs u-align-right-lg u-align-right-md u-align-right-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-text-hover-white u-white u-btn-2">
+                                Скопировать ссылку ​ на добавление ученика
+                            </button>
+                        {% else %}
+                            <a href="{% url 'get_invite_link' %}"
+                               class="u-align-center-sm u-align-center-xs u-align-right-lg u-align-right-md u-align-right-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-text-hover-white u-white u-btn-2">Сгенерировать
+                                ссылку для добавления учеников</a>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
+        </section>
+        <section class="u-clearfix u-section-2" id="sec-f04c">
+            <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+                <div class="u-accordion u-expanded-width u-accordion-1">
+                    <div class="u-accordion-item">
+                        <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-1"
+                           id="link-4b23" aria-controls="4b23" aria-selected="true">
+                            <span class="u-accordion-link-text">Избранное </span><span
+                                class="u-accordion-link-icon u-icon u-text-grey-40 u-icon-1"><svg class="u-svg-link"
+                                                                                                  preserveAspectRatio="xMidYMin slice"
+                                                                                                  viewBox="0 0 16 16"
+                                                                                                  style=""><use
+                                xlink:href="#svg-4975"></use></svg><svg class="u-svg-content" viewBox="0 0 16 16"
+                                                                        x="0px" y="0px" id="svg-4975"><path d="M8,10.7L1.6,5.3c-0.4-0.4-1-0.4-1.3,0c-0.4,0.4-0.4,0.9,0,1.3l7.2,6.1c0.1,0.1,0.4,0.2,0.6,0.2s0.4-0.1,0.6-0.2l7.1-6
+	c0.4-0.4,0.4-0.9,0-1.3c-0.4-0.4-1-0.4-1.3,0L8,10.7z"></path></svg></span>
+                        </a>
+                        <div class="u-accordion-active u-accordion-pane u-container-style u-accordion-pane-1" id="4b23"
+                             aria-labelledby="link-4b23">
+                            <div class="u-container-layout u-valign-top u-container-layout-1">
+                                <div class="u-border-1 u-border-black u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-1">
+                                    <div class="u-container-layout u-container-layout-2">
+                                        <a href="#"
+                                           class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-1"><span
+                                                class="u-file-icon u-icon u-icon-2"><img
+                                                src={% static "images/58253.png" %} alt=""></span>
+                                        </a>
+                                        <p class="u-text u-text-1">Пример текста. Кликните, чтобы выбрать элемент
+                                            "Текст".</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="u-align-center u-text u-text-default u-text-2">Ученики </h4>
+                {% if students|length == 0 %}
+                    <h4 class="u-align-center u-text u-text-default u-text-2">Пока учеников нет. </h4>
+                {% else %}
+                    {% for st in students %}
+                        <div class="u-accordion u-expanded-width u-accordion-2">
+                            <div class="u-accordion-item">
+                                <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-2"
+                                   id="link-4b23" aria-controls="4b23" aria-selected="true">
+                                    <span class="u-accordion-link-text">г. Бердск, Экономический лицей </span><span
+                                        class="u-accordion-link-icon u-icon u-text-grey-40 u-icon-3"><svg
+                                        class="u-svg-link" preserveAspectRatio="xMidYMin slice" viewBox="0 0 16 16"
+                                        style=""><use xlink:href="#svg-f1fb"></use></svg><svg class="u-svg-content"
+                                                                                              viewBox="0 0 16 16"
+                                                                                              x="0px" y="0px"
+                                                                                              id="svg-f1fb"><path d="M8,10.7L1.6,5.3c-0.4-0.4-1-0.4-1.3,0c-0.4,0.4-0.4,0.9,0,1.3l7.2,6.1c0.1,0.1,0.4,0.2,0.6,0.2s0.4-0.1,0.6-0.2l7.1-6
+	c0.4-0.4,0.4-0.9,0-1.3c-0.4-0.4-1-0.4-1.3,0L8,10.7z"></path></svg></span>
+                                </a>
+                                <div class="u-accordion-active u-accordion-pane u-container-style u-accordion-pane-2"
+                                     id="4b23" aria-labelledby="link-4b23">
+                                    <div class="u-container-layout u-valign-top u-container-layout-3">
+                                        <div class="u-border-1 u-border-black u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-2">
+                                            <div class="u-container-layout u-container-layout-4">
+                                                <a href="{% url 'remove_student' st.id %}"
+                                                   class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-2"><span
+                                                        class="u-file-icon u-icon u-icon-4"><img
+                                                        src={% static "images/58253.png" %} alt=""></span>
+                                                </a>
+                                                <p class="u-align-left-md u-align-left-sm u-align-left-xs u-text u-text-3">{{ st }}&nbsp;
+                                                    &nbsp; &nbsp; &nbsp; Выполнено заданий 0 из 10</p>
+                                                <a href="#"
+                                                   class="u-active-black u-align-center-xs u-align-right-lg u-align-right-md u-align-right-sm u-align-right-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-white u-btn-3">Просмотреть
+                                                    задания </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </section>
     {% else %}
         <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для получения информации необходимо
             авторизоваться</h3>

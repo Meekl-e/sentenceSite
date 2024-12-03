@@ -2,15 +2,21 @@
 {% load static %}
 
 {% block link %}
-<link rel="stylesheet" href="{% static 'sentence/css/sentence_result.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'sentence/css/sentence_result.css' %}" media="screen"
+          xmlns="http://www.w3.org/1999/html">
 {% endblock %}
 
 {% block content%}
-<div class="u-container-style u-layout-cell u-size-25 u-layout-cell-2">
-            {% if pars_result %}
+    <div class="u-container-layout u-container-layout-2">
+
+        {% if pars_result %}
               <div class="u-container-layout u-container-layout-3">
                 <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Ваш разбор предложения</h3>
               {% for sentence in pars_result %}
+                  <a href="{% url 'change_sentence' sentence.sent_id %}"
+                     class="u-border-2 u-border-black u-border-hover-white u-btn u-btn-round u-button-style u-none u-radius u-text-palette-2-base u-btn-1"><span
+                          class="u-file-icon u-icon u-icon-1"><img src="{% static 'images/747994.png' %}" alt=""></span>
+                  </a>
                   {% if pars_result|length > 1 %}
                   <h3>Разбор {{ forloop.counter }} предложения:</h3>
                   {% endif %}
@@ -23,22 +29,23 @@
                       {% endif %}
 
 
-
+                      <div style="text-align: center">
                   {% for token in result.tokens %}
-                      <label class="u-custom-font u-font-georgia u-text u-text-9" style="text-align: center">
-                          <a style="font-size: x-small">{{ token.type }}</a>
-                          <br>
-                      <a style="font-size: x-small">{{ token.pos }}</a>
-                          <br>
 
-                          <a class="{{ token.line }}">{{ token.text }} 
-                          
-                          
-                          </a>
-                      </label>
+                      <p style="display: inline-block; color: black"
+                         class="u-custom-font u-font-georgia u-text u-text-9">
+
+                          <a style="font-size: small; color: black">{{ token.type }}</a>
+                          <br>
+                          <a style="font-size: small; color: black">{{ token.pos }}</a>
+                          <br>
+                          <a class="{{ token.line }}" style="color: black">{{ token.text }}</a>
+                      </p>
 
                       {% endfor %}
-                  <br>
+                      </div>
+
+                      <br>
                       {% if result.simple_sentences_in|length == 1 %}
                       <h6 class="u-custom-font u-font-georgia u-text u-text-9">Характеристика предложения:</h6>
                       <div class="u-custom-font u-font-georgia u-text u-text-9" style="display: flex;">
@@ -116,90 +123,66 @@
                       {% endif %}
                     {% endfor %}
                   <br>
+                  <a href="{% url 'home' %}"
+                     class="u-active-white u-border-2 u-border-black u-border-hover-white u-btn u-button-style u-hover-black u-text-black u-text-hover-white u-white u-btn-2">Разобрать
+                      еще</a>
+
+
+
 
                   {% if request.user.is_authenticated %}
 
-                      <label>
-                          <form method="post" action="{% url 'dislike' sentence.sent_id %}?from={{ from_request }}">
+
+                      <form method="post" action="{% url 'favourite' sentence.sent_id %}?from={{ from_request }}"
+                            style="display: inline-block">
                       {% csrf_token %}
-                              {% if not sentence.disliked %}
-                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-7">Не Нравится 👎 </button>
+                          {% if not sentence.in_fav %}
+                              <button type="submit"
+                                      class="u-border-2 u-border-black u-btn u-button-style u-hover-black u-none u-text-hover-white u-btn-3">
+                                  В избранное
+                              </button>
                           {% else %}
-                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-7 " style="background-color: black">Не Нравится </button>
+                              <button type="submit"
+                                      class="u-border-2 u-border-black u-btn u-button-style u-hover-black u-none u-text-hover-white u-btn-3">
+                                  В избранном
+                              </button>
                           {% endif %}
                       </form>
-                      </label>
-
-                        <label>
-
-                            <form method="post" action="{% url 'favourite' sentence.sent_id %}?from={{ from_request }}">
+                      <form method="post" action="{% url 'like' sentence.sent_id %}?from={{ from_request }}"
+                            class="u-border-2 u-border-black u-border-hover-white u-btn u-btn-round u-button-style u-none u-radius u-text-palette-2-base u-btn-4">
                       {% csrf_token %}
-                                {% if not sentence.in_fav %}
-                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-8">В избранное </button>
+                          {% if not sentence.liked %}
+                              <button type="submit" style="display: inline-block;"><span
+                                      class="u-file-icon u-icon u-icon-2"><img src="{% static 'images/419881.png' %}"
+                                                                               alt=""></span></button>
                           {% else %}
-                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-8 " style="background-color: black">В избранном </button>
+                              <button type="submit" style="display: inline-block;"><span
+                                      class="u-file-icon u-icon u-icon-2"><img src="{% static 'images/419881.png' %}"
+                                                                               alt=""></span></button>
                           {% endif %}
                       </form>
-                        </label>
 
-                        <label>
-                            <form method="post" action="{% url 'like' sentence.sent_id %}?from={{ from_request }}">
+                      <form method="post" action="{% url 'dislike' sentence.sent_id %}?from={{ from_request }}"
+                            class="u-border-2 u-border-black u-border-hover-white u-btn u-btn-round u-button-style u-none u-radius u-text-palette-2-base u-btn-5">
                       {% csrf_token %}
-                                {% if not sentence.liked %}
-                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Нравится 👍 </button>
+                          {% if not sentence.disliked %}
+                              <button type="submit" style="display: inline-block;"><span
+                                      class="u-file-icon u-icon u-icon-3"><img src="{% static 'images/1633636.png' %}"
+                                                                               alt=""></span></button>
+
                           {% else %}
-                              <button type="submit" class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1  u-radius u-btn-9 " style="background-color: black">Нравится </button>
+                              <button type="submit" style="display: inline-block;"><span
+                                      class="u-file-icon u-icon u-icon-3"><img src="{% static 'images/1633636.png' %}"
+                                                                               alt=""></span></button>
+
                           {% endif %}
                       </form>
-                      </label>
-                      <label>
-                          <a href="{% url 'change_sentence' sentence.sent_id %}?from={{ from_request }}">
-                              <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font u-font-georgia u-hover-palette-1-light-1 u-palette-1-base u-radius u-btn-9">Изменить</button>
-                          </a>
-                      </label>
-
-
-                  {% else %}
-
-                          <label>
-                            <button  class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia  u-radius u-btn-7">🔒 Не Нравится 👎 </button>
-                          </label>
-                          <label>
-                            <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-8">🔒 в избранное </button>
-                          </label>
-                          <label>
-                            <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-9">🔒 Нравится 👍 </button>
-                          </label>
-
-
-                          <label>
-                            <button class="u-align-center u-btn u-btn-round u-button-style u-custom-font block-button u-font-georgia u-radius u-btn-9">🔒 Изменить </button>
-                          </label>
-
-                {% endif %}
-
+                      </div>
+                  {% endif %}
 
 
               {% endfor %}
+        {% endif %}
 
-              </div>
-
-{% endif %}
-</div>
-
-<div class="u-container-style u-layout-cell u-size-23 u-layout-cell-3">
-              <div class="u-container-layout u-container-layout-4">
-                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-5">Разобрать предложение</h3>
-                <div class="u-expanded-width u-form u-form-2">
-                   <form action="/check_sentence/" method="POST">
-                    {% csrf_token %}
-                    {{ sentence_form }}
-                    <br>
-                    <div class="u-align-right u-form-group u-form-submit u-label-none">
-                      <input type="submit" value="Разобрать предложение" class="btn btn-primary">
-                    </div>
-                  </form>
-                </div>
-              </div>
-</div>
+    </div>
 {% endblock %}

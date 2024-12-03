@@ -9,11 +9,17 @@ from utils import BaseMixin
 
 # Create your views here.
 
-class homePage(BaseMixin, ListView):
+class homePage(BaseMixin, TemplateView):
     template_name = 'index.html'
-    model = Sentence
-    context_object_name = 'sentences'
-    queryset = Sentence.objects.exclude(count=1).order_by('-count')[:5]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context["content"] = True
+        return self.get_mixin_context(context)
+
+
+class profilePage(BaseMixin, TemplateView):
+    template_name = 'profile.html'
 
 
     def get_context_data(self, **kwargs):
@@ -45,6 +51,7 @@ class studentPage(BaseMixin, TemplateView):
         student = CorrectUser.objects.get(id=self.request.user.id)
         context["teachers"] = CorrectUser.objects.filter(teacher_students__id=student.id)
         context["tasks"] = Task.objects.filter(apply=True, students_to__id=student.id)
+        context["favourites"] = student.favourites.all()
         return self.get_mixin_context(context)
 
 
@@ -61,6 +68,7 @@ class teacherPage(BaseMixin, TemplateView):
             context["students_link"] = self.request.build_absolute_uri(
                 reverse('add_student_link', kwargs={"code": teacher.student_invite}))
         context["students"] = teacher.teacher_students.all()
+        context["favourites"] = teacher.favourites.all()
         return self.get_mixin_context(context)
 
 

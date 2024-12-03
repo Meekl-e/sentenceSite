@@ -1,39 +1,45 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% block link %}
+    <link rel="stylesheet" href="{% static 'base/css/index.css' %}" media="screen">
+{% endblock %}
 {% block content%}
-<div class="u-container-style u-layout-cell u-size-20 u-layout-cell-2">
-              <div class="u-container-layout u-container-layout-3">
-                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Популярные запросы</h3>
-                <ul class="u-custom-font u-font-georgia u-text u-text-5">
-                  {% for s in sentences %}
-
-                  <li>
-                  <a href="{% url 'sentence' pk=s.id %}">
-                      <span style="font-size: 1.25rem;">{{ s|capfirst }} </span>
-                      <div align="right"><i style="color: #3a7370; text-align: right">Спросили: {{s.count }} р.</i></div>
-                  </a>
-                  </li>
-
-                  {% endfor %}
-                </ul>
+    <section class="u-clearfix u-valign-middle-lg u-section-2" id="sec-2982">
+        <div class="data-layout-selected u-clearfix u-expanded-width u-layout-wrap u-layout-wrap-1">
+            <div class="u-layout">
+                <div class="u-layout-row">
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-1">
+                        <div class="u-container-layout u-valign-middle u-container-layout-1">
+                            <h5 class="u-text u-text-default u-text-1">Реклама </h5>
               </div>
             </div>
-<div class="u-container-style u-layout-cell u-size-28 u-layout-cell-3">
-              <div class="u-container-layout u-container-layout-4">
-                <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-6">Разобрать предложение</h3>
-                <div class="u-expanded-width u-form u-form-2">
-                  <form action="/check_sentence/" method="POST">
-                    {% csrf_token %}
-                    {{ sentence_form }}
-                    <br>
-                    <div class="u-align-right u-form-group u-form-submit u-label-none">
-                      <input type="submit" value="Разобрать предложение" class="btn btn-primary">
+                    <div class="u-container-layout u-container-layout-2">
 
+
+                        <form action="{% url 'check_sentence' %}" method="POST"
+                              class="u-container-layout u-container-layout-2">
+                    {% csrf_token %}
+                            <div class="custom-expanded u-clearfix u-custom-html u-expanded-width-xl u-custom-html-1">
+                                {{ sentence_form }}
                     </div>
-                  </form>
+
+                            <button type="submit"
+                                    class="u-active-white u-border-2 u-border-black u-border-hover-white u-btn u-button-style u-hover-black u-text-black u-text-hover-white u-white u-btn-1"
+                                    style="width: 20%">Разобрать
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-3">
+                        <div class="u-container-layout u-valign-middle u-container-layout-3">
+                            <h5 class="u-text u-text-default u-text-2">Реклама </h5>
+                        </div>
+                    </div>
                 </div>
-              </div>
-</div>
+            </div>
+        </div>
+    </section>
+
+
 
 {%endblock%}

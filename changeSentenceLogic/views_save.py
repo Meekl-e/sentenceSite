@@ -92,7 +92,7 @@ def save_sentence_verified(request, changed_sent, pk):
     sentence.verified = True
     sentence.save()
 
-    # media delete
+    # images delete
 
     # clear user
 

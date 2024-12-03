@@ -60,10 +60,7 @@ class ChangeParts(BaseMixin, TemplateView):
                     indexes.append(None)
 
         schema = [{"type_line": type} for type in change_sentence_data.get("schema")]
-        print(schema)
-        print(indexes)
-        print(tokens)
-        pprint(parts)
+
 
 
 
@@ -79,7 +76,8 @@ class ChangeParts(BaseMixin, TemplateView):
             back=from_page,
             tokens=tokens,
             parts=zip(PartsFormSet(initial=parts), parts),
-            schema=zip(SchemaFormSet(initial=schema), indexes, tokens)
+            schema=zip(SchemaFormSet(initial=schema), indexes, tokens),
+            task=change_sentence_data.get("task")
 
 
         ))
