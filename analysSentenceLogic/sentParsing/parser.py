@@ -1,13 +1,16 @@
 import re
 
-import nltk
 import pymorphy3
 import requests
 import spacy
 from natasha import NewsEmbedding, Segmenter, NewsSyntaxParser, Doc, NewsMorphTagger
+from spacy.lang.ru import Russian
 from ufal.udpipe import Model, Pipeline
 
-nlp = spacy.load("ru_core_news_lg")
+sentenizer = Russian()
+tokenizer = sentenizer.tokenizer
+sentenizer.add_pipe("sentencizer")
+nlp = spacy.load("ru_core_news_sm")
 print("Loading Spacy completed")
 
 emb = NewsEmbedding()
@@ -23,9 +26,7 @@ print("Loading UDPipe completed")
 morph = pymorphy3.MorphAnalyzer()
 print("Loading pymorphy3 completed")
 
-nltk.download('punkt')
-nltk.download('punkt_tab')
-print("Loading NLTK completed")
+print("Loading NLTK - NO NLTK")
 
 
 class SentenceDefault:
@@ -423,12 +424,16 @@ def text2clear_text(text=""):
 
 
 def sentence_tokenize(text) -> list:
-    return nltk.tokenize.sent_tokenize(text, "russian")
+    print(list(sentenizer(text).sents))
+    return [s.text for s in sentenizer(text).sents]
+    # return nltk.tokenize.sent_tokenize(text, "russian")
 
 def get_word_tokenize(res):
 
     res = set_regexp(res)
-    return nltk.tokenize.word_tokenize(res, "russian")
+    print([t.text for t in tokenizer(res)])
+    return [t.text for t in tokenizer(res)]
+    # return nltk.tokenize.word_tokenize(res, "russian")
 
 
 def exeption_test(func):

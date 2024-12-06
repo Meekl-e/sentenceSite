@@ -7,3 +7,6 @@
 /changeSentenceLogic/migrations/
 /mainPage/migrations/
 /userLogic/migrations/
+/analysSentenceLogic/sentParsing/models/data.txt
+/analysSentenceLogic/sentParsing/models/data_comp.py
+/analysSentenceLogic/sentParsing/models/proverbs_and_sayings.txt

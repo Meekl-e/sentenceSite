@@ -26,7 +26,6 @@ mdurl==0.1.2
 murmurhash==1.0.10
 natasha==1.6.0
 navec==0.10.0
-nltk==3.9.1
 numpy==1.26.4
 packaging==24.1
 preshed==3.0.9
@@ -41,7 +40,7 @@ razdel==0.5.0
 regex==2024.9.11
 requests==2.32.3
 rich==13.7.1
-ru-core-news-lg @ https://github.com/explosion/spacy-models/releases/download/ru_core_news_lg-3.7.0/ru_core_news_lg-3.7.0-py3-none-any.whl#sha256=fffc0e466b2ec712fd580e351c9107af667118284c9456c2c856e24ce4d58f7b
+ru-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/ru_core_news_sm-3.7.0/ru_core_news_sm-3.7.0-py3-none-any.whl#sha256=4b1c291c9b8991b708dadbf1b59f0fdaf7e70ca25e94df7fd3d523c4d5049754
 setuptools==71.1.0
 shellingham==1.5.4
 slovnet==0.6.0
