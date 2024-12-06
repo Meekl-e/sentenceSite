@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll("select").forEach(function (elem) {
         elem.addEventListener('change', function () {
-            window.location.href = document.getElementById(elem.name + "-btn").value + elem.value;
+            fetch(document.getElementById(elem.name + "-btn").value + elem.value);
 
         });
     });

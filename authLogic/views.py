@@ -1,20 +1,19 @@
-from django.contrib.auth import logout, login, authenticate
-
+from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView
 
-from analysSentenceLogic.models import Sentence
-from utils import BaseMixin
 from authLogic.forms import *
-from analysSentenceLogic.forms import NameForm
+from utils import BaseMixin
+
 
 class RegisterUser(CreateView):
     template_name = 'registration.html'
     form_class = RegisterFrom
     success_url = reverse_lazy('login')
+
 
 
 
@@ -32,13 +31,12 @@ class loginPage(BaseMixin, LoginView):
     def form_invalid(self, form):
 
         error = "Неправильные имя пользователя или пароль"
-
+        print("Eeeeee")
         data = super().get_mixin_context(super().get_context_data(auth_form=form, error=error))
         return self.render_to_response(data)
     def form_valid(self, form):
         to = self.request.GET.get("from")
         login(self.request, form.get_user())
-        print(self.request.path)
         if to is None:
             return redirect("home")
         else:
@@ -52,5 +50,4 @@ class loginPage(BaseMixin, LoginView):
 
 def logout_user(request):
     logout(request)
-    return HttpResponseRedirect(request.GET.get("from"))
-
+    return HttpResponseRedirect(reverse(request.GET.get("from")))

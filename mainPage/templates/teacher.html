@@ -9,7 +9,7 @@
     {% if request.user.is_authenticated %}
         <section class="u-clearfix u-section-1" id="sec-c85e">
             <div class="u-clearfix u-sheet u-sheet-1">
-                <div class="u-container-style u-expanded-width u-group u-white u-group-1">
+                <div class="u-container-style u-expanded-width u-group u-group-1">
                     <div class="u-container-layout u-container-layout-1">
                         <a href="{% url 'create_task' %}"
                            class="u-align-center-sm u-align-center-xs u-align-left-lg u-align-left-md u-align-left-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-text-active-white u-text-body-color u-text-hover-white u-white u-btn-1">Создать
@@ -18,11 +18,11 @@
                             <div style="font-size: medium" id="copy-text" class="badge bg-secondary text-wrap">
                           {{ students_link }}
                             </div>
-                            <button id="copy-btn"
-                                    class="u-align-center-sm u-align-center-xs u-align-right-lg u-align-right-md u-align-right-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-text-hover-white u-white u-btn-2">
-                                Скопировать ссылку ​ на добавление ученика
-                            </button>
                         {% else %}
+                            <div style="font-size: medium" id="copy-text" class="badge bg-secondary text-wrap"
+                                 hidden="hidden">
+                                {{ students_link }}
+                            </div>
                             <a href="{% url 'get_invite_link' %}"
                                class="u-align-center-sm u-align-center-xs u-align-right-lg u-align-right-md u-align-right-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-text-hover-white u-white u-btn-2">Сгенерировать
                                 ссылку для добавления учеников</a>
@@ -73,7 +73,7 @@
                             <div class="u-accordion-item">
                                 <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-2"
                                    id="link-4b23" aria-controls="4b23" aria-selected="true">
-                                    <span class="u-accordion-link-text">г. Бердск, Экономический лицей </span><span
+                                    <span class="u-accordion-link-text">{{ st.city }}, {{ st.school }}</span><span
                                         class="u-accordion-link-icon u-icon u-text-grey-40 u-icon-3"><svg
                                         class="u-svg-link" preserveAspectRatio="xMidYMin slice" viewBox="0 0 16 16"
                                         style=""><use xlink:href="#svg-f1fb"></use></svg><svg class="u-svg-content"

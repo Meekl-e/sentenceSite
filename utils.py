@@ -1,5 +1,3 @@
-
-from authLogic.forms import LoginForm
 from analysSentenceLogic.forms import NameForm
 
 class BaseMixin:
@@ -17,5 +15,7 @@ class BaseMixin:
     def get_mixin_context(self, context, **kwargs):
         if context.get('sentence_form') is None :
             context["sentence_form"] = NameForm
+        context["ad_left"] = ""
+        context["ad_right"] = ""
         context.update(kwargs)
         return context

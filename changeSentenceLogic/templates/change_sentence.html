@@ -6,19 +6,23 @@
 {% endblock %}
 
 {% block content%}
+    <section class="u-clearfix u-section-2" id="sec-2982">
+        <div class="data-layout-selected u-clearfix u-expanded-width u-layout-wrap u-layout-wrap-1">
+            <div class="u-layout">
+                <div class="u-layout-row">
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-1">
+                        <div class="u-container-layout u-valign-middle u-container-layout-1">
+                            <h5 class="u-text u-text-default u-text-1">{{ ad_left }}</h5>
+                        </div>
+                    </div>
     <div class="u-container-style u-layout-cell u-size-30 u-layout-cell-2">
         <div class="u-container-layout u-container-layout-2">
             <h4 class="u-align-center u-text u-text-default u-text-2">Редактирование предложения </h4>
             <p class="u-align-left u-text u-text-default u-text-3"> Нажмите на квадратик над словом, от которого вы
                 ходите задать вопрос.Далее нажмите на квадратик над словом, к которому вы хотите задать вопросНапишите в
                 поле "Введите вопрос" вопрос от первого слова ко второму. Нажмите на кнопку "Добавить связь"</p>
-        </div>
-    </div>
+
     {% if request.user.is_authenticated %}
-<div id="main-container" class="u-container-style u-layout-cell u-size-45 u-layout-cell-3">
-
-              <div class="u-container-layout u-container-layout-3">
-
 
 
               <div style="margin-left: 10px">
@@ -119,14 +123,23 @@
               </div>
 
 
-              </div>
 
-</div>
     {% else %}
                   <br>
                    <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для редактирования предложения необходимо авторизоваться</h3>
               {% endif %}
 
+        </div>
+    </div>
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-3">
+                        <div class="u-container-layout u-valign-middle u-container-layout-3">
+                            <h5 class="u-text u-text-default u-text-2">{{ ad_right }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <script src="{% static 'sentence/js/change_sentence_tokens.js' %}"></script>
 

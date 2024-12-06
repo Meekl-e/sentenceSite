@@ -6,10 +6,11 @@
 {% endblock %}
 
 {% block content%}
+    {% if not request.user.is_authenticated %}
     <section class="u-clearfix u-section-1" id="sec-5bdb">
         <div class="u-clearfix u-sheet u-sheet-1">
             <div class="u-align-center u-form u-form-1">
-                <form method="post" name="form" class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form"
+                <form method="post" name="form" class="u-clearfix "
                       style="padding: 10px;">
                     {% csrf_token %}
                     <h4 class="u-align-center u-form-group u-form-text u-text u-text-1"> Регистрация</h4>
@@ -17,47 +18,62 @@
                         {{ form.username }}
                         <div class="form-error">{{ form.username.errors }}</div>
                     </div>
+                    <br>
                     <div class="u-form-group">
                         {{ form.first_name }}
                         <div class="form-error">{{ form.first_name.errors }}</div>
                     </div>
+                    <br>
                     <div class="u-form-group">
                         {{ form.last_name }}
                         <div class="form-error">{{ form.last_name.errors }}</div>
                     </div>
+                    <br>
+                    <div class="u-form-group">
+                        {{ form.second_last_name }}
+                        <div class="form-error">{{ form.second_last_name.errors }}</div>
+                    </div>
+                    <br>
                     <div class="u-form-group">
                         {{ form.city }}
                         <div class="form-error">{{ form.city.errors }}</div>
                     </div>
+                    <br>
                     <div class="u-form-group">
                         {{ form.school }}
                         <div class="form-error">{{ form.school.errors }}</div>
                     </div>
-
-                    <div class="u-form-group">
+                    <br>
+                    <div class="u-form-group u-form-input-layout-horizontal u-form-radiobutton u-form-group-8">
+                        <label for="{{ form.s_class.id_for_label }}">{{ form.s_class.label }}</label><br>
                         {{ form.s_class }}
+
                         <div class="form-error">{{ form.s_class.errors }}</div>
                     </div>
+                    <br>
 
                     <div class="u-form-group u-form-input-layout-horizontal u-form-radiobutton u-form-group-8">
-                        <label for="{{ form.role.id_for_label }}">{{ form.role.label }}</label>
+                        <label for="{{ form.role.id_for_label }}">{{ form.role.label }}</label><br>
                         {{ form.role }}
 
                         <div class="form-error">{{ form.role.errors }}</div>
                     </div>
+                    <br>
                     <div class="u-form-group u-form-group-9">
                         {{ form.password1 }}
                         <div class="form-error">{{ form.password1.errors }}</div>
                     </div>
+                    <br>
                     <div class="u-form-group u-form-group-9">
                         {{ form.password2 }}
                         <div class="form-error">{{ form.password2.errors }}</div>
                     </div>
+                    <br>
 
-                    <div class="u-align-right u-form-group u-form-submit">
+                    <div class="u-align-right">
 
                         <button type="submit"
-                                class="u-border-2 u-border-grey-75 u-btn u-btn-submit u-button-style u-hover-black u-white u-btn-1">
+                                class="u-active-white u-border-2 u-border-black u-border-hover-white u-btn u-button-style u-hover-black u-text-black u-text-hover-white u-white u-btn-1">
                             Зарегистрироваться
                         </button>
 
@@ -66,4 +82,11 @@
             </div>
         </div>
     </section>
+    {% else %}
+        <div class="u-container-layout u-container-layout-3">
+            <h2 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">
+                Вы уже прошли регистрацию</h2>
+
+        </div>
+    {% endif %}
 {% endblock %}

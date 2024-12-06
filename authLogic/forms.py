@@ -1,5 +1,3 @@
-from random import choices
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
@@ -15,6 +13,10 @@ class RegisterFrom(UserCreationForm):
                                  widget=forms.TextInput(
                                      attrs={"class": "u-input u-input-rectangle", "id": "first_name",
                                             "placeholder": "Имя"}))
+    second_last_name = forms.CharField(required=False, label="",
+                                       widget=forms.TextInput(
+                                           attrs={"class": "u-input u-input-rectangle", "id": "second_last_name",
+                                                  "placeholder": "Ваше отчество (при наличии)"}))
 
     last_name = forms.CharField(label="",
                                  widget=forms.TextInput(
@@ -28,12 +30,15 @@ class RegisterFrom(UserCreationForm):
                              widget=forms.TextInput(
                                  attrs={"class": "u-input u-input-rectangle", "id": "school",
                                         "placeholder": "Школа"}))
-    s_class = forms.CharField(label="",
-                              widget=forms.TextInput(
-                                  attrs={"class": "u-input u-input-rectangle", "id": "s_sclass",
-                                         "placeholder": "Класс"}))
+    s_class = forms.ChoiceField(required=False, label="Класс",
+                                widget=forms.Select(attrs={"class": "u-input u-input-rectangle", "id": "s_class",
+                                                           "aria-label": ""}, ),
+                                choices=(
+                                ("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5"), ("6", "6"), ("7", "7"),
+                                ("8", "8"), ("9", "9"), ("10", "10"), ("11", "11"), ("Не в школе", "Не в школе")))
+
     role = forms.ChoiceField(required=False, label="Роль",
-                             widget=forms.Select(attrs={"class": "u-form-select-wrapper", "id": "role",
+                             widget=forms.Select(attrs={"class": "u-input u-input-rectangle", "id": "role",
                                                         "aria-label": ""}, ),
                              choices=(("student", "Ученик"), ("teacher", "Учитель")))
 
@@ -48,7 +53,8 @@ class RegisterFrom(UserCreationForm):
 
     class Meta:
         model = CorrectUser
-        fields = ('username', 'first_name', 'last_name', 's_class', 'school', 'city', 'password1', 'password2', 'role')
+        fields = ('username', 'first_name', 'last_name', 's_class', 'school', 'city', 'password1', 'password2', 'role',
+                  'second_last_name')
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Логин", required=True,

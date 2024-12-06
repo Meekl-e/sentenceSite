@@ -3,16 +3,97 @@
 
 {% block link %}
     <link rel="stylesheet" href="{% static 'mainPage/css/profile.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'mainPage/css/student.css' %}" media="screen">
 {% endblock %}
 
 {% block content %}
     {% if request.user.is_authenticated %}
-        <section class="u-clearfix u-section-1" id="sec-08b2">
-            <div class="u-clearfix u-sheet u-sheet-1"></div>
+        <section class="u-clearfix u-container-align-center u-section-1" id="sec-08b2">
+            <div class="u-clearfix u-sheet u-valign-middle-lg u-valign-middle-md u-valign-middle-sm u-valign-middle-xl u-sheet-1">
+                <div class="u-container-style u-expanded-width-md u-expanded-width-sm u-expanded-width-xs u-group u-group-1">
+                    <div class="u-container-layout u-container-layout-1">
+                        <div class="u-align-right u-form u-form-1">
+
+                            <div class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form"
+                                 style="padding: 10px;">
+
+                                <h4 class="u-align-center u-form-group u-form-text u-text u-text-1">Профиль </h4>
+                                <div class="u-form-email u-form-group">
+                                    Почта (логин): {{ user.username }}
+                                </div>
+                                <div class="u-form-email u-form-group">
+                                    Имя: {{ user.first_name }}
+                                </div>
+                                <div class="u-form-group">
+                                    Фамилия: {{ user.last_name }}
+                                </div>
+                                <div class="u-form-group">
+                                    Отчество: {{ user.second_last_name }}
+                                </div>
+                                <div class="u-form-group">
+                                    Роль: {{ user.role }}
+                                </div>
+                                <div class="u-form-group">
+                                    Город: {{ user.city }}
+                                </div>
+                                <div class="u-form-group">
+                                    Школа: {{ user.school }}
+                                </div>
+                                <div class="u-form-group">
+                                    Класс: {{ user.s_class }}
+                                </div>
+                                <a href="{% url 'logout' %}?from=profile"
+                                   class="u-align-center-sm u-align-center-xs u-align-left-lg u-align-left-md u-align-left-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-text-active-white u-text-body-color u-text-hover-white u-white u-btn-1">
+                                    Выйти из профиля
+                                </a>
+                                <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-1"
+                                   id="link-4b23"
+                                   aria-controls="4b23" aria-selected="true">
+                                    <h4 class="u-accordion-link-text">Продолжить редактирование </h4>
+                                </a>
+                                {% if not sents %}
+                                    <h4 class="u-align-center u-text u-text-default u-text-2">Нет открытых
+                                        редактирований</h4>
+                                {% else %}
+                                    {% for sent_id, txt in sents %}
+                                        <div class="u-accordion u-expanded-width u-accordion-1">
+
+                                            <div class="u-accordion-item">
+
+                                                <div class="u-accordion-active u-accordion-pane u-container-style u-accordion-pane-1"
+                                                     id="4b23" aria-labelledby="link-4b23">
+                                                    <div class="u-container-layout u-valign-top u-container-layout-1">
+                                                        <div class="u-border-1 u-border-black u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-1">
+                                                            <div class="u-container-layout u-container-layout-2">
+                                                                <a href="#"
+                                                                   class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-1"><span
+                                                                        class="u-file-icon u-icon u-icon-2"><img
+                                                                        src={% static "images/58253.png" %} alt=""></span>
+                                                                </a>
+                                                                <p class="u-text u-text-1"><a
+                                                                        href="{% url 'change_sentence' sent_id %}">{{ txt|slice:":50" }}</a>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </section>
     {% else %}
         <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Для получения информации необходимо
             авторизоваться</h3>
     {% endif %}
-    <script src="{% static 'mainPage/js/teacher.js' %}"></script>
+
 {% endblock %}

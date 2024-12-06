@@ -91,8 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll("select").forEach(function (elem) {
         if (elem.id !== "part_type") {
             elem.addEventListener('change', function () {
-                console.log(elem.id);
-                window.location.href = document.getElementById(elem.id + "-href").href + "?value=" + elem.value;
+                fetch(document.getElementById(elem.id + "-href").href + "?value=" + elem.value);
 
             });
         }

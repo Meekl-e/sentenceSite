@@ -7,10 +7,17 @@
 
 {% block content %}
 
-
-    <div id="main-container" class="u-container-style u-layout-cell u-size-45 u-layout-cell-3">
-
-        <div class="u-container-layout u-container-layout-3">
+    <section class="u-clearfix u-section-2" id="sec-2982">
+        <div class="data-layout-selected u-clearfix u-expanded-width u-layout-wrap u-layout-wrap-1">
+            <div class="u-layout">
+                <div class="u-layout-row">
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-1">
+                        <div class="u-container-layout u-valign-middle u-container-layout-1">
+                            <h5 class="u-text u-text-default u-text-1">{{ ad_left }}</h5>
+                        </div>
+                    </div>
+                    <div class="u-container-style u-layout-cell u-size-30 u-layout-cell-2">
+                        <div class="u-container-layout u-container-layout-2">
             <h3 class="u-custom-font u-font-georgia u-text u-text-custom-color-1 u-text-default u-text-4">Редактирование
                 предложения. Разбивка сложного предложения на простые</h3>
             {% if request.user.is_authenticated %}
@@ -208,10 +215,17 @@
                     необходимо авторизоваться</h3>
             {% endif %}
 
-
+                        </div>
+                    </div>
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-3">
+                        <div class="u-container-layout u-valign-middle u-container-layout-3">
+                            <h5 class="u-text u-text-default u-text-2">{{ ad_right }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-    </div>
+    </section>
 
 
     <script src="{% static 'sentence/js/change_sentence_parts.js' %}"></script>

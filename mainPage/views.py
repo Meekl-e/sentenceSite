@@ -1,3 +1,4 @@
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import *
 
@@ -21,9 +22,26 @@ class homePage(BaseMixin, TemplateView):
 class profilePage(BaseMixin, TemplateView):
     template_name = 'profile.html'
 
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("login"))
+        return self.render_to_response(self.get_context_data(**kwargs))
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data()
+        if self.request.user.is_authenticated:
+            context["user"] = self.request.user
+            if self.request.user.change_sentence and len(self.request.user.change_sentence) > 0:
+                sents = self.request.user.change_sentence.keys()
+                all_texts = []
+                for k in sents:
+                    sent_text = Sentence.objects.filter(id=k)
+                    if len(sent_text) != 0:
+                        sent_text = sent_text[0].text
+                        all_texts.append(sent_text)
+                context["sents"] = zip(sents, all_texts)
+
         return self.get_mixin_context(context )
 
 
