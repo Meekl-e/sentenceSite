@@ -1,0 +1,114 @@
+.u-section-1 .u-sheet-1 {
+    min-height: 163px;
+}
+
+.u-section-1 .u-text-1 {
+    margin-bottom: 14px;
+    margin-top: 120px;
+}
+
+.u-section-2 .u-sheet-1 {
+    min-height: 596px;
+}
+
+.u-section-2 .u-group-1 {
+    --radius: 30px;
+    min-height: 173px;
+    margin-top: 0;
+    margin-bottom: 60px;
+    height: auto;
+}
+
+.u-section-2 .u-container-layout-1 {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.u-section-2 .u-text-1 {
+    font-size: 1.125rem;
+    margin: 43px 0 0 551px;
+}
+
+.u-section-2 .u-text-2 {
+    margin: -58px 644px 29px 0;
+}
+
+@media (max-width: 1199px) {
+    .u-section-2 .u-group-1 {
+        min-height: 181px;
+        height: auto;
+    }
+
+    .u-section-2 .u-container-layout-1 {
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+
+    .u-section-2 .u-text-1 {
+        width: 527px;
+        margin-top: 61px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .u-section-2 .u-text-2 {
+        margin-top: -147px;
+        margin-right: 444px;
+    }
+}
+
+@media (max-width: 991px) {
+    .u-section-2 .u-group-1 {
+        min-height: 173px;
+    }
+
+    .u-section-2 .u-text-1 {
+        width: auto;
+        margin-top: 52px;
+        margin-left: 66px;
+        margin-right: 66px;
+    }
+
+    .u-section-2 .u-text-2 {
+        margin-top: -138px;
+        margin-right: 224px;
+    }
+}
+
+@media (max-width: 767px) {
+    .u-section-2 .u-group-1 {
+        min-height: 159px;
+    }
+
+    .u-section-2 .u-container-layout-1 {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .u-section-2 .u-text-1 {
+        font-size: 1rem;
+        margin-top: 61px;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .u-section-2 .u-text-2 {
+        margin-right: 84px;
+    }
+}
+
+@media (max-width: 575px) {
+    .u-section-2 .u-group-1 {
+        min-height: 252px;
+    }
+
+    .u-section-2 .u-text-1 {
+        font-size: 0.875rem;
+        margin-top: 85px;
+    }
+
+    .u-section-2 .u-text-2 {
+        margin-top: -174px;
+        margin-right: 0;
+    }
+}

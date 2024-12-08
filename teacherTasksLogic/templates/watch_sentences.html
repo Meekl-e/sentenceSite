@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'sentence/css/sentence_result.css' %}" media="screen"
+          xmlns="http://www.w3.org/1999/html">
+{% endblock %}
+
+{% block content %}
+    <section class="u-clearfix u-section-2" id="sec-2982">
+        <div class="data-layout-selected u-clearfix u-expanded-width u-layout-wrap u-layout-wrap-1">
+            <div class="u-layout">
+                <div class="u-layout-row">
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-1">
+                        <div class="u-container-layout u-valign-middle u-container-layout-1">
+                            <h5 class="u-text u-text-default u-text-1">{{ ad_left }}</h5>
+                        </div>
+                    </div>
+                    <div class="u-container-style u-layout-cell u-size-30 u-layout-cell-2">
+                        <div class="u-container-layout u-container-layout-2">
+
+                            {% if pars_result %}
+                                <div class="u-container-layout u-container-layout-3">
+
+                                    {% for sentence in pars_result %}
+
+                                        {% if pars_result|length > 1 %}
+                                            <h3>Разбор {{ forloop.counter }} предложения:</h3>
+                                        {% endif %}
+                                        {% for result in sentence.nn_results %}
+
+                                            <h2 class="u-custom-font u-font-georgia u-text u-text-9">Работа ученика(цы)
+                                                {{ result.name }}:</h2>
+
+
+
+                                            <div style="text-align: center">
+                                                {% for token in result.tokens %}
+
+                                                    <p style="display: inline-block; color: black"
+                                                       class="u-custom-font u-font-georgia u-text u-text-9">
+
+                                                        <a style="font-size: medium; color: black">{{ token.type }}</a>
+                                                        <br>
+                                                        <a style="font-size: medium; color: black">{{ token.pos }}</a>
+                                                        <br>
+                                                        <text class="{{ token.line }}"
+                                                              style="color: black; font-size: large">{{ token.text }}</text>
+                                                    </p>
+
+                                                {% endfor %}
+                                            </div>
+
+                                            <br>
+                                            {% if result.simple_sentences_in|length == 1 %}
+                                                <h6 class="u-custom-font u-font-georgia u-text u-text-9">Характеристика
+                                                    предложения:</h6>
+                                                <div class="u-custom-font u-font-georgia u-text u-text-9"
+                                                     style="display: flex;">
+                                                    <div style="flex: 1;">
+                                                        <h6>I.</h6>
+                                                        <ol>
+                                                            <li>{{ result.type_goal }}</li>
+                                                            <li>{{ result.type_intonation }}</li>
+                                                        </ol>
+                                                    </div>
+                                                    <div style="flex: 1;">
+                                                        <h6>II.</h6>
+                                                        <ol>
+                                                            <li>{{ result.gram_bases }}</li>
+                                                            <li>{{ result.simple_sentences_in.0.main_members }}</li>
+                                                            <li>{{ result.simple_sentences_in.0.second_members }}</li>
+                                                            <li>{{ result.simple_sentences_in.0.difficulty_members }}</li>
+                                                            <li>{{ result.simple_sentences_in.0.lost_members }}</li>
+                                                            <li>Схема: {% for token in result.schema %}
+                                                                {% if token.0 == "word" %}
+                                                                    {{ token.1 }}
+                                                                {% elif token.0 != "none" %}
+                                                                    <a class="{{ token.0 }}" style="color: transparent">_____</a>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <h6 class="u-custom-font u-font-georgia u-text u-text-9">Характеристика
+                                                    предложения:</h6>
+                                                <div class="u-custom-font u-font-georgia u-text u-text-9"
+                                                     style="display: flex;">
+                                                    <div style="flex: 1;">
+                                                        <h6>I.</h6>
+                                                        <ol>
+                                                            <li>{{ result.type_goal }}</li>
+                                                            <li>{{ result.type_intonation }}</li>
+                                                        </ol>
+                                                    </div>
+                                                    <div style="flex: 1;">
+                                                        <h6>II.</h6>
+                                                        <ol>
+                                                            <li>{{ result.gram_bases }}</li>
+                                                            <li>Схема:
+                                                                {% for token in result.schema %}
+                                                                    {% if token.0 == "word" %}
+                                                                        {{ token.1 }}
+                                                                    {% elif token.0 != "none" %}
+                                                                        <a class="{{ token.0 }}"
+                                                                           style="color: transparent">_____</a>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                                {% for part_result in result.simple_sentences_in %}
+
+                                                    <label class="u-custom-font u-font-georgia u-text u-text-9">
+                                                        <b>Часть предложения:</b> <br>
+                                                        {% for token in part_result.tokens %}
+                                                            <label class="u-custom-font u-font-georgia u-text u-text-9"
+                                                                   style="text-align: center">
+                                                                <a style="font-size: x-small">{{ token.pos }}</a>
+                                                                <br>
+                                                                <a class="{{ token.line }}">{{ token.text }}</a>
+                                                            </label>
+                                                        {% endfor %} -
+                                                        ({{ part_result.main_members }}; {{ part_result.second_members }}; {{ part_result.lost_members }}; {{ part_result.difficulty_members }})
+
+                                                    </label>
+                                                    <br><br>
+                                                    </div>
+
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+
+
+                                    {% endfor %}
+                            {% endif %}
+
+
+                        </div>
+                        {% if from %}
+                            <a href="{% url 'watch_student' from %}"
+                               class="u-active-black u-align-center-xs u-align-right-lg u-align-right-md u-align-right-sm u-align-right-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-white u-btn-3">Назад </a>
+
+                        {% else %}
+                            <a href="{% url 'watch_task' task_id %}"
+                               class="u-active-black u-align-center-xs u-align-right-lg u-align-right-md u-align-right-sm u-align-right-xl u-border-2 u-border-grey-75 u-btn u-button-style u-hover-black u-white u-btn-3">Назад </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-3">
+                        <div class="u-container-layout u-valign-middle u-container-layout-3">
+                            <h5 class="u-text u-text-default u-text-2">{{ ad_right }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

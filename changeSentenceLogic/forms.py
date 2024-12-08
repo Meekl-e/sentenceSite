@@ -160,6 +160,7 @@ class SchemaElem(forms.Form):
 class RemoveForm(forms.Form):
     id_remove = forms.IntegerField(required=True,  widget=forms.HiddenInput())
 
+
 WordFormSet = formset_factory(WordForm, extra=0)
 SchemaFormSet = formset_factory(SchemaElem, extra=0)
 

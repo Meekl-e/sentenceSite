@@ -13,4 +13,5 @@ class StudentTask(models.Model):
     user = IntegerField(blank=False)
     task = IntegerField(blank=False)
     sentences = models.ManyToManyField(TaskSentences, "sentences")
-    result_check = models.JSONField(blank=True)
+    result_check = models.JSONField(blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)

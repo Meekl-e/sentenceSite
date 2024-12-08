@@ -55,6 +55,9 @@ class ChangeSentence(BaseMixin, TemplateView):
 
         if not request.user.change_sentence:
             request.user.change_sentence = {}
+        else:
+            if len(request.user.change_sentence.keys()) >= 5:
+                request.user.change_sentence.pop(min(request.user.change_sentence.keys()))
 
 
         if not request.user.change_sentence.get(kwargs["pk"]):

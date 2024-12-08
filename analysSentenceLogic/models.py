@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-MAX_OBJECTS = 1000
+MAX_OBJECTS = 1
 #
 # class Sentence_To_Token(models.Model):
 #     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE)

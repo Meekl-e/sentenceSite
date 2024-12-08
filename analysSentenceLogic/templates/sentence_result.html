@@ -54,11 +54,11 @@
                       <p style="display: inline-block; color: black"
                          class="u-custom-font u-font-georgia u-text u-text-9">
 
-                          <a style="font-size: small; color: black">{{ token.type }}</a>
+                          <a style="font-size: medium; color: black">{{ token.type }}</a>
                           <br>
-                          <a style="font-size: small; color: black">{{ token.pos }}</a>
+                          <a style="font-size: medium; color: black">{{ token.pos }}</a>
                           <br>
-                          <a class="{{ token.line }}" style="color: black">{{ token.text }}</a>
+                          <text class="{{ token.line }}" style="color: black; font-size: large">{{ token.text }}</text>
                       </p>
 
                       {% endfor %}

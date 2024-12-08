@@ -11,43 +11,42 @@
             <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
                 <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-1" id="link-4b23"
                    aria-controls="4b23" aria-selected="true">
-                    <h4 class="u-accordion-link-text">Избранное </h4><span
-                        class="u-accordion-link-icon u-icon u-text-grey-40 u-icon-1"><svg class="u-svg-link"
-                                                                                          preserveAspectRatio="xMidYMin slice"
-                                                                                          viewBox="0 0 16 16" style=""><use
-                        xlink:href="#svg-4975"></use></svg><svg class="u-svg-content" viewBox="0 0 16 16" x="0px"
-                                                                y="0px" id="svg-4975"><path d="M8,10.7L1.6,5.3c-0.4-0.4-1-0.4-1.3,0c-0.4,0.4-0.4,0.9,0,1.3l7.2,6.1c0.1,0.1,0.4,0.2,0.6,0.2s0.4-0.1,0.6-0.2l7.1-6
-	c0.4-0.4,0.4-0.9,0-1.3c-0.4-0.4-1-0.4-1.3,0L8,10.7z"></path></svg></span>
+
                 </a>
                 {% if favourites|length == 0 %}
-                    <h4 class="u-align-center u-text u-text-default u-text-2">В избранном пока ничего нет</h4>
+                    <h6 class="u-align-center u-text u-text-default u-text-2">В избранном пока ничего нет</h6>
                 {% else %}
-                    {% for sent in favourites %}
-                        <div class="u-accordion u-expanded-width u-accordion-1">
-
-                            <div class="u-accordion-item">
-
+                    <div class="u-accordion u-expanded-width u-accordion-1">
+                        <div class="u-accordion-item">
+                            <a class="active u-accordion-link u-button-style u-text-body-color u-accordion-link-1"
+                               id="link-4b23" aria-controls="4b23" aria-selected="true">
+                                <span class="u-accordion-link-text">Избранное </span><span
+                                    class="u-accordion-link-icon u-icon u-text-grey-40 u-icon-1"><svg class="u-svg-link"
+                                                                                                      preserveAspectRatio="xMidYMin slice"
+                                                                                                      viewBox="0 0 16 16"
+                                                                                                      style=""><use
+                                    xlink:href="#svg-4975"></use></svg><svg class="u-svg-content" viewBox="0 0 16 16"
+                                                                            x="0px" y="0px" id="svg-4975"><path d="M8,10.7L1.6,5.3c-0.4-0.4-1-0.4-1.3,0c-0.4,0.4-0.4,0.9,0,1.3l7.2,6.1c0.1,0.1,0.4,0.2,0.6,0.2s0.4-0.1,0.6-0.2l7.1-6
+	c0.4-0.4,0.4-0.9,0-1.3c-0.4-0.4-1-0.4-1.3,0L8,10.7z"></path></svg></span>
+                            </a>
+                            {% for sent in favourites %}
                                 <div class="u-accordion-active u-accordion-pane u-container-style u-accordion-pane-1"
                                      id="4b23" aria-labelledby="link-4b23">
                                     <div class="u-container-layout u-valign-top u-container-layout-1">
                                         <div class="u-border-1 u-border-black u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-1">
                                             <div class="u-container-layout u-container-layout-2">
-                                                <a href="#"
-                                                   class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-1"><span
-                                                        class="u-file-icon u-icon u-icon-2"><img
-                                                        src={% static "images/58253.png" %} alt=""></span>
-                                                </a>
-                                                <p class="u-text u-text-1"><a
+                                                <br>
+                                                <br>
+                                                <p style="font-size: large" class="u-text u-text-1"><a
                                                         href="{% url 'sentence' sent.id %}">{{ sent|slice:":50" }}</a>
                                                 </p>
                                             </div>
                                         </div>
               </div>
-            </div>
-                            </div>
-
+                                </div>{% endfor %}
                         </div>
-                    {% endfor %}
+                    </div>
+
                 {% endif %}
                 <h4 class="u-align-center u-text u-text-default u-text-2">Учителя </h4>
 
@@ -102,20 +101,25 @@
                     <h4 class="u-align-center u-text u-text-default u-text-1">Активных заданий нет </h4>
                 {% else %}
 
-                    {% for t in tasks %}
+                    {% for tas in tasks %}
                         <div class="u-border-1 u-border-black u-container-style u-expanded-width-md u-expanded-width-sm u-expanded-width-xs u-group u-radius u-shape-round u-white u-group-1">
                             <div class="u-container-layout u-container-layout-1">
                                 <a href="#"
                                    class="u-align-right u-border-hover-palette-3-base u-border-none u-btn u-button-style u-none u-text-palette-2-base u-btn-1"><span
-                                        class="u-file-icon u-icon u-icon-1"><img
-                                        src={% static "images/58253.png" %} alt=""></span>
+                                        class="u-file-icon u-icon u-icon-1"></span>
                                 </a>
-                                <h4 class="u-align-center u-text u-text-default u-text-2"> Не решено </h4>
-                                <p class="u-text u-text-3">
-                                    <span style="text-decoration: underline !important;"
-                                          class="u-text-palette-1-base">{{ t }}</span>&nbsp; &nbsp; &nbsp; &nbsp;Дата
-                                    сдачи: {{ t.date_expired }}
+                                <a href="{% url 'task' tas.id %}"
+                                   class="u-active-white u-border-2 u-border-black u-border-hover-white u-btn u-button-style u-hover-black  u-btn-1">
+                                    Выполнить </a>
+                                <h4 class="u-align-center u-text u-text-default u-text-3"> Не решено </h4>
+                                <p class="u-text u-text-4">
+                                    <span
+                                            class="u-text-palette-1-base">{{ tas|slice:":10" }}</span>&nbsp; &nbsp;
+                                    &nbsp; &nbsp;Дата
+                                    сдачи: {% if tas.date_expired|date ==  "31 декабря 2099 г." %}Бессрочная
+                                    работа{% else %}{{ tas.date_expired }}{% endif %}
                                 </p>
+
                             </div>
                         </div>
                     {% endfor %}

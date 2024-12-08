@@ -2,22 +2,35 @@
 {% load static %}
 
 {% block link %}
-<link rel="stylesheet" href="{% static 'mainPage/css/about.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'mainPage/css/student.css' %}" media="screen">
 {% endblock %}
 
-{% block content%}
-<div class="u-container-style u-layout-cell u-size-46 u-layout-cell-2">
-              <div class="u-container-layout u-container-layout-3">
-                <h1 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">О сайте</h1>
-                <img class="u-image u-image-default u-image-1" src="{% static 'mainPage/images/about/50056fb9.svg' %}" alt="" data-image-width="400" data-image-height="265">
-                <p class="u-custom-font u-font-georgia u-text u-text-default u-text-5">Какой-то умный текст​.&nbsp;Какой-то умный текст​.Какой-то умный текст​.<br>Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.<br>
-                  <br>Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.<br>
-                  <br>Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.<br>Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.<br>
-                  <br>
-                  <br>Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный&nbsp;<br>
-                  <br>
-                  <br>Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный текст​.Какой-то умный&nbsp;<br>
-                </p>
-              </div>
-            </div>
+{% block content %}
+
+    <section class="u-clearfix u-section-1" id="sec-f04c">
+        <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+            <br>
+            <h4>Мы - команда 10 “И” класса МАОУ “Экономического лицея” города Бердска.</h4>
+            <p>Идея данного проекта у нас появилась из-за сложностей в синтаксическом разборе предложений. </p>
+            <p>Когда мы рассматриваем аналоги, видим, что у них нет сохранения разбора. Из-за этого ошибки нейросетей
+                трудно исправить. В нашем случае пользователи могут сами исправлять полученные синтаксические разборы.
+                Благодаря этому, у нас имеется база данных правильных синтаксических разборов.</p>
+            <p>Помимо этого, мы хотим облегчить работу учителей. Для этого мы создали систему для создания домашних
+                заданий, а также проверки работ.</p>
+            <p>Для вопросов, отзывов и предложений обращайтесь в телеграм: <a href="https://t.me/supp0rt_cshark">https://t.me/supp0rt_cshark</a>
+            </p>
+            <p>Новости, обновления: https://t.me/s_cshark <a href="https://t.me/s_cshark">https://t.me/s_cshark</a></p>
+
+
+            <p>В нашем проекте использовались следующие технологии:</p>
+            <ol>
+                <li><a href="https://natasha.github.io/">Natasha: https://natasha.github.io/</a></li>
+                <li><a href="https://spacy.io/">Spacy: https://spacy.io/</a></li>
+                <li><a href="https://ufal.mff.cuni.cz/udpipe">UDPipe: https://ufal.mff.cuni.cz/udpipe</a></li>
+            </ol>
+        </div>
+    </section>
+
+
+
 {% endblock %}

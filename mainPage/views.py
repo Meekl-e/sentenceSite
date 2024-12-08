@@ -1,8 +1,10 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import *
+from urllib3 import request
 
 from analysSentenceLogic.models import Sentence
+from changeSentenceLogic.models import SentenceUnVerified
 from teacherTasksLogic.models import Task
 from userLogic.models import CorrectUser
 from utils import BaseMixin
@@ -69,6 +71,7 @@ class studentPage(BaseMixin, TemplateView):
         student = CorrectUser.objects.get(id=self.request.user.id)
         context["teachers"] = CorrectUser.objects.filter(teacher_students__id=student.id)
         context["tasks"] = Task.objects.filter(apply=True, students_to__id=student.id)
+        print(context["tasks"])
         context["favourites"] = student.favourites.all()
         return self.get_mixin_context(context)
 
@@ -87,6 +90,18 @@ class teacherPage(BaseMixin, TemplateView):
                 reverse('add_student_link', kwargs={"code": teacher.student_invite}))
         context["students"] = teacher.teacher_students.all()
         context["favourites"] = teacher.favourites.all()
+        if self.request.user.verified:
+            context["sent_question"] = SentenceUnVerified.objects.reverse()[:10]
+        tasks = Task.objects.filter(teacher_id=self.request.user.id, apply=True)
+        context["tasks"] = []
+
+        for t in tasks:
+            context["tasks"].append((
+                len(t.students_passed.all()),
+                len(t.students_to.all()) + len(t.students_passed.all()),
+                t.sentences.all()[0],
+                t.id)
+            )
         return self.get_mixin_context(context)
 
 

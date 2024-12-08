@@ -22,7 +22,8 @@ class checkSentencePage(FormView):
 
     def form_valid(self, form):
         text = clear_text(form.cleaned_data["text"])
-
+        if text == "":
+            return redirect("home")
         text_c, text = text2clear_text(text)
 
         sentences = sentence_tokenize(text)

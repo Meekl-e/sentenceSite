@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <meta name="keywords"
-          content="ИНТУИТИВНЫЙ, Образец заголовка, Ваш дизайн — ваша страсть, Образец заголовка, Ключевая особенность, Образец заголовка, Тарифный план, Эмпайр Стейт Билдинг">
+          content="">
     <meta name="description" content="">
     <title>Главная</title>
     <link rel="stylesheet" href="{% static 'base/css/nicepage.css' %}" media="screen">
@@ -41,7 +41,7 @@
         <a href="{% url 'home' %}" class="header__logo-link" data-image-width="1024" data-image-height="1024">
             <img src="{% static 'images/photo_2024-11-04_13-27-25.jpg' %}" class="header__logo-image">
         </a>
-        <span class="header__title" "alex-brush-regular" >CShark</span>
+        <span class="header__title" "alex-brush-regular" >CShark </span>  -beta
     </div>
     <nav class="header__nav u-menu u-menu-dropdown u-offcanvas u-menu-1">
         <div class="menu-collapse" style="font-size: 1rem; letter-spacing: 0px;">
@@ -157,29 +157,29 @@
                 <div class="u-align-center u-container-align-center u-container-style u-list-item u-repeater-item">
                     <div class="u-container-layout u-similar-container u-valign-top u-container-layout-1">
                         <h3 class="u-align-center u-text u-text-default u-text-1" data-animation-name="counter"
-                            data-animation-event="scroll" data-animation-duration="3000">92</h3>
+                            data-animation-event="scroll" data-animation-duration="3000">{{ count_students }}</h3>
                         <p class="u-align-center u-text u-text-2">Учеников </p>
                     </div>
                 </div>
                 <div class="u-align-center u-container-align-center u-container-style u-list-item u-repeater-item">
                     <div class="u-container-layout u-similar-container u-valign-top u-container-layout-2">
                         <h3 class="u-align-center u-text u-text-default u-text-3" data-animation-name="counter"
-                            data-animation-event="scroll" data-animation-duration="3000">25</h3>
+                            data-animation-event="scroll" data-animation-duration="3000">{{ count_teachers }}</h3>
                         <p class="u-align-center u-text u-text-4">Учителей </p>
                     </div>
                 </div>
                 <div class="u-align-center u-container-align-center u-container-style u-list-item u-repeater-item">
                     <div class="u-container-layout u-similar-container u-valign-top u-container-layout-3">
                         <h3 class="u-align-center u-text u-text-default u-text-5" data-animation-name="counter"
-                            data-animation-event="scroll" data-animation-duration="3000">37</h3>
+                            data-animation-event="scroll" data-animation-duration="3000">{{ count_sentences }}</h3>
                         <p class="u-align-center u-text u-text-6">Разборов </p>
                     </div>
                 </div>
                 <div class="u-align-center u-container-align-center u-container-style u-list-item u-repeater-item">
                     <div class="u-container-layout u-similar-container u-valign-top u-container-layout-4">
                         <h3 class="u-align-center u-text u-text-default u-text-7" data-animation-name="counter"
-                            data-animation-event="scroll" data-animation-duration="3000">87</h3>
-                        <p class="u-align-center u-text u-text-8">Отметок "Нравится" </p>
+                            data-animation-event="scroll" data-animation-duration="3000">{{ count_tasks }}</h3>
+                        <p class="u-align-center u-text u-text-8">Заданий от учителей </p>
                     </div>
                 </div>
             </div>

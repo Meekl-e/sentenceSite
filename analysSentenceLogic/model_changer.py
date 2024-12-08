@@ -56,11 +56,12 @@ def create_sentence(sentences=None):
 
 def save_to_request(request="", id_sents=[]) ->None:
     if RequestSentences.objects.count() >= MAX_OBJECTS:
-        RequestSentences.objects
+        RequestSentences.objects.first().delete()
 
     req = RequestSentences.objects.create(
         id_request=request,
     )
+
     for id_s in id_sents:
         req.request_sentences.add(Sentence.objects.get(id=id_s))
     req.save()

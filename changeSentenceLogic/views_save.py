@@ -1,8 +1,10 @@
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 
-from analysSentenceLogic.models import Sentence
+from analysSentenceLogic.models import Sentence, MAX_OBJECTS
 from analysSentenceLogic.sentParsing.parser import text2clear_text
+from changeSentenceLogic.models import SentenceUnVerified
 from studentTasksLogic.models import TaskSentences
 
 
@@ -95,12 +97,34 @@ def save_sentence_verified(request, changed_sent, pk):
     # images delete
 
     # clear user
-
-    request.user.change_sentence.pop(pk)
-    request.user.save()
+    if request.user.change_sentence.get(pk):
+        request.user.change_sentence.pop(pk)
+        request.user.save()
     print(request.user.change_sentence)
     return HttpResponseRedirect(reverse("sentence", kwargs={"pk": pk}))
 
+
+def save_sentence_NOT_verified(request, changed_sent, pk):
+    if ['gram_bases', 'lined', 'parts', 'pos', 'question_list', 'schema', 'tokens', 'type', 'type_goal',
+        'type_intonation'] in sorted(list(changed_sent.keys())):
+        print("NOT COR USER")
+        return HttpResponseRedirect(reverse("change_parts", kwargs={"pk": pk}))
+
+    tokens = changed_sent.get("tokens")
+
+    SentenceUnVerified.objects.create(
+        data=transform_sentence(changed_sent),
+        text=" ".join(tokens),
+        text_clear=text2clear_text("".join(tokens))[0],
+        sentence_id=pk,
+        changed_sentence=changed_sent
+    )
+    if SentenceUnVerified.objects.count() > MAX_OBJECTS:
+        SentenceUnVerified.objects.first().delete()
+
+    request.user.change_sentence.pop(pk)
+    request.user.save()
+    return render(request, "succes_send.html", {})
 
 def save_sentence(request, pk, ):
     pk = str(pk)
@@ -128,3 +152,5 @@ def save_sentence(request, pk, ):
 
     if request.user.verified:
         return save_sentence_verified(request, changed_sent, pk)
+
+    return save_sentence_NOT_verified(request, changed_sent, pk)

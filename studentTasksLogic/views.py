@@ -3,6 +3,7 @@ import random
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 
@@ -73,6 +74,10 @@ def sent_task(request, sent_id, id_task):
     sent = sent[0]
     tokens = sent.data[0]["tokens"]
     l_tokens = len(tokens)
+    task = Task.objects.filter(id=id_task)
+    if len(task) == 0:
+        redirect("student_page")
+    task = task[0]
 
     parts = [{
         "question_list": [],
@@ -84,9 +89,13 @@ def sent_task(request, sent_id, id_task):
         "type_part": "Сочинительная часть"
 
     }]
-
+    count_punct = 0
     for i, t in enumerate(tokens):
-        print(t)
+        if task.remove_punctuation:
+            if t["pos"] == ' ' and i < len(tokens) - 1:
+                count_punct += 1
+                continue
+
         parts[0]["tokens"].append({
             "id_in_sentence": i,
             "text": t["text"],
@@ -95,14 +104,18 @@ def sent_task(request, sent_id, id_task):
             "type": "напишите тип члена предложения",
         })
 
+    if not student.change_sentence:
+        student.change_sentence = {}
+
     student.change_sentence[sent_id] = {
-        "lined": ["none"] * l_tokens, "question_list": [],
-        "tokens": [w["text"] for w in tokens],
-        "pos": ["напишите часть речи"] * l_tokens, "parts": parts,
+        "lined": ["none"] * (l_tokens - count_punct), "question_list": [],
+        "tokens": [w["text"] for w in tokens if w["pos"] != " "],
+        "pos": ["напишите часть речи"] * (l_tokens - count_punct), "parts": parts,
         "gram_bases": random.choice(["Простое", "Сложное"]),
         "type_goal": random.choice(["Повествовательное", "Побудительное", "Вопросительное"]),
         "type_intonation": random.choice(["Восклицательное", "Невосклицательное"]),
-        "schema": ["none"] * l_tokens, "type": ["напишите тип члена предложения"] * l_tokens,
+        "schema": ["none"] * (l_tokens - count_punct),
+        "type": ["напишите тип члена предложения"] * (l_tokens - count_punct),
         "task": id_task,
     }
     student.save()

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'task/css/students_in_tasks.css' %}" media="screen"
+          xmlns="http://www.w3.org/1999/html">
+{% endblock %}
+
+{% block content %}
+    <section class="u-clearfix u-section-1" id="sec-91f2">
+        <div class="u-clearfix u-sheet u-sheet-1">
+
+            {% if request.user.is_authenticated %}
+                {% if already_remove %}
+                    <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Успешно удалено</h3>
+                {% else %}
+                    {% if not t %}
+                        <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Задания не
+                            существует</h3>
+                    {% else %}
+                        <h2>Вы уверены, что хотите удалить задание: "{{ t }}..."?</h2>
+                        <div class="u-custom-font u-font-georgia u-text u-text-9" style="display: flex;">
+                            <div style="flex: 1;">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="task_id" id="id_task_id" value="{{ t.id }}">
+                                    <button type="submit" style=" width: 100px" class="btn btn-danger">Да</button>
+                                </form>
+                            </div>
+                            <div style="flex: 2; width: 50%">
+                                <a href="{% url 'teacher_page' %}">
+                                    <button style=" width: 100px" class="btn btn-success">Нет</button>
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+            {% else %}
+                <br>
+                <h3 class="u-custom-font u-font-georgia u-text u-text-default u-text-4">Чтобы удалить задание,
+                    необходимо авторизоваться</h3>
+            {% endif %}
+        </div>
+    </section>
+
+{% endblock %}

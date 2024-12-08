@@ -13,8 +13,12 @@ class Task(models.Model):
     date = models.DateField(auto_now_add=True, blank=False)
     date_expired = models.DateField(default=datetime.fromisoformat("2099-12-31"))
     check_phrases = models.BooleanField(null=False, default=False)
+    remove_punctuation = models.BooleanField(null=False, default=True)
     apply = models.BooleanField(blank=False, default=False)
 
     def __str__(self):
-        s = self.sentences.all()[0]
-        return s
+        if len(self.sentences.all()) > 0:
+            s = self.sentences.all()[0]
+            return s.text
+        else:
+            return "Задание"

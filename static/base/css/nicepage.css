@@ -4,6 +4,31 @@
  * Copyright 2014-2021 Froala Labs
  */
 
+.line {
+    border-bottom: 3px solid black;
+}
+
+.double_line {
+    border-bottom: 6px double black;
+}
+
+.wavy_line {
+    background: url(http://localhost:8000/images/lines/wavy_line.png) bottom repeat-x;
+    position: relative;
+    display: inline-block;
+}
+
+.dotted_line {
+    border-bottom: 3px dashed black;
+
+}
+
+.dotted_circle_line {
+    background: url(http://localhost:8000/images/lines/dotted_circle_line.png) bottom repeat-x;
+    position: relative;
+    display: inline-block;
+}
+
 .fr-clearfix::after {
     clear: both;
     display: block;
@@ -95,6 +120,7 @@
 .fr-view table td:empty, .fr-view table th:empty {
     height: 20px;
 }
+
 
 .fr-view table td.fr-highlighted, .fr-view table th.fr-highlighted {
     border: 1px double red;

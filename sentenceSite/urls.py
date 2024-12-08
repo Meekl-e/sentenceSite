@@ -24,6 +24,7 @@ from authLogic.views import *
 from changeSentenceLogic.urls import urls_change
 from changeSentenceLogic.views_first_stage import *
 from changeSentenceLogic.views_second_stage import *
+from changeSentenceLogic.views_sends import *
 from mainPage.views import *
 from studentTasksLogic.views import *
 from teacherTasksLogic.urls import urls_task_logic
@@ -53,6 +54,8 @@ urlpatterns = [
     path('remove_student/<int:id_student>', RemoveStudentFromTeacher.as_view(), name='remove_student'),
     path('task/<int:id_task>', TaskView.as_view(), name='task'),
     path('task/edit/<int:sent_id>/<int:id_task>/', sent_task, name='sent_task'),
+    path('sentence_student/accept/<int:sent_id>/<int:obj_id>', accept_sentence, name='accept_student_sent'),
+    path('sentence_student/remove/<int:obj_id>', remove_sentence_student, name='remove_student_sent'),
 
     *urls_change,
     *urls_task_logic

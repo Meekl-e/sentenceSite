@@ -42,6 +42,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     });
+    document.getElementById("check-phrases").addEventListener("remove_punctuation", function (event) {
+
+        var elem = event.target;
+        var href = document.getElementById(elem.id + "-href").href;
+        if (elem.checked) {
+
+            fetch(href + "?value=true");
+
+        } else {
+            fetch(href + "?value=false");
+        }
+
+
+    });
 
 });
 

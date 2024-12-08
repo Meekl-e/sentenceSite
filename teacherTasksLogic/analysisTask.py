@@ -12,8 +12,8 @@ def compare(original, student):
     data = {"Ошибка в определении цели предложения": False, "Ошибка в определении интонации предложения": False,
             "Ошибка в делении предложения на простое/сложное": False}
     count = 0
-    for e in data.keys():
-        if original[e] != student[e]:
+    for e_o, e in zip(["type_goal", "type_intonation", "gram_bases"], data.keys()):
+        if original[e_o] != student[e_o]:
             data[e] = False
             count += 1
 

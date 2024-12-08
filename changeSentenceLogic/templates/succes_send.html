@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'sentence/css/sentence_result.css' %}" media="screen">
+{% endblock %}
+
+{% block content %}
+    <section class="u-clearfix u-section-2" id="sec-2982">
+        <div class="data-layout-selected u-clearfix u-expanded-width u-layout-wrap u-layout-wrap-1">
+            <div class="u-layout">
+                <div class="u-layout-row">
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-1">
+                        <div class="u-container-layout u-valign-middle u-container-layout-1">
+                            <h5 class="u-text u-text-default u-text-1">{{ ad_left }}</h5>
+                        </div>
+                    </div>
+                    <div class="u-container-style u-layout-cell u-size-30 u-layout-cell-2">
+                        <div class="u-container-layout u-container-layout-2">
+                            <h2>Ваше предложение на модерации. <br> Спасибо большое, что делаете сайт лучше!</h2>
+
+                        </div>
+                    </div>
+                    <div class="u-container-style u-layout-cell u-size-15 u-layout-cell-3">
+                        <div class="u-container-layout u-valign-middle u-container-layout-3">
+                            <h5 class="u-text u-text-default u-text-2">{{ ad_right }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+{% endblock %}

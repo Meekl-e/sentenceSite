@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'task/css/students_in_tasks.css' %}" media="screen"
+          xmlns="http://www.w3.org/1999/html">
+{% endblock %}
+
+{% block content %}
+    <section class="u-clearfix u-section-1" id="sec-91f2">
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <h4 class="u-text u-text-default u-text-1">{{ student }}</h4>
+        </div>
+    </section>
+    <section class="u-clearfix u-container-align-left u-section-2" id="sec-085a">
+        <div class="u-clearfix u-sheet u-valign-top u-sheet-1">
+            {% for t in tasks %}
+                <div class="u-align-left u-border-1 u-border-grey-75 u-container-align-left u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-1">
+                    <div class="u-container-layout u-container-layout-1">
+                        <h4 class="u-align-left-xl u-text u-text-2">
+                            <br>
+                            <br>
+                            <br>
+                            <span style="text-decoration: underline !important;"
+                                  class="u-text-palette-1-base">{{ t|slice:":50" }}</span> &nbsp;<br> Не выполнено.<br>Срок:
+                            {% if t.date_expired|date ==  "31 декабря 2099 г." %}Бессрочная работа{% else %}
+                                {{ t.date_expired }}{% endif %}
+                        </h4>
+                    </div>
+                </div>
+                <br>
+            {% endfor %}
+            {% if tasks_passed|length > 0 %}
+                <h4>Выполненные работы:</h4>
+            {% endif %}
+            {% for errors, cnt_errors, t in tasks_passed %}
+                <div class="u-align-left u-border-1 u-border-grey-75 u-container-align-left u-container-style u-expanded-width u-group u-radius u-shape-round u-white u-group-1">
+                    <div class="u-container-layout u-container-layout-1">
+                        <ul class="u-text u-text-default u-text-font u-text-1">
+                            {% for e in errors %}
+                                <li>{{ e }}</li>
+                            {% endfor %}
+                            {% for e, c in cnt_errors %}
+                                <li>{{ e }}: {{ c }}</li>
+                            {% endfor %}
+                        </ul>
+                        <h4 class="u-align-left-xl u-text u-text-2">
+                            <span class="u-text-palette-1-base">{{ t|slice:":30" }}</span> &nbsp; <a
+                                href="{% url 'watch_sentence' t.id student.id %}?from={{ student.id }}"
+                                class="u-align-center u-border-2 u-border-black u-btn u-button-style u-hover-black u-none u-text-hover-white u-btn-1">Просмотреть </a>
+
+                        </h4>
+                    </div>
+                </div>
+                <br>
+            {% endfor %}
+
+        </div>
+    </section>
+
+{% endblock %}
